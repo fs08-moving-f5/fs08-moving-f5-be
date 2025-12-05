@@ -1,7 +1,7 @@
 ---
 name: 수정 리포트
 about: 버그 수정 시 이 템플릿을 사용해 주세요
-title: "[🐛 Fix] "
+title: '[🐛 Fix] '
 labels: 🐛 Fix
 ---
 
