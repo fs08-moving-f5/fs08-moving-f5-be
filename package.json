@@ -1,0 +1,67 @@
+{
+  "name": "moving-service-be",
+  "version": "1.0.0",
+  "description": "이사 견적 매칭 플랫폼 백엔드",
+  "type": "module",
+  "main": "dist/app.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only src/app.ts",
+    "build": "tsc",
+    "start": "cross-env NODE_ENV=production node dist/app.js",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"**/*.{ts,json,md}\"",
+    "postinstall": "prisma generate",
+    "migrate": "prisma migrate deploy",
+    "studio": "prisma studio",
+    "seed": "ts-node src/prisma/seed.ts"
+  },
+  "prisma": {
+    "schema": "src/prisma/schema.prisma",
+    "seed": "ts-node src/prisma/seed.ts"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fs08-moving-f5/fs08-moving-f5-be.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fs08-moving-f5/fs08-moving-f5-be/issues"
+  },
+  "homepage": "https://github.com/fs08-moving-f5/fs08-moving-f5-be#readme",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.910.0",
+    "@prisma/client": "^7.0.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.18",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "pino": "^10.0.0",
+    "pino-pretty": "^13.1.2",
+    "prisma": "^7.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "typescript": "^5.6.3",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "eslint": "^9.37.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-unused-imports": "^3.1.0",
+    "prettier": "^3.6.2"
+  }
+}
