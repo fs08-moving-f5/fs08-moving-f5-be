@@ -12,3 +12,267 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id         String   @id @default(uuid())
+  providerId String?
+  provider   String   @default("local")
+  type       UserType @default(USER)
+
+  name     String
+  email    String  @unique
+  password String?
+  phone    String
+
+  refreshTokens String?
+
+  isDelete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userProfile     UserProfile[]
+  driverProfile   DriverProfile[]
+  estimateRequest EstimateRequest[]
+  estimates       Estimate[]
+  notifications   Notification[]
+  histories       History[]
+  favoriteDrivers FavoriteDriver[]  @relation("DriverFavorites")
+  favoritedBy     FavoriteDriver[]  @relation("UserFavorites")
+  reviews         Review[]
+}
+
+enum UserType {
+  USER
+  DRIVER
+  ADMIN
+}
+
+model UserProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  imageUrl String?
+  regions  RegionEnum[]
+  services ServiceEnum[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DriverProfile {
+  id       String @id @default(uuid())
+  driverId String
+  driver   User   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  imageUrl    String?
+  career      String?
+  shortIntro  String?
+  description String?
+  regions     RegionEnum[]
+  services    ServiceEnum[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum RegionEnum {
+  서울
+  경기
+  인천
+  강원
+  충북
+  충남
+  대전
+  세종
+  전북
+  전남
+  광주
+  경북
+  경남
+  대구
+  부산
+  울산
+  제주
+}
+
+enum ServiceEnum {
+  SMALL_MOVING
+  HOME_MOVING
+  OFFICE_MOVING
+}
+
+model EstimateRequest {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  movingType   ServiceEnum
+  movingDate   DateTime
+  status       EstimateStatus @default(PENDING)
+  isDesignated Boolean        @default(false)
+
+  isDelete  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  estimate  Estimate?
+  serviceId String
+}
+
+enum EstimateStatus {
+  PENDING // 대기 중
+  CONFIRMED // 확정
+  REJECTED // 거절
+  CANCELLED // 취소
+}
+
+model Estimate {
+  id                String          @id @default(uuid())
+  estimateRequestId String          @unique
+  estimateRequest   EstimateRequest @relation(fields: [estimateRequestId], references: [id], onDelete: Cascade)
+
+  driverId String
+  driver   User   @relation(fields: [driverId], references: [id])
+
+  price        Int?
+  comment      String?
+  rejectReason String?
+  status       EstimateStatus @default(PENDING)
+
+  isDelete  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  addresses Address[]
+  review    Review?
+}
+
+model Address {
+  id         String   @id @default(uuid())
+  estimateId String
+  estimate   Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+
+  addressType    AddressType
+  zoneCode       String
+  address        String
+  addressEnglish String
+  sido           String
+  sidoEnglish    String
+  sigungu        String
+  sigunguEnglish String
+}
+
+enum AddressType {
+  FROM
+  TO
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  estimateId String   @unique
+  estimate   Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+
+  rating  Int
+  content String
+
+  createdAt DateTime @default(now())
+}
+
+model FavoriteDriver {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation("UserFavorites", fields: [userId], references: [id], onDelete: Cascade)
+
+  driverId String
+  driver   User   @relation("DriverFavorites", fields: [driverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type     NotificationType
+  message  String
+  datajson Json?
+  isRead   Boolean          @default(false)
+
+  isDelete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+enum NotificationType {
+  REQUEST_SENT // 유저가 견적 요청을 보냄
+  REQUEST_REJECTED // 유저가 견적을 거절
+  REQUEST_CANCELLED // 유저가 견적 요청을 취소
+
+  ESTIMATE_RECEIVED // 기사가 견적을 작성하여 유저에게 도착
+  ESTIMATE_CONFIRMED // 유저가 견적서를 보고 견적 확정
+  ESTIMATE_REJECTED // 기사가 요청을 거절(반려 사유)
+  ESTIMATE_EXPIRED // 견적 시간 만료
+
+  NEW_REVIEW // 새 리뷰 등록
+  FAVORITE_ADDED // 기사 찜하기
+
+  SYSTEM_NOTICE // 시스템 알림(점검/유지보수 등)
+  PROMOTION // 프로모션, 이벤트
+}
+
+model History {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  actionType HistoryActionType
+  actionDesc String?
+
+  entityType HistoryEntityType?
+  entityId   String?
+
+  previousData Json?
+  newData      Json?
+
+  createdAt DateTime @default(now())
+}
+
+enum HistoryActionType {
+  CREATE_REQUEST // 견적 요청 생성(일반 유저)
+  UPDATE_REQUEST // 견적 요청 수정(일반 유저)
+  DELETE_REQUEST // 견적 요청 삭제(일반 유저)
+
+  CONFIRMED_ESTIMATE // 견적 확정(일반 유저)
+  REJECTED_ESTIAMTE // 견적 거절(일반 유저)
+
+  CREATE_ESTIMATE // 견적서 생성(기사)
+  UPDATE_ESTIMATE // 견적서 수정(기사)
+  DELETE_ESTIMATE // 견적서 삭제(기사)
+
+  EXPIRED_ESTIMATE // 견적서 만료(시스템)
+
+  CTEATE_FAVORITE // 찜하기
+  DELETE_FAVORITE // 찜하기 취소
+
+  CREATE_REVIEW // 리뷰 작성
+  UPDATE_REVIEW // 리뷰 수정
+  DELETE_REVIEW // 리뷰 삭제
+
+  UPDATE_PROFILE // 프로필 수정
+
+  UPDATE_ADDRESS //  주소 수정
+}
+
+enum HistoryEntityType {
+  USER
+  USER_PROFILE
+  DRIVER_PROFILE
+  ESTIMATE_REQUEST
+  ESTIMATE_RESPONSE
+  ADDRESS
+  REVIEW
+  FAVORITE_DRIVER
+  NOTIFICATION
+  HISTORY
+}
