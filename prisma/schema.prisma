@@ -62,7 +62,7 @@ model UserProfile {
 
 model DriverProfile {
   id       String @id @default(uuid())
-  driverId String
+  driverId String @unique
   driver   User   @relation(fields: [driverId], references: [id], onDelete: Cascade)
 
   imageUrl    String?
@@ -112,11 +112,12 @@ model EstimateRequest {
   status       EstimateStatus @default(PENDING)
   isDesignated Boolean        @default(false)
 
-  isDelete  Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  isDelete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   estimate  Estimate?
-  serviceId String
+  addresses Address[]
 }
 
 enum EstimateStatus {
@@ -139,17 +140,17 @@ model Estimate {
   rejectReason String?
   status       EstimateStatus @default(PENDING)
 
-  isDelete  Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  addresses Address[]
-  review    Review?
+  isDelete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  review Review?
 }
 
 model Address {
-  id         String   @id @default(uuid())
-  estimateId String
-  estimate   Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  id                String          @id @default(uuid())
+  estimateRequestId String
+  estimateRequest   EstimateRequest @relation(fields: [estimateRequestId], references: [id], onDelete: Cascade)
 
   addressType    AddressType
   zoneCode       String
@@ -159,6 +160,8 @@ model Address {
   sidoEnglish    String
   sigungu        String
   sigunguEnglish String
+
+  @@unique([estimateRequestId, addressType])
 }
 
 enum AddressType {
@@ -188,6 +191,8 @@ model FavoriteDriver {
   driver   User   @relation("DriverFavorites", fields: [driverId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+
+  @@unique([userId, driverId])
 }
 
 model Notification {
@@ -244,7 +249,7 @@ enum HistoryActionType {
   DELETE_REQUEST // 견적 요청 삭제(일반 유저)
 
   CONFIRMED_ESTIMATE // 견적 확정(일반 유저)
-  REJECTED_ESTIAMTE // 견적 거절(일반 유저)
+  REJECTED_ESTIMATE // 견적 거절(일반 유저)
 
   CREATE_ESTIMATE // 견적서 생성(기사)
   UPDATE_ESTIMATE // 견적서 수정(기사)
@@ -252,7 +257,7 @@ enum HistoryActionType {
 
   EXPIRED_ESTIMATE // 견적서 만료(시스템)
 
-  CTEATE_FAVORITE // 찜하기
+  CREATE_FAVORITE // 찜하기
   DELETE_FAVORITE // 찜하기 취소
 
   CREATE_REVIEW // 리뷰 작성
