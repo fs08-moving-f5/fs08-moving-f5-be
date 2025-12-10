@@ -21,6 +21,7 @@ export const getPendingEstimatesRepository = async ({ userId }: { userId: string
           id: true,
           movingType: true,
           movingDate: true,
+          isDesignated: true,
           createdAt: true,
           addresses: {
             select: {
@@ -74,6 +75,33 @@ export const getUserFavoriteDriversRepository = async ({
     },
     select: {
       driverId: true,
+    },
+  });
+};
+
+export const getConfirmedEstimateCountRepository = async ({
+  driverIds,
+}: {
+  driverIds: string[];
+}) => {
+  if (driverIds.length === 0) {
+    return [];
+  }
+
+  return await prisma.estimate.groupBy({
+    by: ['driverId'],
+    where: {
+      driverId: {
+        in: driverIds,
+      },
+      isDelete: false,
+      estimateRequest: {
+        status: EstimateStatus.CONFIRMED,
+        isDelete: false,
+      },
+    },
+    _count: {
+      id: true,
     },
   });
 };
