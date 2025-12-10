@@ -112,6 +112,8 @@ CREATE TABLE "Address" (
     "sidoEnglish" TEXT NOT NULL,
     "sigungu" TEXT NOT NULL,
     "sigunguEnglish" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Address_pkey" PRIMARY KEY ("id")
 );
@@ -124,6 +126,7 @@ CREATE TABLE "Review" (
     "rating" INTEGER NOT NULL,
     "content" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Review_pkey" PRIMARY KEY ("id")
 );
@@ -134,6 +137,7 @@ CREATE TABLE "FavoriteDriver" (
     "userId" TEXT NOT NULL,
     "driverId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "FavoriteDriver_pkey" PRIMARY KEY ("id")
 );
@@ -148,6 +152,7 @@ CREATE TABLE "Notification" (
     "isRead" BOOLEAN NOT NULL DEFAULT false,
     "isDelete" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
 );
@@ -175,9 +180,6 @@ CREATE UNIQUE INDEX "UserProfile_userId_key" ON "UserProfile"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "DriverProfile_driverId_key" ON "DriverProfile"("driverId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "EstimateRequest_userId_key" ON "EstimateRequest"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Estimate_estimateRequestId_key" ON "Estimate"("estimateRequestId");
