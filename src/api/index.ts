@@ -12,7 +12,7 @@ import reviewRouter from './review/index';
 const router = Router();
 
 router.use('/auth', authRouter);
-router.use('/', estimateRouter);
+router.use('/estimate', estimateRouter);
 router.use('/', estimateReqRouter);
 router.use('/', favoriteRouter);
 router.use('/', notificationRouter);
