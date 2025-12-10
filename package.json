@@ -57,6 +57,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/swagger-jsdoc": "^6.0.4",
     "cross-env": "^10.1.0",
     "eslint": "^9.37.0",
