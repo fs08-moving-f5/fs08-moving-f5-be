@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 const fakeAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const mockUserId = req.headers['x-mock-user-id'] as string;
+  const mockUserId = req.headers['x-user-id'] as string;
 
   if (!mockUserId) {
     return res.status(401).json({
