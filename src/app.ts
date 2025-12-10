@@ -1,15 +1,12 @@
-// src/app.ts
 import express, { Application } from 'express';
+import swaggerUi from 'swagger-ui-express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-import { env } from './config/env';
-import { logger } from './config/logger';
-import { corsOptions } from './config/cors';
-import { errorHandler, notFoundHandler } from './middlewares/index';
+import { env, logger, corsOptions, swaggerSpec } from './config/index';
+import { errorHandler, notFoundHandler, applySecurity } from './middlewares/index';
 
 import apiRouter from './api/index';
-import { applySecurity } from './middlewares/index';
 
 const app: Application = express();
 
@@ -30,11 +27,14 @@ app.get('/health', (_req, res) => {
 // 3. API Router
 app.use('/api', apiRouter);
 
-// 4. 404 + Error Handler
+// 4. Swagger 문서
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// 5. 404 + Error Handler
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// 5. 서버 실행
+// 6. 서버 실행
 const port = env.PORT || 4000;
 
 app.listen(port, () => {
