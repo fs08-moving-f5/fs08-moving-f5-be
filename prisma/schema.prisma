@@ -159,6 +159,8 @@ model Address {
   sidoEnglish    String
   sigungu        String
   sigunguEnglish String
+
+  @@unique([estimateId, addressType])
 }
 
 enum AddressType {
@@ -188,6 +190,8 @@ model FavoriteDriver {
   driver   User   @relation("DriverFavorites", fields: [driverId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+
+  @@unique([userId, driverId])
 }
 
 model Notification {
