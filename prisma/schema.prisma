@@ -128,7 +128,7 @@ enum EstimateStatus {
 
 model Estimate {
   id                String          @id @default(uuid())
-  estimateRequestId String          @unique
+  estimateRequestId String          @unique // 1:N 관계, @unique 관련 내용 회의
   estimateRequest   EstimateRequest @relation(fields: [estimateRequestId], references: [id], onDelete: Cascade)
 
   driverId String
@@ -159,6 +159,8 @@ model Address {
   sidoEnglish    String
   sigungu        String
   sigunguEnglish String
+
+  // @@unique([estimateId, addressType]) -> 중복 주소 방지
 }
 
 enum AddressType {
@@ -186,6 +188,8 @@ model FavoriteDriver {
 
   driverId String
   driver   User   @relation("DriverFavorites", fields: [driverId], references: [id], onDelete: Cascade)
+
+  // @@unique([userId, driverId]) -> 중복 찜 방지
 
   createdAt DateTime @default(now())
 }
