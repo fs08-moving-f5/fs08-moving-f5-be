@@ -1,8 +1,23 @@
 import { v4 as uuid } from 'uuid';
 import { UserType } from './dataType';
 
-export const mockUsers = () => {
-  const users = [];
+type MockUser = {
+  id: string;
+  providerId: string | null;
+  provider: string;
+  type: UserType;
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  refreshTokens: string;
+  isDelete: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export const mockUsers = (): MockUser[] => {
+  const users: MockUser[] = [];
 
   // USER 타입 50명
   for (let i = 1; i <= 50; i++) {
