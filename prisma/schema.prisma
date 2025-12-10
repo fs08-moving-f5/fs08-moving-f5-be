@@ -160,7 +160,7 @@ model Address {
   sigungu        String
   sigunguEnglish String
 
-  // @@unique([estimateId, addressType]) -> 중복 주소 방지
+  @@unique([estimateId, addressType])
 }
 
 enum AddressType {
@@ -192,6 +192,8 @@ model FavoriteDriver {
   // @@unique([userId, driverId]) -> 중복 찜 방지
 
   createdAt DateTime @default(now())
+
+  @@unique([userId, driverId])
 }
 
 model Notification {
