@@ -62,7 +62,7 @@ model UserProfile {
 
 model DriverProfile {
   id       String @id @default(uuid())
-  driverId String
+  driverId String @unique
   driver   User   @relation(fields: [driverId], references: [id], onDelete: Cascade)
 
   imageUrl    String?
@@ -112,11 +112,12 @@ model EstimateRequest {
   status       EstimateStatus @default(PENDING)
   isDesignated Boolean        @default(false)
 
-  isDelete  Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  isDelete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   estimate  Estimate?
-  serviceId String
+  addresses Address[]
 }
 
 enum EstimateStatus {
@@ -139,17 +140,17 @@ model Estimate {
   rejectReason String?
   status       EstimateStatus @default(PENDING)
 
-  isDelete  Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  addresses Address[]
-  review    Review?
+  isDelete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  review Review?
 }
 
 model Address {
-  id         String   @id @default(uuid())
-  estimateId String
-  estimate   Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  id                String          @id @default(uuid())
+  estimateRequestId String
+  estimateRequest   EstimateRequest @relation(fields: [estimateRequestId], references: [id], onDelete: Cascade)
 
   addressType    AddressType
   zoneCode       String
@@ -160,7 +161,7 @@ model Address {
   sigungu        String
   sigunguEnglish String
 
-  @@unique([estimateId, addressType])
+  @@unique([estimateRequestId, addressType])
 }
 
 enum AddressType {
