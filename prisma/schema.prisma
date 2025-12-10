@@ -244,7 +244,7 @@ enum HistoryActionType {
   DELETE_REQUEST // 견적 요청 삭제(일반 유저)
 
   CONFIRMED_ESTIMATE // 견적 확정(일반 유저)
-  REJECTED_ESTIAMTE // 견적 거절(일반 유저)
+  REJECTED_ESTIMATE // 견적 거절(일반 유저)
 
   CREATE_ESTIMATE // 견적서 생성(기사)
   UPDATE_ESTIMATE // 견적서 수정(기사)
@@ -252,7 +252,7 @@ enum HistoryActionType {
 
   EXPIRED_ESTIMATE // 견적서 만료(시스템)
 
-  CTEATE_FAVORITE // 찜하기
+  CREATE_FAVORITE // 찜하기
   DELETE_FAVORITE // 찜하기 취소
 
   CREATE_REVIEW // 리뷰 작성
