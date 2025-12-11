@@ -105,3 +105,22 @@ export const getConfirmedEstimateCountRepository = async ({
     },
   });
 };
+
+export const confirmEstimateRepository = async ({ estimateId }: { estimateId: string }) => {
+  return await prisma.estimate.update({
+    where: {
+      id: estimateId,
+    },
+    data: {
+      status: EstimateStatus.CONFIRMED,
+    },
+    select: {
+      id: true,
+      estimateRequestId: true,
+      driverId: true,
+      price: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+};

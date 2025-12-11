@@ -2,6 +2,7 @@ import {
   getPendingEstimatesRepository,
   getUserFavoriteDriversRepository,
   getConfirmedEstimateCountRepository,
+  confirmEstimateRepository,
 } from './estimate.repository';
 
 export const getPendingEstimatesService = async ({ userId }: { userId: string }) => {
@@ -32,4 +33,8 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
       tasksCount: tasksCountMap[estimate.driver.id] || 0,
     },
   }));
+};
+
+export const confirmEstimateService = async ({ estimateId }: { estimateId: string }) => {
+  return await confirmEstimateRepository({ estimateId });
 };
