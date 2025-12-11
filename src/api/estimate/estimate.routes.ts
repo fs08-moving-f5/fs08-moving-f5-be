@@ -4,11 +4,14 @@ import {
   confirmEstimateController,
   getEstimateDetailController,
   getPendingEstimatesController,
+  getReceivedEstimatesController,
 } from './estimate.controller';
 
 const router = Router();
 
 router.get('/pending', fakeAuthMiddleware, getPendingEstimatesController);
+
+router.get('/received', fakeAuthMiddleware, getReceivedEstimatesController);
 
 router.get('/:estimateId', fakeAuthMiddleware, getEstimateDetailController);
 
