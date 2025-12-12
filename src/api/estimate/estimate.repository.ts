@@ -1,29 +1,17 @@
-// 예시 파일입니다. 자유롭게 사용하세요.
 import prisma from '../../config/prisma';
 import { Prisma } from '../../generated/client';
 import { ServiceEnum, EstimateStatus } from '../../generated/enums';
+import { HttpError } from '../../types/error';
+import {
+  GetEstimateRequestsParams,
+  CreateEstimateParams,
+  CreateEstimateRejectParams,
+} from '../../types/estimate';
 
 const DEFAULT_TAKE = 6;
 
-export type EstimateSort = 'latest' | 'oldest' | 'moving-latest' | 'moving-oldest';
-export interface GetEstimateRequestsParams {
-  userId: string;
-  driverId: string;
-  movingType?: ServiceEnum;
-  movingDate?: Date;
-  isDesignated?: boolean;
-  status?: EstimateStatus;
-  serviceRegionFilter?: boolean; // 체크박스 상태
-
-  search?: string;
-  sort?: EstimateSort;
-  cursor?: string | null;
-  take?: number | string;
-}
-
 // 받은 요청 리스트 조회(기사)
-export async function getEstimateRequests({
-  userId,
+export async function getEstimateRequestsRepository({
   driverId,
   movingType,
   movingDate,
@@ -120,5 +108,65 @@ export async function getEstimateRequests({
       from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
       to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
     };
+  });
+}
+
+// 견적 보내기 (기사)
+export async function createEstimateRepository({
+  estimateRequestId,
+  price,
+  comment,
+  driverId,
+}: CreateEstimateParams) {
+  if (!estimateRequestId) {
+    throw new HttpError('estimateRequestId가 필요합니다.', 400);
+  }
+
+  const req = await prisma.estimateRequest.findUnique({
+    where: { id: estimateRequestId },
+  });
+
+  if (!req) {
+    throw new HttpError('해당 요청을 찾을 수 없습니다.', 404);
+  }
+
+  return prisma.estimate.create({
+    data: {
+      estimateRequest: { connect: { id: estimateRequestId } },
+      driver: { connect: { id: driverId } },
+      price,
+      comment,
+      status: 'CONFIRMED',
+    },
+    include: { estimateRequest: true, driver: true },
+  });
+}
+
+// 견적 반려 (기사)
+export async function createEstimateRejectRepository({
+  estimateRequestId,
+  rejectReason,
+  driverId,
+}: CreateEstimateRejectParams) {
+  if (!estimateRequestId) {
+    throw new HttpError('estimateRequestId가 필요합니다.', 400);
+  }
+
+  const req = await prisma.estimateRequest.findUnique({
+    where: { id: estimateRequestId },
+  });
+
+  if (!req) {
+    throw new HttpError('해당 요청을 찾을 수 없습니다.', 404);
+  }
+
+  return prisma.estimate.create({
+    data: {
+      estimateRequest: { connect: { id: estimateRequestId } },
+      driver: { connect: { id: driverId } },
+      rejectReason,
+      status: 'REJECTED',
+    },
+    include: { estimateRequest: true, driver: true },
   });
 }
