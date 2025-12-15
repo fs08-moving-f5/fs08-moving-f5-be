@@ -1,16 +1,16 @@
 /**
  * @swagger
  * tags:
- *   name: Estimate
- *   description: 받은 요청(기사) API
+ *   name: EstimateReq
+ *   description: 기사 견적 관련 API
  */
 
 /**
  * @swagger
- * /estimate/requests:
+ * /api/driver-estimate/requests:
  *   get:
  *     summary: 받은 견적 요청 목록 조회 (기사)
- *     tags: [Estimate]
+ *     tags: [EstimateReq]
  *     parameters:
  *       - in: query
  *         name: movingType
@@ -89,10 +89,10 @@
 
 /**
  * @swagger
- * /estimate/create:
+ * /api/driver-estimate/create:
  *   post:
  *     summary: 견적 보내기 (기사)
- *     tags: [Estimate]
+ *     tags: [EstimateReq]
  *     requestBody:
  *       required: true
  *       content:
@@ -118,10 +118,10 @@
 
 /**
  * @swagger
- * /estimate/reject:
+ * /api/driver-estimate/reject:
  *   post:
  *     summary: 견적 반려 (기사)
- *     tags: [Estimate]
+ *     tags: [EstimateReq]
  *     requestBody:
  *       required: true
  *       content:
@@ -140,4 +140,63 @@
  *     responses:
  *       200:
  *         description: 견적 반려 성공
+ */
+
+/**
+ * @swagger
+ * /api/driver-estimate/confirm:
+ *   get:
+ *     summary: 확정(및 대기) 견적 목록 조회 (기사)
+ *     description: >
+ *       기사가 유저에게 보낸 견적 중
+ *       상태가 PENDING 또는 CONFIRMED 인 견적 목록을 조회합니다.
+ *       이사 완료 여부는 isCompleted 필드로 판단합니다.
+ *     tags:
+ *       - EstimateReq
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [latest]
+ *         description: 정렬 방식 (기본값 latest)
+ *
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *           nullable: true
+ *         description: 커서 기반 페이지네이션용 estimate id
+ *
+ *       - in: query
+ *         name: take
+ *         schema:
+ *           type: integer
+ *           example: 6
+ *         description: 조회 개수 (기본값 6)
+ *
+ *     responses:
+ *       200:
+ *         description: 확정 견적 목록 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 확정 견적 목록 조회 성공
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/EstimateConfirm'
+ *
+ *       401:
+ *         description: 기사 인증 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */

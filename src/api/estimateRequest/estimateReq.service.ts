@@ -52,7 +52,12 @@ export async function getEstimateConfirmService(params: GetEstimateConfirmParams
     throw new HttpError('기사 로그인이 필요합니다.', 401);
   }
 
-  return repo.getEstimateConfirmRepository(params);
+  const estimates = await repo.getEstimateConfirmRepository(params);
+
+  return estimates.map((estimate) => ({
+    ...estimate,
+    isCompleted: estimate.status === 'CONFIRMED' && !!estimate.review,
+  }));
 }
 
 // 확정 견적 상세 조회
