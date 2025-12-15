@@ -22,7 +22,7 @@ model User {
   name     String
   email    String  @unique
   password String?
-  phone    String
+  phone    Int
 
   refreshTokens String?
 
@@ -116,7 +116,7 @@ model EstimateRequest {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  estimate  Estimate?
+  estimate  Estimate[]
   addresses Address[]
 }
 
@@ -129,7 +129,7 @@ enum EstimateStatus {
 
 model Estimate {
   id                String          @id @default(uuid())
-  estimateRequestId String          @unique
+  estimateRequestId String
   estimateRequest   EstimateRequest @relation(fields: [estimateRequestId], references: [id], onDelete: Cascade)
 
   driverId String
@@ -145,6 +145,8 @@ model Estimate {
   updatedAt DateTime @updatedAt
 
   review Review?
+
+  @@unique([estimateRequestId, driverId])
 }
 
 model Address {

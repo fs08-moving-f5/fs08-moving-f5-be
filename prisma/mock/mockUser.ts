@@ -9,7 +9,7 @@ type MockUser = {
   name: string;
   email: string;
   password: string;
-  phone: string;
+  phone: number;
   refreshTokens: string;
   isDelete: boolean;
   createdAt: Date;
@@ -29,7 +29,7 @@ export const mockUsers = (): MockUser[] => {
       name: `User_${i}`,
       email: `user${i}@example.com`,
       password: '12345678',
-      phone: `010-1000-${String(1000 + i).slice(-4)}`,
+      phone: 1010001000 + i,
       refreshTokens: `refresh-user-${i}`,
       isDelete: false,
       createdAt: new Date(),
@@ -47,7 +47,7 @@ export const mockUsers = (): MockUser[] => {
       name: `Driver_${i}`,
       email: `driver${i}@example.com`,
       password: '12345678',
-      phone: `010-2000-${String(2000 + i).slice(-4)}`,
+      phone: 1020002000 + i,
       refreshTokens: `refresh-driver-${i}`,
       isDelete: false,
       createdAt: new Date(),
