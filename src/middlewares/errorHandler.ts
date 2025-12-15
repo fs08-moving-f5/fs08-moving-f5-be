@@ -10,18 +10,25 @@ export function errorHandler(err: any, req: Request, res: Response, _next: NextF
   if (err instanceof ZodError) {
     return res.status(400).json({
       message: 'Validation failed',
+      statusCode: 400,
       errors: err.flatten(),
     });
   }
 
   if (err?.code === 'LIMIT_FILE_SIZE') {
-    return res.status(413).json({ message: 'File too large' });
+    return res.status(413).json({
+      message: 'File too large',
+      statusCode: 413,
+    });
   }
 
-  const status = err.code && Number.isInteger(err.code) ? err.code : err.status || 500;
+  // AppError의 statusCode를 우선적으로 사용
+  const status =
+    err.statusCode || (err.code && Number.isInteger(err.code) ? err.code : err.status) || 500;
 
   const payload: any = {
     message: err.message || 'Internal server error',
+    statusCode: status,
     name: err.name || 'Error',
   };
 
