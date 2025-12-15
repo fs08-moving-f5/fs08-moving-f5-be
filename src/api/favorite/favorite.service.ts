@@ -1,6 +1,11 @@
 import HTTP_STATUS from '../../constants/http.constant';
 import AppError from '../../utils/AppError';
-import { createFavoriteDriverRepository, isFavoriteDriverRepository } from './favorite.repository';
+import {
+  createFavoriteDriverRepository,
+  deleteFavoriteDriverRepository,
+  isFavoriteDriverRepository,
+} from './favorite.repository';
+import { Prisma } from '../../generated/client';
 
 export const addFavoriteDriverService = async ({
   userId,
@@ -16,4 +21,24 @@ export const addFavoriteDriverService = async ({
   }
 
   return await createFavoriteDriverRepository({ userId, driverId });
+};
+
+export const deleteFavoriteDriverService = async ({
+  userId,
+  driverId,
+}: {
+  userId: string;
+  driverId: string;
+}) => {
+  try {
+    await deleteFavoriteDriverRepository({ userId, driverId });
+    return { removed: true };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return { removed: false };
+      }
+    }
+    throw error;
+  }
 };

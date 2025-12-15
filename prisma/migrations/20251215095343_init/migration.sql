@@ -31,7 +31,7 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT,
-    "phone" TEXT NOT NULL,
+    "phone" INTEGER NOT NULL,
     "refreshTokens" TEXT,
     "isDelete" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -182,7 +182,7 @@ CREATE UNIQUE INDEX "UserProfile_userId_key" ON "UserProfile"("userId");
 CREATE UNIQUE INDEX "DriverProfile_driverId_key" ON "DriverProfile"("driverId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Estimate_estimateRequestId_key" ON "Estimate"("estimateRequestId");
+CREATE UNIQUE INDEX "Estimate_estimateRequestId_driverId_key" ON "Estimate"("estimateRequestId", "driverId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Address_estimateRequestId_addressType_key" ON "Address"("estimateRequestId", "addressType");
