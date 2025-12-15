@@ -79,6 +79,11 @@ export const getUserFavoriteDriversRepository = async ({
   });
 };
 
+// ========== Driver 통계 조회 (여러 driverIds) ==========
+
+/**
+ * 여러 driver들의 CONFIRMED 상태 Estimate 개수 조회
+ */
 export const getConfirmedEstimateCountRepository = async ({
   driverIds,
 }: {
@@ -102,6 +107,70 @@ export const getConfirmedEstimateCountRepository = async ({
     },
     _count: {
       id: true,
+    },
+  });
+};
+
+/**
+ * 여러 driver들의 favorite 수 조회
+ */
+export const getFavoriteDriverCountRepository = async ({ driverIds }: { driverIds: string[] }) => {
+  if (driverIds.length === 0) {
+    return [];
+  }
+
+  return await prisma.favoriteDriver.groupBy({
+    by: ['driverId'],
+    where: {
+      driverId: {
+        in: driverIds,
+      },
+      user: {
+        isDelete: false,
+      },
+    },
+    _count: {
+      id: true,
+    },
+  });
+};
+
+// ========== Driver 통계 조회 (단일 driverId) ==========
+
+/**
+ * 단일 driver의 CONFIRMED 상태 Estimate 개수 조회
+ */
+export const getConfirmedEstimateCountByDriverIdRepository = async ({
+  driverId,
+}: {
+  driverId: string;
+}) => {
+  return await prisma.estimate.count({
+    where: {
+      driverId,
+      isDelete: false,
+      estimateRequest: {
+        status: EstimateStatus.CONFIRMED,
+        isDelete: false,
+      },
+    },
+  });
+};
+
+/**
+ * 단일 driver의 favorite 수 조회
+ */
+export const getFavoriteDriverCountByDriverIdRepository = async ({
+  driverId,
+}: {
+  driverId: string;
+}) => {
+  return await prisma.favoriteDriver.count({
+    where: {
+      driverId,
+      user: {
+        isDelete: false,
+      },
     },
   });
 };
@@ -172,34 +241,61 @@ export const getEstimateDetailRepository = async ({ estimateId }: { estimateId: 
   });
 };
 
-export const getConfirmedEstimateCountByDriverIdRepository = async ({
-  driverId,
+export const getReceivedEstimatesRepository = async ({
+  userId,
+  status,
 }: {
-  driverId: string;
+  userId: string;
+  status?: EstimateStatus;
 }) => {
-  return await prisma.estimate.count({
+  return await prisma.estimate.findMany({
     where: {
-      driverId,
       isDelete: false,
       estimateRequest: {
-        status: EstimateStatus.CONFIRMED,
+        userId,
         isDelete: false,
+      },
+      ...(status && { status }),
+    },
+    select: {
+      id: true,
+      price: true,
+      status: true,
+      createdAt: true,
+      estimateRequest: {
+        select: {
+          id: true,
+          movingType: true,
+          movingDate: true,
+          isDesignated: true,
+          status: true,
+          addresses: {
+            select: {
+              id: true,
+              addressType: true,
+              address: true,
+              sido: true,
+              sigungu: true,
+            },
+          },
+        },
+      },
+      driver: {
+        select: {
+          id: true,
+          driverProfile: {
+            select: {
+              id: true,
+              imageUrl: true,
+              career: true,
+              shortIntro: true,
+            },
+          },
+        },
       },
     },
-  });
-};
-
-export const getFavoriteDriverCountByDriverIdRepository = async ({
-  driverId,
-}: {
-  driverId: string;
-}) => {
-  return await prisma.favoriteDriver.count({
-    where: {
-      driverId,
-      user: {
-        isDelete: false,
-      },
+    orderBy: {
+      createdAt: 'desc',
     },
   });
 };
