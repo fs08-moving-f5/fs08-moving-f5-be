@@ -1,7 +1,7 @@
 ---
 name: 문서 작업 리포트
 about: 문서 관련 수정 또는 추가 작업 시 사용해 주세요
-title: "[📘 Docs] "
+title: '[📘 Docs] '
 labels: 📘 Docs
 ---
 
