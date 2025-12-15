@@ -4,6 +4,7 @@ import {
   getEstimateRequestsController,
   createEstimateController,
   createEstimateRejectController,
+  getEstimateConfirmController,
 } from './estimateReq.controller';
 import fakeAuthMiddleware from '../../middlewares/fakeAuthMiddleware';
 
@@ -17,5 +18,8 @@ router.post('/create', fakeAuthMiddleware, createEstimateController);
 
 // 견적 반려 (기사)
 router.post('/reject', fakeAuthMiddleware, createEstimateRejectController);
+
+// 확정 견적 목록 조회 (기사)
+router.get('/confirm', fakeAuthMiddleware, getEstimateConfirmController);
 
 export default router;

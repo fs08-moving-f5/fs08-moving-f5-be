@@ -6,6 +6,7 @@ import {
   GetEstimateRequestsParams,
   CreateEstimateParams,
   CreateEstimateRejectParams,
+  GetEstimateConfirmParams,
 } from '../../types/driverEstimate';
 
 const DEFAULT_TAKE = 6;
@@ -182,15 +183,72 @@ export async function createEstimateRejectRepository({
 }
 
 // 확정 견적 목록 조회
-// export async function getEstimateConfirmRepository({ driverId, cursor, take = DEFAULT_TAKE }) {
-//   // take를 숫자로 변환
-//   const parsedTake = typeof take === 'string' ? parseInt(take, 10) : take;
-//   const finalTake = isNaN(parsedTake) ? DEFAULT_TAKE : parsedTake;
+export async function getEstimateConfirmRepository({
+  driverId,
+  sort = 'latest',
+  cursor,
+  take = DEFAULT_TAKE,
+}: GetEstimateConfirmParams) {
+  // take를 숫자로 변환
+  const parsedTake = typeof take === 'string' ? parseInt(take, 10) : take;
+  const finalTake = isNaN(parsedTake) ? DEFAULT_TAKE : parsedTake;
 
-//   const where: Prisma.EstimateWhereInput = {
-//     status: EstimateStatus.CONFIRMED || EstimateStatus.PENDING,
-//   };
-// }
+  const where: Prisma.EstimateWhereInput = {
+    driverId,
+    isDelete: false,
+    status: {
+      in: [EstimateStatus.PENDING, EstimateStatus.CONFIRMED],
+    },
+  };
+
+  let orderBy = {};
+  switch (sort) {
+    case 'latest':
+    default:
+      orderBy = { createdAt: 'desc' };
+      break;
+  }
+
+  const estimate = await prisma.estimate.findMany({
+    where,
+    select: {
+      id: true,
+      price: true,
+      status: true,
+      createdAt: true,
+      driver: { select: { id: true } },
+
+      estimateRequest: {
+        select: {
+          movingType: true,
+          movingDate: true,
+          status: true,
+          isDesignated: true,
+
+          user: {
+            select: {
+              name: true,
+            },
+          },
+
+          addresses: {
+            select: {
+              addressType: true,
+              sido: true,
+              sigungu: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy,
+    take: finalTake,
+    skip: cursor ? 1 : 0,
+    ...(cursor && { cursor: { id: cursor } }),
+  });
+
+  return estimate;
+}
 
 // 확정 견적 상세 조회
 export async function getEstimateIdRepository({}) {}
