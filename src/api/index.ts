@@ -13,7 +13,7 @@ const router = Router();
 
 router.use('/auth', authRouter);
 router.use('/estimate', estimateRouter);
-router.use('/', estimateReqRouter);
+router.use('/driver-estimate', estimateReqRouter);
 router.use('/', favoriteRouter);
 router.use('/', notificationRouter);
 router.use('/profile', profileRouter);
