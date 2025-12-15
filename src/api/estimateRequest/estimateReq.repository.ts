@@ -10,7 +10,7 @@ import {
 
 const DEFAULT_TAKE = 6;
 
-// 받은 요청 리스트 조회(기사)
+// 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsRepository({
   driverId,
   movingType,
@@ -180,3 +180,20 @@ export async function createEstimateRejectRepository({
     include: { estimateRequest: true, driver: true },
   });
 }
+
+// 확정 견적 목록 조회
+// export async function getEstimateConfirmRepository({ driverId, cursor, take = DEFAULT_TAKE }) {
+//   // take를 숫자로 변환
+//   const parsedTake = typeof take === 'string' ? parseInt(take, 10) : take;
+//   const finalTake = isNaN(parsedTake) ? DEFAULT_TAKE : parsedTake;
+
+//   const where: Prisma.EstimateWhereInput = {
+//     status: EstimateStatus.CONFIRMED || EstimateStatus.PENDING,
+//   };
+// }
+
+// 확정 견적 상세 조회
+export async function getEstimateIdRepository({}) {}
+
+// 반려 견적 목록 조회
+export async function getEstimateRejectRepository([]) {}

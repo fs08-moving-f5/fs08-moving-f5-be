@@ -9,7 +9,7 @@
  * @swagger
  * /estimate/requests:
  *   get:
- *     summary: 받은 견적 요청 리스트 조회 (기사)
+ *     summary: 받은 견적 요청 목록 조회 (기사)
  *     tags: [Estimate]
  *     parameters:
  *       - in: query

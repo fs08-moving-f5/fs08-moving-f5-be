@@ -12,7 +12,7 @@ import asyncHandler from '../../middlewares/asyncHandler';
 
 export const getPendingEstimatesController = asyncHandler(async (req, res) => {});
 
-// 받은 요청 리스트 조회(기사)
+// 받은 요청 목록 조회(기사)
 export const getEstimateRequestsController = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user.id;
   if (!driverId) {

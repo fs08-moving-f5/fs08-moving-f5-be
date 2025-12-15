@@ -6,7 +6,7 @@ import {
   CreateEstimateRejectParams,
 } from '../../types/driverEstimate';
 
-// 받은 요청 리스트 조회(기사)
+// 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsService(params: GetEstimateRequestsParams) {
   return repo.getEstimateRequestsRepository(params);
 }
