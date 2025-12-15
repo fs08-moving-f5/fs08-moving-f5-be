@@ -122,18 +122,18 @@ export async function createEstimateRepository({
     throw new HttpError('estimateRequestId가 필요합니다.', 400);
   }
 
-  // const existingEstimate = await prisma.estimate.findUnique({
-  //   where: {
-  //     estimateRequestId_driverId: {
-  //       estimateRequestId,
-  //       driverId,
-  //     },
-  //   },
-  // });
+  const existingEstimate = await prisma.estimate.findUnique({
+    where: {
+      estimateRequestId_driverId: {
+        estimateRequestId,
+        driverId,
+      },
+    },
+  });
 
-  // if (existingEstimate) {
-  //   throw new HttpError('이미 해당 요청에 견적을 제출했습니다.', 400);
-  // }
+  if (existingEstimate) {
+    throw new HttpError('이미 해당 요청에 견적을 제출했습니다.', 400);
+  }
 
   return prisma.estimate.create({
     data: {
@@ -157,18 +157,18 @@ export async function createEstimateRejectRepository({
     throw new HttpError('estimateRequestId가 필요합니다.', 400);
   }
 
-  // const existingEstimate = await prisma.estimate.findUnique({
-  //   where: {
-  //     estimateRequestId_driverId: {
-  //       estimateRequestId,
-  //       driverId,
-  //     },
-  //   },
-  // });
+  const existingEstimate = await prisma.estimate.findUnique({
+    where: {
+      estimateRequestId_driverId: {
+        estimateRequestId,
+        driverId,
+      },
+    },
+  });
 
-  // if (existingEstimate) {
-  //   throw new HttpError('이미 해당 요청에 견적을 제출했습니다.', 400);
-  // }
+  if (existingEstimate) {
+    throw new HttpError('이미 해당 요청에 견적을 제출했습니다.', 400);
+  }
 
   return prisma.estimate.create({
     data: {
