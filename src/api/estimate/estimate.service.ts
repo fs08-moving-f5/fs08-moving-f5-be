@@ -39,9 +39,9 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
     isFavorite: favoriteDriverIds.has(estimate.driver.id),
     driver: {
       ...estimate.driver,
-      driverProfile: estimate.driver.driverProfile?.[0]
+      driverProfile: estimate.driver.driverProfile
         ? {
-            ...estimate.driver.driverProfile[0],
+            ...estimate.driver.driverProfile,
             confirmedEstimateCount: tasksCountMap[estimate.driver.id] || 0,
             favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
           }
@@ -71,9 +71,9 @@ export const getEstimateDetailService = async ({ estimateId }: { estimateId: str
     driver: estimate.driver
       ? {
           ...estimate.driver,
-          driverProfile: estimate.driver.driverProfile?.[0]
+          driverProfile: estimate.driver.driverProfile
             ? {
-                ...estimate.driver.driverProfile[0],
+                ...estimate.driver.driverProfile,
                 confirmedEstimateCount,
                 favoriteDriverCount,
               }
@@ -120,9 +120,9 @@ export const getReceivedEstimatesService = async ({
     ...estimate,
     driver: {
       ...estimate.driver,
-      driverProfile: estimate.driver.driverProfile?.[0]
+      driverProfile: estimate.driver.driverProfile
         ? {
-            ...estimate.driver.driverProfile[0],
+            ...estimate.driver.driverProfile,
             confirmedEstimateCount: confirmedCountMap[estimate.driver.id] || 0,
             favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
           }
