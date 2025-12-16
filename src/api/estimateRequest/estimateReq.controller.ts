@@ -8,7 +8,6 @@ import {
   GetEstimateParams,
 } from '../../types/driverEstimate';
 import { ServiceEnum, EstimateStatus } from '../../generated/enums';
-import { HttpError } from '../../types/error';
 import asyncHandler from '../../middlewares/asyncHandler';
 
 // 받은 요청 목록 조회(기사)

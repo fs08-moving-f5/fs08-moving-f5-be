@@ -98,11 +98,13 @@ export const getFavoriteDriversService = async ({
       ...favoriteDriver,
       driver: {
         ...favoriteDriver.driver,
-        driverProfile: favoriteDriver.driver.driverProfile.map((profile) => ({
-          ...profile,
-          tasksCount,
-          favoriteCount,
-        })),
+        driverProfile: favoriteDriver.driver.driverProfile
+          ? {
+              ...favoriteDriver.driver.driverProfile,
+              tasksCount,
+              favoriteCount,
+            }
+          : null,
       },
     };
   });

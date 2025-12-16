@@ -1,4 +1,3 @@
-// 예시 파일입니다. 자유롭게 사용하세요.
 import { Router } from 'express';
 
 import authRouter from './auth/index';
@@ -15,8 +14,8 @@ router.use('/auth', authRouter);
 router.use('/estimate', estimateRouter);
 router.use('/driver-estimate', estimateReqRouter);
 router.use('/favorite', favoriteRouter);
-router.use('/', notificationRouter);
+router.use('/notifications', notificationRouter);
 router.use('/profile', profileRouter);
-router.use('/', reviewRouter);
+router.use('/review', reviewRouter);
 
 export default router;
