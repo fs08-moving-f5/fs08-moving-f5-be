@@ -3,6 +3,7 @@ import AppError from '../../utils/AppError';
 import {
   createFavoriteDriverRepository,
   deleteFavoriteDriverRepository,
+  deleteManyFavoriteDriverRepository,
   getFavoriteDriversRepository,
   isFavoriteDriverRepository,
 } from './favorite.repository';
@@ -117,4 +118,24 @@ export const getFavoriteDriversService = async ({
     data,
     pagination,
   };
+};
+
+export const deleteManyFavoriteDriverService = async ({
+  userId,
+  driverIds,
+}: {
+  userId: string;
+  driverIds: string[];
+}) => {
+  try {
+    await deleteManyFavoriteDriverRepository({ userId, driverIds });
+    return { removed: true };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2022') {
+        return { removed: false };
+      }
+    }
+    throw error;
+  }
 };

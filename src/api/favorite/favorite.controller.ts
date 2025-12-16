@@ -4,6 +4,7 @@ import AppError from '../../utils/AppError';
 import {
   addFavoriteDriverService,
   deleteFavoriteDriverService,
+  deleteManyFavoriteDriverService,
   getFavoriteDriversService,
 } from './favorite.service';
 import { Request, Response } from 'express';
@@ -67,6 +68,28 @@ export const getFavoriteDriversController = asyncHandler(
       success: true,
       data,
       pagination,
+    });
+  },
+);
+
+export const deleteManyFavoriteDriverController = asyncHandler(
+  async (req: Request<{}, {}, string[], {}>, res) => {
+    const userId = req.user.id;
+    const driverIds = req.body;
+
+    if (!userId) {
+      throw new AppError('userId가 필요합니다.', HTTP_STATUS.BAD_REQUEST);
+    }
+
+    if (driverIds.length < 1) {
+      throw new AppError('1개 이상의 driverId가 필요합니다.', HTTP_STATUS.BAD_REQUEST);
+    }
+
+    const result = await deleteManyFavoriteDriverService({ userId, driverIds });
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result,
     });
   },
 );
