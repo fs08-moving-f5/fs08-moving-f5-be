@@ -51,3 +51,68 @@ export const deleteFavoriteDriverRepository = async ({
     },
   });
 };
+
+export const getFavoriteDriversRepository = async ({
+  userId,
+  cursor,
+  limit,
+}: {
+  userId: string;
+  cursor: string;
+  limit: number;
+}) => {
+  return await prisma.favoriteDriver.findMany({
+    where: {
+      userId,
+    },
+    take: limit + 1,
+    ...(cursor
+      ? {
+          cursor: { id: cursor },
+          skip: 1,
+        }
+      : {}),
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: {
+      id: true,
+      userId: true,
+      driverId: true,
+      createdAt: true,
+      driver: {
+        select: {
+          reviews: {
+            select: {
+              id: true,
+              rating: true,
+            },
+          },
+          driverProfile: {
+            select: {
+              id: true,
+              imageUrl: true,
+              career: true,
+              shortIntro: true,
+              description: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+        },
+      },
+    },
+  });
+};
+
+export const deleteManyFavoriteDriverRepository = async ({
+  userId,
+  driverIds,
+}: {
+  userId: string;
+  driverIds: string[];
+}) => {
+  return await prisma.favoriteDriver.deleteMany({
+    where: {
+      AND: [{ userId }, { driverId: { in: driverIds } }],
+    },
+  });
+};
