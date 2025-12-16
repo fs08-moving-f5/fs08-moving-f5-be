@@ -1,6 +1,7 @@
 import prisma from '../../config/prisma';
 import { Prisma } from '../../generated/client';
 import { getReviewWrittenParams } from '../../types/review';
+import splitAddresses from '../../utils/splitAddresses';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
 export async function getReviewWrittenRepository({
@@ -63,7 +64,35 @@ export async function getReviewWrittenRepository({
 
   if (!reviews) return null;
 
-  return { reviews, total };
+  const mappedReviews = reviews.map((review) => {
+    const addresses = review.estimate.estimateRequest.addresses;
+    const { from, to } = splitAddresses(addresses);
+
+    return {
+      rating: review.rating,
+      content: review.content,
+      createdAt: review.createdAt,
+
+      price: review.estimate.price,
+
+      driver: {
+        name: review.estimate.driver.name,
+        // shortIntro: review.estimate.driver.driverProfile?.shortIntro ?? null,
+      },
+
+      movingType: review.estimate.estimateRequest.movingType,
+      movingDate: review.estimate.estimateRequest.movingDate,
+      isDesignated: review.estimate.estimateRequest.isDesignated,
+
+      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
+      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
+    };
+  });
+
+  return {
+    reviews: mappedReviews,
+    total,
+  };
 }
 
 // 작성 가능한 리뷰 목록 조회 (일반 유저)

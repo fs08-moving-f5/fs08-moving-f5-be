@@ -8,6 +8,7 @@ import {
   CreateEstimateRejectParams,
   GetEstimateParams,
 } from '../../types/driverEstimate';
+import splitAddresses from '../../utils/splitAddresses';
 
 const DEFAULT_TAKE = 6;
 
@@ -102,8 +103,7 @@ export async function getEstimateRequestsRepository({
   });
 
   return estimateReq.map((req) => {
-    const from = req.addresses.find((a) => a.addressType === 'FROM');
-    const to = req.addresses.find((a) => a.addressType === 'TO');
+    const { from, to } = splitAddresses(req.addresses);
 
     return {
       id: req.id,
@@ -254,7 +254,29 @@ export async function getEstimateConfirmRepository({
     ...(cursor && { cursor: { id: cursor } }),
   });
 
-  return estimate;
+  return estimate.map((e) => {
+    const { from, to } = splitAddresses(e.estimateRequest.addresses);
+
+    return {
+      id: e.id,
+      price: e.price,
+      status: e.status,
+      createdAt: e.createdAt,
+      hasReview: !!e.review,
+
+      user: {
+        id: e.estimateRequest.user.id,
+        name: e.estimateRequest.user.name,
+      },
+
+      movingType: e.estimateRequest.movingType,
+      movingDate: e.estimateRequest.movingDate,
+      isDesignated: e.estimateRequest.isDesignated,
+
+      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
+      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
+    };
+  });
 }
 
 // 확정 견적 상세 조회
@@ -283,8 +305,7 @@ export async function getEstimateConfirmIdRepository(estimateId: string, driverI
 
   if (!estimate) return null;
 
-  const from = estimate.estimateRequest.addresses.find((a) => a.addressType === 'FROM');
-  const to = estimate.estimateRequest.addresses.find((a) => a.addressType === 'TO');
+  const { from, to } = splitAddresses(estimate.estimateRequest.addresses);
 
   return {
     id: estimate.id,
@@ -359,5 +380,24 @@ export async function getEstimateRejectRepository({
     },
   });
 
-  return estimate;
+  return estimate.map((e) => {
+    const { from, to } = splitAddresses(e.estimateRequest.addresses);
+
+    return {
+      id: e.id,
+      status: e.status,
+
+      estimateRequestId: e.estimateRequest.id,
+      movingType: e.estimateRequest.movingType,
+      movingDate: e.estimateRequest.movingDate,
+
+      user: {
+        id: e.estimateRequest.user.id,
+        name: e.estimateRequest.user.name,
+      },
+
+      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
+      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
+    };
+  });
 }
