@@ -61,5 +61,22 @@ export async function getEstimateConfirmService(params: GetEstimateConfirmParams
 }
 
 // 확정 견적 상세 조회
+export async function getEstimateConfirmIdService(estimateId: string, driverId: string) {
+  if (!driverId) {
+    throw new HttpError('기사 로그인이 필요합니다.', 401);
+  }
+
+  if (!estimateId) {
+    throw new HttpError('estimateId가 필요합니다.', 400);
+  }
+
+  const estimate = await repo.getEstimateConfirmIdRepository(estimateId, driverId);
+
+  if (!estimate) {
+    throw new HttpError('견적을 찾을 수 없습니다.', 404);
+  }
+
+  return estimate;
+}
 
 // 반려 견적 목록 조회

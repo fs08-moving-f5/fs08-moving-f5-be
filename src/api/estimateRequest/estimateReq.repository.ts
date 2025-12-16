@@ -252,7 +252,50 @@ export async function getEstimateConfirmRepository({
 }
 
 // 확정 견적 상세 조회
-export async function getEstimateIdRepository({}) {}
+export async function getEstimateConfirmIdRepository(estimateId: string, driverId: string) {
+  const estimate = await prisma.estimate.findFirst({
+    where: { id: estimateId, driverId, isDelete: false },
+    select: {
+      id: true,
+      price: true,
+
+      estimateRequest: {
+        select: {
+          movingType: true,
+          movingDate: true,
+          isDesignated: true,
+          createdAt: true,
+          updatedAt: true,
+
+          user: { select: { name: true } },
+
+          addresses: { select: { addressType: true, address: true } },
+        },
+      },
+    },
+  });
+
+  if (!estimate) return null;
+
+  const from = estimate.estimateRequest.addresses.find((a) => a.addressType === 'FROM');
+  const to = estimate.estimateRequest.addresses.find((a) => a.addressType === 'TO');
+
+  return {
+    id: estimate.id,
+    price: estimate.price,
+
+    userName: estimate.estimateRequest.user.name,
+
+    movingType: estimate.estimateRequest.movingType,
+    movingDate: estimate.estimateRequest.movingDate,
+    isDesignated: estimate.estimateRequest.isDesignated,
+    createdAt: estimate.estimateRequest.createdAt,
+    updatedAt: estimate.estimateRequest.updatedAt,
+
+    fromAddress: from?.address ?? null,
+    toAddress: to?.address ?? null,
+  };
+}
 
 // 반려 견적 목록 조회
 export async function getEstimateRejectRepository([]) {}

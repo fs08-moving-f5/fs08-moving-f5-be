@@ -12,7 +12,7 @@ import { HttpError } from '../../types/error';
 import asyncHandler from '../../middlewares/asyncHandler';
 
 // 받은 요청 목록 조회(기사)
-export const getEstimateRequestsController = asyncHandler(async (req: Request, res: Response) => {
+export const getEstimateRequests = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user.id;
 
   const params: GetEstimateRequestsParams = {
@@ -34,7 +34,7 @@ export const getEstimateRequestsController = asyncHandler(async (req: Request, r
 });
 
 // 견적 보내기(기사)
-export const createEstimateController = asyncHandler(async (req: Request, res: Response) => {
+export const createEstimate = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user.id;
 
   const data: CreateEstimateParams = {
@@ -50,7 +50,7 @@ export const createEstimateController = asyncHandler(async (req: Request, res: R
 });
 
 // 견적 반려(기사)
-export const createEstimateRejectController = asyncHandler(async (req: Request, res: Response) => {
+export const createEstimateReject = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user.id;
 
   const data: CreateEstimateRejectParams = {
@@ -65,7 +65,7 @@ export const createEstimateRejectController = asyncHandler(async (req: Request, 
 });
 
 // 확정 견적 목록 조회
-export const getEstimateConfirmController = asyncHandler(async (req: Request, res: Response) => {
+export const getEstimateConfirm = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user.id;
 
   const data: GetEstimateConfirmParams = {
@@ -79,3 +79,18 @@ export const getEstimateConfirmController = asyncHandler(async (req: Request, re
 
   res.status(200).json({ message: '확정 견적 목록 조회 성공', data: estimateConfirm });
 });
+
+// 확정 견적 상세 조회
+export const getEstimateConfirmId = asyncHandler(async (req: Request, res: Response) => {
+  const driverId = req.user.id;
+  const { estimateId } = req.params;
+
+  const estimate = await service.getEstimateConfirmIdService(estimateId, driverId);
+
+  res.status(200).json({
+    message: '확정 견적 상세 조회 성공',
+    data: estimate,
+  });
+});
+
+// 반려 견적 목록 조회

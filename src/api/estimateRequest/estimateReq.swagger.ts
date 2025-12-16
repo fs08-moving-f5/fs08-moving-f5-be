@@ -200,3 +200,41 @@
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
+
+/**
+ * @swagger
+ * /estimate/confirm/{estimateId}:
+ *   get:
+ *     summary: 확정 견적 상세 조회 (기사)
+ *     description: 기사가 유저에게 보낸 견적의 상세 정보를 조회합니다.
+ *     tags:
+ *       - Estimate
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: estimateId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 조회할 견적 ID
+ *
+ *     responses:
+ *       200:
+ *         description: 확정 견적 상세 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/EstimateConfirmDetail'
+ *
+ *       401:
+ *         description: 기사 인증 실패
+ *
+ *       404:
+ *         description: 견적을 찾을 수 없음
+ */
