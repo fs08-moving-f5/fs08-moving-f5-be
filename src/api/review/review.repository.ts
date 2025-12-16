@@ -1,6 +1,7 @@
 import prisma from '../../config/prisma';
-import { Prisma } from '../../generated/client';
+import { Prisma, Review } from '../../generated/client';
 import { ServiceEnum, EstimateStatus } from '../../generated/enums';
+import { HttpError } from '../../types/error';
 import {
   GetReviewParams,
   WrittenReviewListResult,
@@ -187,4 +188,45 @@ export async function getReviewWritableRepository({
   };
 }
 
+export interface CreateReviewParams {
+  estimateId: string;
+  userId: string;
+  rating?: number | undefined;
+  content?: string | undefined;
+}
+
 // 리뷰 작성 (일반 유저)
+export async function postReviewRepository({
+  estimateId,
+  rating,
+  content,
+  userId,
+}: CreateReviewParams) {
+  if (!estimateId) {
+    throw new HttpError('estimateId가 필요합니다.', 400);
+  }
+
+  const review = await prisma.review.findFirst({
+    where: {
+      estimateId,
+      userId,
+    },
+  });
+
+  if (!review) {
+    throw new HttpError('리뷰 대상이 존재하지 않습니다.', 404);
+  }
+
+  if (review.rating !== null || review.content !== null) {
+    throw new HttpError('이미 해당 견적에 리뷰를 제출했습니다.', 400);
+  }
+
+  return prisma.review.update({
+    where: { id: review.id },
+    data: {
+      rating,
+      content,
+    },
+    include: { estimate: true },
+  });
+}

@@ -141,15 +141,33 @@ export async function createEstimateRepository({
     throw new HttpError('이미 해당 요청에 견적을 제출했습니다.', 400);
   }
 
-  return prisma.estimate.create({
-    data: {
-      estimateRequestId,
-      driverId,
-      price,
-      comment,
-      status: EstimateStatus.PENDING,
-    },
-    include: { estimateRequest: true, driver: true },
+  return prisma.$transaction(async (tx) => {
+    // Estimate 생성
+    const estimate = await tx.estimate.create({
+      data: {
+        estimateRequestId,
+        driverId,
+        price,
+        comment,
+        status: EstimateStatus.PENDING,
+      },
+      include: {
+        estimateRequest: true,
+        driver: true,
+      },
+    });
+
+    // Review
+    await tx.review.create({
+      data: {
+        estimateId: estimate.id,
+        userId: estimate.estimateRequest.userId, // 리뷰 작성자
+        rating: null,
+        content: null,
+      },
+    });
+
+    return estimate;
   });
 }
 
