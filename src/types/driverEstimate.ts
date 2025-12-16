@@ -28,3 +28,10 @@ export interface CreateEstimateRejectParams {
   rejectReason: string;
   driverId: string;
 }
+
+export interface GetEstimateParams {
+  driverId?: string;
+  sort?: EstimateSort;
+  cursor?: string | null;
+  take?: number | string;
+}

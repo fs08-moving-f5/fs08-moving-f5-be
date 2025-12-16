@@ -6,11 +6,12 @@ import {
   GetEstimateRequestsParams,
   CreateEstimateParams,
   CreateEstimateRejectParams,
+  GetEstimateParams,
 } from '../../types/driverEstimate';
 
 const DEFAULT_TAKE = 6;
 
-// 받은 요청 리스트 조회(기사)
+// 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsRepository({
   driverId,
   movingType,
@@ -80,7 +81,11 @@ export async function getEstimateRequestsRepository({
 
   const estimateReq = await prisma.estimateRequest.findMany({
     where,
-    include: {
+    select: {
+      id: true,
+      movingType: true,
+      movingDate: true,
+      isDesignated: true,
       user: { select: { id: true, name: true } },
       addresses: {
         select: {
@@ -105,6 +110,7 @@ export async function getEstimateRequestsRepository({
       name: req.user.name,
       movingType: req.movingType,
       movingDate: req.movingDate,
+      isDesignated: req.isDesignated,
       from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
       to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
     };
@@ -179,4 +185,179 @@ export async function createEstimateRejectRepository({
     },
     include: { estimateRequest: true, driver: true },
   });
+}
+
+// 확정 견적 목록 조회
+export async function getEstimateConfirmRepository({
+  driverId,
+  sort = 'latest',
+  cursor,
+  take = DEFAULT_TAKE,
+}: GetEstimateParams) {
+  // take를 숫자로 변환
+  const parsedTake = typeof take === 'string' ? parseInt(take, 10) : take;
+  const finalTake = isNaN(parsedTake) ? DEFAULT_TAKE : parsedTake;
+
+  const where: Prisma.EstimateWhereInput = {
+    driverId,
+    isDelete: false,
+    status: {
+      in: [EstimateStatus.PENDING, EstimateStatus.CONFIRMED],
+    },
+  };
+
+  let orderBy = {};
+  switch (sort) {
+    case 'latest':
+    default:
+      orderBy = { createdAt: 'desc' };
+      break;
+  }
+
+  const estimate = await prisma.estimate.findMany({
+    where,
+    select: {
+      id: true,
+      price: true,
+      status: true,
+      createdAt: true,
+
+      review: { select: { id: true } },
+
+      estimateRequest: {
+        select: {
+          movingType: true,
+          movingDate: true,
+          status: true,
+          isDesignated: true,
+
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+
+          addresses: {
+            select: {
+              addressType: true,
+              sido: true,
+              sigungu: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy,
+    take: finalTake,
+    skip: cursor ? 1 : 0,
+    ...(cursor && { cursor: { id: cursor } }),
+  });
+
+  return estimate;
+}
+
+// 확정 견적 상세 조회
+export async function getEstimateConfirmIdRepository(estimateId: string, driverId: string) {
+  const estimate = await prisma.estimate.findFirst({
+    where: { id: estimateId, driverId, isDelete: false },
+    select: {
+      id: true,
+      price: true,
+
+      estimateRequest: {
+        select: {
+          movingType: true,
+          movingDate: true,
+          isDesignated: true,
+          createdAt: true,
+          updatedAt: true,
+
+          user: { select: { id: true, name: true } },
+
+          addresses: { select: { addressType: true, address: true } },
+        },
+      },
+    },
+  });
+
+  if (!estimate) return null;
+
+  const from = estimate.estimateRequest.addresses.find((a) => a.addressType === 'FROM');
+  const to = estimate.estimateRequest.addresses.find((a) => a.addressType === 'TO');
+
+  return {
+    id: estimate.id,
+    price: estimate.price,
+
+    userName: estimate.estimateRequest.user.name,
+
+    movingType: estimate.estimateRequest.movingType,
+    movingDate: estimate.estimateRequest.movingDate,
+    isDesignated: estimate.estimateRequest.isDesignated,
+    createdAt: estimate.estimateRequest.createdAt,
+    updatedAt: estimate.estimateRequest.updatedAt,
+
+    fromAddress: from?.address ?? null,
+    toAddress: to?.address ?? null,
+  };
+}
+
+// 반려 견적 목록 조회
+export async function getEstimateRejectRepository({
+  driverId,
+  sort = 'latest',
+  cursor,
+  take = DEFAULT_TAKE,
+}: GetEstimateParams) {
+  // take를 숫자로 변환
+  const parsedTake = typeof take === 'string' ? parseInt(take, 10) : take;
+  const finalTake = isNaN(parsedTake) ? DEFAULT_TAKE : parsedTake;
+
+  const where: Prisma.EstimateWhereInput = {
+    driverId,
+    isDelete: false,
+    status: EstimateStatus.REJECTED,
+  };
+
+  let orderBy = {};
+  switch (sort) {
+    case 'latest':
+    default:
+      orderBy = { createdAt: 'desc' };
+      break;
+  }
+
+  const estimate = await prisma.estimate.findMany({
+    where,
+    orderBy,
+    take: finalTake,
+    skip: cursor ? 1 : 0,
+    ...(cursor && { cursor: { id: cursor } }),
+
+    select: {
+      id: true,
+      status: true,
+
+      estimateRequest: {
+        select: {
+          id: true,
+          movingType: true,
+          movingDate: true,
+
+          user: { select: { id: true, name: true } },
+
+          addresses: {
+            select: {
+              addressType: true,
+              sido: true,
+              sigungu: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return estimate;
 }
