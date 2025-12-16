@@ -249,7 +249,7 @@ export async function createReviewRepository({
       },
     });
 
-    // Notification
+    // Notification + SSE
     createNotificationAndPushUnreadService({
       userId: review.estimate.driverId,
       type: NotificationType.NEW_REVIEW,
