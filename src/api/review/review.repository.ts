@@ -1,6 +1,11 @@
 import prisma from '../../config/prisma';
 import { Prisma } from '../../generated/client';
-import { getReviewWrittenParams, WrittenReviewListResult } from '../../types/review';
+import { ServiceEnum, EstimateStatus } from '../../generated/enums';
+import {
+  GetReviewParams,
+  WrittenReviewListResult,
+  WritableReviewListResult,
+} from '../../types/review';
 import splitAddresses from '../../utils/splitAddresses';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
@@ -9,7 +14,7 @@ export async function getReviewWrittenRepository({
   sort = 'latest',
   offset = 0,
   limit = 10,
-}: getReviewWrittenParams): Promise<WrittenReviewListResult> {
+}: GetReviewParams): Promise<WrittenReviewListResult> {
   // offset, limit를 숫자로 변환
   const parsedOffset = typeof offset === 'string' ? parseInt(offset, 10) : offset;
   const parsedLimit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
@@ -19,6 +24,10 @@ export async function getReviewWrittenRepository({
 
   const where: Prisma.ReviewWhereInput = {
     userId,
+    estimate: {
+      isDelete: false,
+      status: EstimateStatus.CONFIRMED,
+    },
   };
 
   let orderBy = {};
@@ -39,8 +48,6 @@ export async function getReviewWrittenRepository({
 
         estimate: {
           select: {
-            price: true,
-
             driver: { select: { name: true, driverProfile: { select: { shortIntro: true } } } },
 
             estimateRequest: {
@@ -71,8 +78,6 @@ export async function getReviewWrittenRepository({
       content: review.content,
       createdAt: review.createdAt,
 
-      price: review.estimate.price,
-
       driver: {
         name: review.estimate.driver.name,
         shortIntro: review.estimate.driver.driverProfile?.shortIntro ?? null,
@@ -94,5 +99,92 @@ export async function getReviewWrittenRepository({
 }
 
 // 작성 가능한 리뷰 목록 조회 (일반 유저)
+export async function getReviewWritableRepository({
+  userId,
+  sort = 'latest',
+  offset = 0,
+  limit = 10,
+}: GetReviewParams): Promise<WritableReviewListResult> {
+  // offset, limit를 숫자로 변환
+  const parsedOffset = typeof offset === 'string' ? parseInt(offset, 10) : offset;
+  const parsedLimit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
+
+  const finalOffset = isNaN(parsedOffset) ? 0 : parsedOffset;
+  const finalLimit = isNaN(parsedLimit) ? 10 : parsedLimit;
+
+  const where: Prisma.EstimateWhereInput = {
+    estimateRequest: {
+      userId,
+      isDelete: false,
+    },
+    status: EstimateStatus.CONFIRMED,
+    review: null,
+    isDelete: false,
+  };
+
+  let orderBy = {};
+  switch (sort) {
+    case 'latest':
+    default:
+      orderBy = { createdAt: 'desc' };
+      break;
+  }
+
+  const [estimates, total] = await prisma.$transaction([
+    prisma.estimate.findMany({
+      where,
+      select: {
+        id: true,
+        price: true,
+        createdAt: true,
+
+        driver: { select: { name: true, driverProfile: { select: { shortIntro: true } } } },
+
+        estimateRequest: {
+          select: {
+            movingDate: true,
+            movingType: true,
+            isDesignated: true,
+
+            addresses: { select: { addressType: true, sido: true, sigungu: true } },
+          },
+        },
+      },
+
+      orderBy,
+      skip: finalOffset,
+      take: finalLimit,
+    }),
+    prisma.estimate.count({ where }),
+  ]);
+
+  const mappedReviews = estimates.map((estimate) => {
+    const addresses = estimate.estimateRequest.addresses;
+    const { from, to } = splitAddresses(addresses);
+
+    return {
+      id: estimate.id,
+      price: estimate.price,
+      createdAt: estimate.createdAt,
+
+      driver: {
+        name: estimate.driver.name,
+        shortIntro: estimate.driver.driverProfile?.shortIntro ?? null,
+      },
+
+      movingType: estimate.estimateRequest.movingType,
+      movingDate: estimate.estimateRequest.movingDate,
+      isDesignated: estimate.estimateRequest.isDesignated,
+
+      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
+      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
+    };
+  });
+
+  return {
+    estimates: mappedReviews,
+    total,
+  };
+}
 
 // 리뷰 작성 (일반 유저)

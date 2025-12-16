@@ -2,18 +2,20 @@ import { ServiceEnum, EstimateStatus } from '../generated/enums';
 
 export type ReviewSort = 'latest';
 
-export interface getReviewWrittenParams {
-  userId: string;
-  sort?: ReviewSort;
+export interface PaginationParams {
   offset?: number | string;
   limit?: number | string;
+}
+
+export interface GetReviewParams extends PaginationParams {
+  userId: string;
+  sort?: ReviewSort;
 }
 
 export interface WrittenReviewItem {
   rating: number;
   content: string;
   createdAt: Date;
-  price: number | null;
   driver: {
     name: string;
     shortIntro: string | null;
@@ -27,5 +29,25 @@ export interface WrittenReviewItem {
 
 export interface WrittenReviewListResult {
   reviews: WrittenReviewItem[];
+  total: number;
+}
+
+export interface WritableReviewItem {
+  id: string;
+  price: number | null;
+  createdAt: Date;
+  driver: {
+    name: string;
+    shortIntro: string | null;
+  };
+  movingType: ServiceEnum;
+  movingDate: Date;
+  isDesignated: boolean;
+  from: { sido: string; sigungu: string } | null;
+  to: { sido: string; sigungu: string } | null;
+}
+
+export interface WritableReviewListResult {
+  estimates: WritableReviewItem[];
   total: number;
 }

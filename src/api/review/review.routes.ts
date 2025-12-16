@@ -8,7 +8,7 @@ const router = Router();
 router.get('/written', fakeAuthMiddleware, controller.getReviewWritten);
 
 // 작성 가능한 리뷰 목록 조회 (일반 유저)
-router.get('/writable', fakeAuthMiddleware);
+router.get('/writable', fakeAuthMiddleware, controller.getReviewWritable);
 
 // 리뷰 작성 (일반 유저)
 router.post('/write', fakeAuthMiddleware);
