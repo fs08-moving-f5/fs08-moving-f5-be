@@ -225,7 +225,7 @@
 
 /**
  * @swagger
- * /estimate/confirms/{estimateId}:
+ * /api/estimate/confirms/{estimateId}:
  *   get:
  *     summary: 확정 견적 상세 조회 (기사)
  *     description: 기사가 유저에게 보낸 견적의 상세 정보를 조회합니다.
@@ -263,7 +263,7 @@
 
 /**
  * @swagger
- * /driver-estimate/rejects:
+ * /api/driver-estimate/rejects:
  *   get:
  *     summary: 반려 견적 목록 조회 (기사)
  *     description: |
