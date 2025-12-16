@@ -68,7 +68,7 @@ export const signupService = async (data: {
 export const loginService = async (
   email: string,
   password: string,
-  type: UserType
+  type: UserType,
 ): Promise<LoginResponse> => {
   // 유저 조회
   const user = await findUserByEmailRepository(email);

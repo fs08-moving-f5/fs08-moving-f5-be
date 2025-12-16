@@ -1,15 +1,6 @@
 import { Request, Response } from 'express';
-import {
-  signupService,
-  loginService,
-  logoutService,
-  refreshTokenService,
-} from './auth.service';
-import {
-  signupSchema,
-  loginSchema,
-  refreshTokenSchema,
-} from './validators/auth.validators';
+import { signupService, loginService, logoutService, refreshTokenService } from './auth.service';
+import { signupSchema, loginSchema, refreshTokenSchema } from './validators/auth.validators';
 import AppError from '@/utils/AppError';
 import { env } from '@/config/env';
 import asyncHandler from '@/middlewares/asyncHandler';
@@ -80,8 +71,7 @@ export const logoutController = asyncHandler(async (req: Request, res: Response)
 
 // 토큰 갱신
 export const refreshTokenController = asyncHandler(async (req: Request, res: Response) => {
-  const refreshToken =
-    req.cookies.refreshToken || refreshTokenSchema.parse(req.body).refreshToken;
+  const refreshToken = req.cookies.refreshToken || refreshTokenSchema.parse(req.body).refreshToken;
 
   if (!refreshToken) {
     throw new AppError('리프레시 토큰이 필요합니다', HTTP_STATUS.UNAUTHORIZED);

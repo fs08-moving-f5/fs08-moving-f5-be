@@ -39,7 +39,7 @@ export const nameSchema = z.string().min(2, '이름은 최소 2자 이상이어�
 
 // 유저 타입 유효성 검사
 export const userTypeSchema = z.nativeEnum(UserType, {
-  errorMap: () => ({ message: '유효하지 않은 유저 타입입니다' }),
+  message: '유효하지 않은 유저 타입입니다',
 });
 
 // 회원가입 스키마

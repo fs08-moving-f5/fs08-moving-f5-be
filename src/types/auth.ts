@@ -32,7 +32,3 @@ export interface LoginResponse {
   user: UserResponse;
   tokens: TokenResponse;
 }
-
-
-
-

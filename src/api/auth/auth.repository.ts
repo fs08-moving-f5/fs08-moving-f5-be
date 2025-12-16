@@ -18,7 +18,7 @@ export const findUserByIdRepository = async (id: string): Promise<User | null> =
 // Provider ID로 유저 찾기 (소셜 로그인용)
 export const findUserByProviderIdRepository = async (
   providerId: string,
-  provider: string
+  provider: string,
 ): Promise<User | null> => {
   return prisma.user.findFirst({
     where: {
@@ -54,7 +54,7 @@ export const createUserRepository = async (data: {
 // 리프레시 토큰 업데이트
 export const updateRefreshTokenRepository = async (
   userId: string,
-  refreshToken: string | null
+  refreshToken: string | null,
 ): Promise<User> => {
   return prisma.user.update({
     where: { id: userId },
@@ -65,7 +65,7 @@ export const updateRefreshTokenRepository = async (
 // 유저 정보 업데이트
 export const updateUserRepository = async (
   userId: string,
-  data: Prisma.UserUpdateInput
+  data: Prisma.UserUpdateInput,
 ): Promise<User> => {
   return prisma.user.update({
     where: { id: userId },

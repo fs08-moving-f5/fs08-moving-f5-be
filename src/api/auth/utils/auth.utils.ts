@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import argon2 from 'argon2';
 import { env } from '@/config/env';
 import { JwtPayload, TokenResponse } from '@/types/auth';
@@ -27,7 +27,7 @@ export const generateAccessToken = (userId: string, email: string, type: UserTyp
   };
 
   return jwt.sign(payload, env.JWT_SECRET, {
-    expiresIn: env.JWT_EXPIRES_IN,
+    expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
   });
 };
 
@@ -40,7 +40,7 @@ export const generateRefreshToken = (userId: string, email: string, type: UserTy
   };
 
   return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRES_IN,
+    expiresIn: env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions['expiresIn'],
   });
 };
 
