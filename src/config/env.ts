@@ -11,8 +11,10 @@ const schema = z.object({
   DATABASE_URL: z.string().url('DATABASE_URL must be a valid URL'),
 
   // JWT
-  JWT_SECRET: z.string().min(10, 'JWT_SECRET is required (>=10 chars)').optional(),
-  JWT_EXPIRES_IN: z.string().default('7d').optional(),
+  JWT_SECRET: z.string().min(10, 'JWT_SECRET is required (>=10 chars)'),
+  JWT_EXPIRES_IN: z.string().default('7d'),
+  JWT_REFRESH_SECRET: z.string().min(10, 'JWT_REFRESH_SECRET is required (>=10 chars)'),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
 
   // AWS S3
   AWS_REGION: z.string().min(1, 'AWS_REGION is required').optional(),

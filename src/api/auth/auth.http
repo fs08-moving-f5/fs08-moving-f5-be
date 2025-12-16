@@ -1,0 +1,161 @@
+### Auth API Test File
+### 이 파일은 VSCode REST Client 확장을 사용하여 테스트할 수 있습니다.
+### 또는 httpYac, Thunder Client 등으로도 사용 가능합니다.
+
+@baseUrl = http://localhost:3000/api/auth
+@contentType = application/json
+
+### 변수 (테스트 결과에 따라 업데이트됩니다)
+@accessToken = 
+@refreshToken = 
+
+###
+### 1. 일반 유저 회원가입 (USER)
+POST {{baseUrl}}/signup
+Content-Type: {{contentType}}
+
+{
+  "email": "testuser@example.com",
+  "password": "TestPassword123!",
+  "name": "테스트 유저",
+  "phone": 1012345678,
+  "type": "USER"
+}
+
+###
+### 2. 기사 회원가입 (DRIVER)
+POST {{baseUrl}}/signup
+Content-Type: {{contentType}}
+
+{
+  "email": "testdriver@example.com",
+  "password": "TestPassword123!",
+  "name": "테스트 기사",
+  "phone": 1087654321,
+  "type": "DRIVER"
+}
+
+###
+### 3. 일반 유저 로그인
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "testuser@example.com",
+  "password": "TestPassword123!",
+  "type": "USER"
+}
+
+###
+### 4. 기사 로그인
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "testdriver@example.com",
+  "password": "TestPassword123!",
+  "type": "DRIVER"
+}
+
+###
+### 5. 현재 유저 정보 조회 (인증 필요)
+### 위 로그인 후 받은 accessToken을 @accessToken 변수에 넣어주세요
+GET {{baseUrl}}/me
+Authorization: Bearer {{accessToken}}
+
+###
+### 6. 토큰 갱신
+### refreshToken은 쿠키에 저장되거나 body로 전송 가능
+POST {{baseUrl}}/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+###
+### 7. 로그아웃 (인증 필요)
+POST {{baseUrl}}/logout
+Authorization: Bearer {{accessToken}}
+
+###
+### ====== 실패 케이스 테스트 ======
+###
+
+###
+### 8. 중복 이메일로 회원가입 시도 (409 에러 예상)
+POST {{baseUrl}}/signup
+Content-Type: {{contentType}}
+
+{
+  "email": "testuser@example.com",
+  "password": "TestPassword123!",
+  "name": "중복 유저",
+  "phone": 1011112222,
+  "type": "USER"
+}
+
+###
+### 9. 잘못된 비밀번호로 로그인 (401 에러 예상)
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "testuser@example.com",
+  "password": "WrongPassword123!",
+  "type": "USER"
+}
+
+###
+### 10. 존재하지 않는 이메일로 로그인 (401 에러 예상)
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "nonexistent@example.com",
+  "password": "TestPassword123!",
+  "type": "USER"
+}
+
+###
+### 11. 타입 불일치 로그인 (403 에러 예상 - USER 계정에 DRIVER로 로그인)
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "testuser@example.com",
+  "password": "TestPassword123!",
+  "type": "DRIVER"
+}
+
+###
+### 12. 인증 없이 /me 접근 (401 에러 예상)
+GET {{baseUrl}}/me
+
+###
+### 13. 잘못된 토큰으로 /me 접근 (401 에러 예상)
+GET {{baseUrl}}/me
+Authorization: Bearer invalid_token_here
+
+###
+### 14. 유효하지 않은 이메일 형식 (400 에러 예상)
+POST {{baseUrl}}/signup
+Content-Type: {{contentType}}
+
+{
+  "email": "invalid-email",
+  "password": "TestPassword123!",
+  "name": "테스트",
+  "phone": 1012345678,
+  "type": "USER"
+}
+
+###
+### 15. 필수 필드 누락 (400 에러 예상)
+POST {{baseUrl}}/signup
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "TestPassword123!"
+}
