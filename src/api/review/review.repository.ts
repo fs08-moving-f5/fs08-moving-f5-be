@@ -6,6 +6,7 @@ import {
   GetReviewParams,
   WrittenReviewListResult,
   WritableReviewListResult,
+  CreateReviewParams,
 } from '../../types/review';
 import splitAddresses from '../../utils/splitAddresses';
 
@@ -188,15 +189,8 @@ export async function getReviewWritableRepository({
   };
 }
 
-export interface CreateReviewParams {
-  estimateId: string;
-  userId: string;
-  rating?: number | undefined;
-  content?: string | undefined;
-}
-
 // 리뷰 작성 (일반 유저)
-export async function postReviewRepository({
+export async function createReviewRepository({
   estimateId,
   rating,
   content,
@@ -211,6 +205,13 @@ export async function postReviewRepository({
       estimateId,
       userId,
     },
+    include: {
+      estimate: {
+        select: {
+          driverId: true,
+        },
+      },
+    },
   });
 
   if (!review) {
@@ -221,12 +222,50 @@ export async function postReviewRepository({
     throw new HttpError('이미 해당 견적에 리뷰를 제출했습니다.', 400);
   }
 
-  return prisma.review.update({
-    where: { id: review.id },
-    data: {
-      rating,
-      content,
-    },
-    include: { estimate: true },
+  return prisma.$transaction(async (tx) => {
+    // Review
+    const updatedReview = await tx.review.update({
+      where: { id: review.id },
+      data: {
+        rating,
+        content,
+      },
+      include: { estimate: { select: { id: true } } },
+    });
+
+    // Notification (기사에게)
+    await tx.notification.create({
+      data: {
+        userId: review.estimate.driverId,
+        type: 'NEW_REVIEW',
+        message: '새로운 리뷰가 등록되었습니다.',
+        datajson: {
+          estimateId,
+          reviewId: review.id,
+          rating,
+        },
+      },
+    });
+
+    // History (리뷰 작성자 기준)
+    await tx.history.create({
+      data: {
+        userId,
+        actionType: 'CREATE_REVIEW',
+        entityType: 'REVIEW',
+        entityId: review.id,
+        actionDesc: '리뷰 작성',
+        newData: {
+          rating,
+          content,
+        },
+      },
+    });
+
+    return updatedReview;
   });
 }
+
+// Notification / History 실패 시 → 전체 트랜잭션 롤백
+// 운영 시 원인 파악이 어려울 수 있음
+// 알림/히스토리가 법적 기록, 감사 로그(감사 추적)가 반드시 필요, 금융 / 정산 / 계약 시스템일 경우 현재 구조가 더 안전

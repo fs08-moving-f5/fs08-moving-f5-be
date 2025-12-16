@@ -11,6 +11,6 @@ router.get('/written', fakeAuthMiddleware, controller.getReviewWritten);
 router.get('/writable', fakeAuthMiddleware, controller.getReviewWritable);
 
 // 리뷰 작성 (일반 유저)
-router.post('/write', fakeAuthMiddleware);
+router.post('/write', fakeAuthMiddleware, controller.createReview);
 
 export default router;

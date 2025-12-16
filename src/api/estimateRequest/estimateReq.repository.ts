@@ -149,7 +149,7 @@ export async function createEstimateRepository({
         driverId,
         price,
         comment,
-        status: EstimateStatus.PENDING,
+        status: EstimateStatus.CONFIRMED,
       },
       include: {
         estimateRequest: true,
@@ -164,6 +164,34 @@ export async function createEstimateRepository({
         userId: estimate.estimateRequest.userId, // 리뷰 작성자
         rating: null,
         content: null,
+      },
+    });
+
+    // Notification (유저에게)
+    await tx.notification.create({
+      data: {
+        userId: estimate.estimateRequest.userId,
+        type: 'ESTIMATE_RECEIVED',
+        message: '새 견적이 도착했습니다.',
+        datajson: {
+          estimateId: estimate.id,
+          driverId,
+        },
+      },
+    });
+
+    // History (기사 기준)
+    await tx.history.create({
+      data: {
+        userId: driverId,
+        actionType: 'CREATE_ESTIMATE',
+        entityType: 'ESTIMATE_RESPONSE',
+        entityId: estimate.id,
+        actionDesc: '견적서 생성',
+        newData: {
+          price,
+          comment,
+        },
       },
     });
 
@@ -194,14 +222,47 @@ export async function createEstimateRejectRepository({
     throw new HttpError('이미 해당 요청에 견적을 제출했습니다.', 400);
   }
 
-  return prisma.estimate.create({
-    data: {
-      estimateRequestId,
-      driverId,
-      rejectReason,
-      status: EstimateStatus.PENDING,
-    },
-    include: { estimateRequest: true, driver: true },
+  return prisma.$transaction(async (tx) => {
+    // Estimate 생성 (반려)
+    const estimate = await tx.estimate.create({
+      data: {
+        estimateRequestId,
+        driverId,
+        rejectReason,
+        status: EstimateStatus.REJECTED,
+      },
+      include: { estimateRequest: true, driver: true },
+    });
+
+    // Notification (일반 유저에게)
+    await tx.notification.create({
+      data: {
+        userId: estimate.estimateRequest.userId,
+        type: 'REQUEST_REJECTED',
+        message: '기사님이 견적 요청을 반려했습니다.',
+        datajson: {
+          estimateRequestId,
+          driverId,
+          rejectReason,
+        },
+      },
+    });
+
+    // History (기사 기준)
+    await tx.history.create({
+      data: {
+        userId: driverId,
+        actionType: 'REJECTED_ESTIMATE',
+        entityType: 'ESTIMATE_RESPONSE',
+        entityId: estimate.id,
+        actionDesc: '견적 요청 반려',
+        newData: {
+          rejectReason,
+        },
+      },
+    });
+
+    return estimate;
   });
 }
 

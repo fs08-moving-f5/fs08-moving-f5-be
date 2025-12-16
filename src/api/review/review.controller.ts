@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as service from './review.service';
 import asyncHandler from '../../middlewares/asyncHandler';
-import { ReviewSort, GetReviewParams } from '../../types/review';
+import { ReviewSort, GetReviewParams, CreateReviewParams } from '../../types/review';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
 export const getReviewWritten = asyncHandler(async (req: Request, res: Response) => {
@@ -36,3 +36,17 @@ export const getReviewWritable = asyncHandler(async (req: Request, res: Response
 });
 
 // 리뷰 작성 (일반 유저)
+export const createReview = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+
+  const data: CreateReviewParams = {
+    estimateId: req.body.estimateId,
+    rating: Number(req.body.rating),
+    content: String(req.body.content),
+    userId,
+  };
+
+  const review = await service.createReviewService(data);
+
+  res.status(200).json({ message: '견적 보내기 성공', data: review });
+});

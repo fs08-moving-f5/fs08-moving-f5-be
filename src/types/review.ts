@@ -51,3 +51,10 @@ export interface WritableReviewListResult {
   estimates: WritableReviewItem[];
   total: number;
 }
+
+export interface CreateReviewParams {
+  estimateId: string;
+  userId: string;
+  rating?: number | undefined;
+  content?: string | undefined;
+}
