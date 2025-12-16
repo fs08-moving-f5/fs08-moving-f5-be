@@ -1,6 +1,6 @@
 import prisma from '../../config/prisma';
 import { Prisma } from '../../generated/client';
-import { getReviewWrittenParams } from '../../types/review';
+import { getReviewWrittenParams, WrittenReviewListResult } from '../../types/review';
 import splitAddresses from '../../utils/splitAddresses';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
@@ -9,7 +9,7 @@ export async function getReviewWrittenRepository({
   sort = 'latest',
   offset = 0,
   limit = 10,
-}: getReviewWrittenParams) {
+}: getReviewWrittenParams): Promise<WrittenReviewListResult> {
   // offset, limit를 숫자로 변환
   const parsedOffset = typeof offset === 'string' ? parseInt(offset, 10) : offset;
   const parsedLimit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
@@ -62,8 +62,6 @@ export async function getReviewWrittenRepository({
     prisma.review.count({ where }),
   ]);
 
-  if (!reviews) return null;
-
   const mappedReviews = reviews.map((review) => {
     const addresses = review.estimate.estimateRequest.addresses;
     const { from, to } = splitAddresses(addresses);
@@ -77,7 +75,7 @@ export async function getReviewWrittenRepository({
 
       driver: {
         name: review.estimate.driver.name,
-        // shortIntro: review.estimate.driver.driverProfile?.shortIntro ?? null,
+        shortIntro: review.estimate.driver.driverProfile?.shortIntro ?? null,
       },
 
       movingType: review.estimate.estimateRequest.movingType,
