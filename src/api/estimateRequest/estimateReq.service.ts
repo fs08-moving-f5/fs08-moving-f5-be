@@ -4,7 +4,7 @@ import {
   GetEstimateRequestsParams,
   CreateEstimateParams,
   CreateEstimateRejectParams,
-  GetEstimateConfirmParams,
+  GetEstimateParams,
 } from '../../types/driverEstimate';
 
 // 받은 요청 목록 조회(기사)
@@ -47,7 +47,7 @@ export async function createEstimateRejectService(data: CreateEstimateRejectPara
 }
 
 // 확정 견적 목록 조회
-export async function getEstimateConfirmService(params: GetEstimateConfirmParams) {
+export async function getEstimateConfirmService(params: GetEstimateParams) {
   if (!params.driverId) {
     throw new HttpError('기사 로그인이 필요합니다.', 401);
   }
@@ -80,3 +80,15 @@ export async function getEstimateConfirmIdService(estimateId: string, driverId: 
 }
 
 // 반려 견적 목록 조회
+export async function getEstimateRejectService(params: GetEstimateParams) {
+  if (!params.driverId) {
+    throw new HttpError('기사 로그인이 필요합니다.', 401);
+  }
+
+  const estimates = await repo.getEstimateRejectRepository(params);
+
+  return estimates.map((estimate) => ({
+    ...estimate,
+    isRejected: true,
+  }));
+}

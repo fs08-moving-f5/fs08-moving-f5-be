@@ -9,15 +9,22 @@ const router = Router();
 router.get('/requests', fakeAuthMiddleware, controller.getEstimateRequests);
 
 // 견적 보내기 (기사)
-router.post('/create', fakeAuthMiddleware, controller.createEstimate);
+router.post('/requests/:estimateRequestId/create', fakeAuthMiddleware, controller.createEstimate);
 
 // 견적 반려 (기사)
-router.post('/reject', fakeAuthMiddleware, controller.createEstimateReject);
+router.post(
+  '/requests/:estimateRequestId/reject',
+  fakeAuthMiddleware,
+  controller.createEstimateReject,
+);
 
 // 확정 견적 목록 조회 (기사)
-router.get('/confirm', fakeAuthMiddleware, controller.getEstimateConfirm);
+router.get('/confirms', fakeAuthMiddleware, controller.getEstimateConfirm);
 
 // 확정 견적 상세 조회 (기사)
-router.get('/confirmId', fakeAuthMiddleware, controller.getEstimateConfirmId);
+router.get('/confirms/:estimateId', fakeAuthMiddleware, controller.getEstimateConfirmId);
+
+// 반려 견적 목록 조회 (기사)
+router.get('/rejects', fakeAuthMiddleware, controller.getEstimateReject);
 
 export default router;

@@ -5,7 +5,7 @@ import {
   CreateEstimateParams,
   CreateEstimateRejectParams,
   EstimateSort,
-  GetEstimateConfirmParams,
+  GetEstimateParams,
 } from '../../types/driverEstimate';
 import { ServiceEnum, EstimateStatus } from '../../generated/enums';
 import { HttpError } from '../../types/error';
@@ -68,7 +68,7 @@ export const createEstimateReject = asyncHandler(async (req: Request, res: Respo
 export const getEstimateConfirm = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user.id;
 
-  const data: GetEstimateConfirmParams = {
+  const data: GetEstimateParams = {
     driverId,
     sort: req.query.sort as EstimateSort,
     cursor: req.query.cursor ? String(req.query.cursor) : null,
@@ -94,3 +94,17 @@ export const getEstimateConfirmId = asyncHandler(async (req: Request, res: Respo
 });
 
 // 반려 견적 목록 조회
+export const getEstimateReject = asyncHandler(async (req: Request, res: Response) => {
+  const driverId = req.user.id;
+
+  const data: GetEstimateParams = {
+    driverId,
+    sort: req.query.sort as EstimateSort,
+    cursor: req.query.cursor ? String(req.query.cursor) : null,
+    take: req.query.take ? Number(req.query.take) : undefined,
+  };
+
+  const estimateReject = await service.getEstimateRejectService(data);
+
+  res.status(200).json({ message: '반려 견적 목록 조회 성공', data: estimateReject });
+});

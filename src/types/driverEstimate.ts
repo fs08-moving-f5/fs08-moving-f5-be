@@ -29,7 +29,7 @@ export interface CreateEstimateRejectParams {
   driverId: string;
 }
 
-export interface GetEstimateConfirmParams {
+export interface GetEstimateParams {
   driverId?: string;
   sort?: EstimateSort;
   cursor?: string | null;
