@@ -190,6 +190,12 @@ export const confirmEstimateRepository = async ({ estimateId }: { estimateId: st
       price: true,
       createdAt: true,
       updatedAt: true,
+      driver: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
 };

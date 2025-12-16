@@ -1,6 +1,6 @@
 import prisma from '../../config/prisma';
 import { Prisma } from '../../generated/client';
-import { ServiceEnum, EstimateStatus } from '../../generated/enums';
+import { ServiceEnum, EstimateStatus, NotificationType } from '../../generated/enums';
 import { HttpError } from '../../types/error';
 import {
   GetEstimateRequestsParams,
@@ -9,6 +9,7 @@ import {
   GetEstimateParams,
 } from '../../types/driverEstimate';
 import splitAddresses from '../../utils/splitAddresses';
+import { createNotificationAndPushUnreadService } from '../notification/notification.service';
 
 const DEFAULT_TAKE = 6;
 
@@ -167,19 +168,6 @@ export async function createEstimateRepository({
       },
     });
 
-    // Notification (유저에게)
-    await tx.notification.create({
-      data: {
-        userId: estimate.estimateRequest.userId,
-        type: 'ESTIMATE_RECEIVED',
-        message: '새 견적이 도착했습니다.',
-        datajson: {
-          estimateId: estimate.id,
-          driverId,
-        },
-      },
-    });
-
     // History (기사 기준)
     await tx.history.create({
       data: {
@@ -194,6 +182,13 @@ export async function createEstimateRepository({
         },
       },
     });
+
+    // Notification + SSE
+    createNotificationAndPushUnreadService({
+      userId: estimate.estimateRequest.userId,
+      type: NotificationType.ESTIMATE_RECEIVED,
+      message: '새 견적이 도착했습니다.',
+    }).catch(console.error);
 
     return estimate;
   });
@@ -234,20 +229,6 @@ export async function createEstimateRejectRepository({
       include: { estimateRequest: true, driver: true },
     });
 
-    // Notification (일반 유저에게)
-    await tx.notification.create({
-      data: {
-        userId: estimate.estimateRequest.userId,
-        type: 'REQUEST_REJECTED',
-        message: '기사님이 견적 요청을 반려했습니다.',
-        datajson: {
-          estimateRequestId,
-          driverId,
-          rejectReason,
-        },
-      },
-    });
-
     // History (기사 기준)
     await tx.history.create({
       data: {
@@ -261,6 +242,13 @@ export async function createEstimateRejectRepository({
         },
       },
     });
+
+    // Notification + SSE
+    createNotificationAndPushUnreadService({
+      userId: estimate.estimateRequest.userId,
+      type: NotificationType.REQUEST_REJECTED,
+      message: '기사님이 견적 요청을 반려했습니다.',
+    }).catch(console.error);
 
     return estimate;
   });
