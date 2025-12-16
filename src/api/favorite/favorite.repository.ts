@@ -102,3 +102,17 @@ export const getFavoriteDriversRepository = async ({
     },
   });
 };
+
+export const deleteManyFavoriteDriverRepository = async ({
+  userId,
+  driverIds,
+}: {
+  userId: string;
+  driverIds: string[];
+}) => {
+  return await prisma.favoriteDriver.deleteMany({
+    where: {
+      AND: [{ userId }, { driverId: { in: driverIds } }],
+    },
+  });
+};
