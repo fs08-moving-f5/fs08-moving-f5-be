@@ -56,7 +56,7 @@ export async function getEstimateConfirmService(params: GetEstimateParams) {
 
   return estimates.map((estimate) => ({
     ...estimate,
-    isCompleted: estimate.status === 'CONFIRMED' && !!estimate.review,
+    isCompleted: estimate.status === 'CONFIRMED' && estimate.hasReview,
   }));
 }
 

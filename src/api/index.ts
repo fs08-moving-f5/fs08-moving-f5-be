@@ -16,6 +16,6 @@ router.use('/driver-estimate', estimateReqRouter);
 router.use('/favorite', favoriteRouter);
 router.use('/notifications', notificationRouter);
 router.use('/profile', profileRouter);
-router.use('/', reviewRouter);
+router.use('/review', reviewRouter);
 
 export default router;
