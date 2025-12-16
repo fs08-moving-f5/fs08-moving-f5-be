@@ -1,6 +1,6 @@
 import prisma from '../../config/prisma';
 import { Prisma, Review } from '../../generated/client';
-import { ServiceEnum, EstimateStatus } from '../../generated/enums';
+import { ServiceEnum, EstimateStatus, NotificationType } from '../../generated/enums';
 import { HttpError } from '../../types/error';
 import {
   GetReviewParams,
@@ -9,6 +9,7 @@ import {
   CreateReviewParams,
 } from '../../types/review';
 import splitAddresses from '../../utils/splitAddresses';
+import { createNotificationAndPushUnreadService } from '../notification/notification.service';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
 export async function getReviewWrittenRepository({
@@ -233,20 +234,6 @@ export async function createReviewRepository({
       include: { estimate: { select: { id: true } } },
     });
 
-    // Notification (기사에게)
-    await tx.notification.create({
-      data: {
-        userId: review.estimate.driverId,
-        type: 'NEW_REVIEW',
-        message: '새로운 리뷰가 등록되었습니다.',
-        datajson: {
-          estimateId,
-          reviewId: review.id,
-          rating,
-        },
-      },
-    });
-
     // History (리뷰 작성자 기준)
     await tx.history.create({
       data: {
@@ -261,6 +248,13 @@ export async function createReviewRepository({
         },
       },
     });
+
+    // Notification
+    createNotificationAndPushUnreadService({
+      userId: review.estimate.driverId,
+      type: NotificationType.NEW_REVIEW,
+      message: '새로운 리뷰가 등록되었습니다.',
+    }).catch(console.error); // 실패해도 롤백 영향 없음
 
     return updatedReview;
   });
