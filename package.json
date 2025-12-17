@@ -5,7 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx watch src/app.ts",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
     "start": "cross-env NODE_ENV=production node dist/app.js",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"**/*.{ts,json,md}\"",
@@ -72,6 +72,7 @@
     "express-async-handler": "^1.2.0",
     "husky": "^9.1.7",
     "prettier": "^3.7.4",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.7.1",
     "typescript": "^5.6.3"
   }
