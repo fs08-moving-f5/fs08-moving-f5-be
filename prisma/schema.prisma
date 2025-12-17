@@ -22,7 +22,7 @@ model User {
   name     String
   email    String  @unique
   password String?
-  phone    Int
+  phone    String
 
   refreshTokens String?
 
