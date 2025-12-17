@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import fakeAuthMiddleware from '../../middlewares/fakeAuthMiddleware';
+import { authenticate } from '@/middlewares/authMiddleware';
 import {
   confirmEstimateController,
   getEstimateDetailController,
@@ -9,12 +9,12 @@ import {
 
 const router = Router();
 
-router.get('/pending', fakeAuthMiddleware, getPendingEstimatesController);
+router.get('/pending', authenticate, getPendingEstimatesController);
 
-router.get('/received', fakeAuthMiddleware, getReceivedEstimatesController);
+router.get('/received', authenticate, getReceivedEstimatesController);
 
-router.get('/:estimateId', fakeAuthMiddleware, getEstimateDetailController);
+router.get('/:estimateId', authenticate, getEstimateDetailController);
 
-router.post('/:estimateId/confirm', fakeAuthMiddleware, confirmEstimateController);
+router.post('/:estimateId/confirm', authenticate, confirmEstimateController);
 
 export default router;
