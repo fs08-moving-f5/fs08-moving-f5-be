@@ -1,5 +1,7 @@
 import * as repo from './estimateReq.repository';
-import { HttpError } from '../../types/error';
+import AppError from '@/utils/AppError';
+import HTTP_STATUS from '@/constants/http.constant';
+import ERROR_MESSAGE from '@/constants/errorMessage.constant';
 import {
   GetEstimateRequestsParams,
   CreateEstimateParams,
@@ -10,7 +12,7 @@ import {
 // 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsService(params: GetEstimateRequestsParams) {
   if (!params.driverId) {
-    throw new HttpError('기사 로그인이 필요합니다.', 401);
+    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
   }
 
   return repo.getEstimateRequestsRepository(params);
@@ -21,11 +23,11 @@ export async function createEstimateService(data: CreateEstimateParams) {
   const { estimateRequestId, driverId, price, comment } = data;
 
   if (!data.driverId) {
-    throw new HttpError('기사 로그인이 필요합니다.', 401);
+    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
   }
 
   if (!estimateRequestId || !driverId || !price || !comment) {
-    throw new HttpError('필수 데이터가 누락되었습니다.', 400);
+    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
   }
 
   return repo.createEstimateRepository(data);
@@ -36,11 +38,11 @@ export async function createEstimateRejectService(data: CreateEstimateRejectPara
   const { estimateRequestId, rejectReason, driverId } = data;
 
   if (!data.driverId) {
-    throw new HttpError('기사 로그인이 필요합니다.', 401);
+    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
   }
 
   if (!estimateRequestId || !driverId || !rejectReason) {
-    throw new HttpError('필수 데이터가 누락되었습니다.', 400);
+    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
   }
 
   return repo.createEstimateRejectRepository(data);
@@ -49,7 +51,7 @@ export async function createEstimateRejectService(data: CreateEstimateRejectPara
 // 확정 견적 목록 조회
 export async function getEstimateConfirmService(params: GetEstimateParams) {
   if (!params.driverId) {
-    throw new HttpError('기사 로그인이 필요합니다.', 401);
+    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
   }
 
   const estimates = await repo.getEstimateConfirmRepository(params);
@@ -63,17 +65,17 @@ export async function getEstimateConfirmService(params: GetEstimateParams) {
 // 확정 견적 상세 조회
 export async function getEstimateConfirmIdService(estimateId: string, driverId: string) {
   if (!driverId) {
-    throw new HttpError('기사 로그인이 필요합니다.', 401);
+    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
   }
 
   if (!estimateId) {
-    throw new HttpError('estimateId가 필요합니다.', 400);
+    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
   }
 
   const estimate = await repo.getEstimateConfirmIdRepository(estimateId, driverId);
 
   if (!estimate) {
-    throw new HttpError('견적을 찾을 수 없습니다.', 404);
+    throw new AppError(ERROR_MESSAGE.ESTIMATE.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
   }
 
   return estimate;
@@ -82,7 +84,7 @@ export async function getEstimateConfirmIdService(estimateId: string, driverId: 
 // 반려 견적 목록 조회
 export async function getEstimateRejectService(params: GetEstimateParams) {
   if (!params.driverId) {
-    throw new HttpError('기사 로그인이 필요합니다.', 401);
+    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
   }
 
   const estimates = await repo.getEstimateRejectRepository(params);
