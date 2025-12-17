@@ -10,6 +10,7 @@ import {
   getReceivedEstimatesRepository,
 } from './estimate.repository';
 import { EstimateStatus } from '../../generated/client';
+import { createNotificationAndPushUnreadService } from '../notification/notification.service';
 
 export const getPendingEstimatesService = async ({ userId }: { userId: string }) => {
   const estimates = await getPendingEstimatesRepository({ userId });
@@ -39,9 +40,9 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
     isFavorite: favoriteDriverIds.has(estimate.driver.id),
     driver: {
       ...estimate.driver,
-      driverProfile: estimate.driver.driverProfile?.[0]
+      driverProfile: estimate.driver.driverProfile
         ? {
-            ...estimate.driver.driverProfile[0],
+            ...estimate.driver.driverProfile,
             confirmedEstimateCount: tasksCountMap[estimate.driver.id] || 0,
             favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
           }
@@ -51,7 +52,19 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
 };
 
 export const confirmEstimateService = async ({ estimateId }: { estimateId: string }) => {
-  return await confirmEstimateRepository({ estimateId });
+  const estimate = await confirmEstimateRepository({ estimateId });
+
+  if (!estimate) {
+    return null;
+  }
+
+  await createNotificationAndPushUnreadService({
+    userId: estimate.driverId,
+    type: 'ESTIMATE_CONFIRMED',
+    message: `${estimate.driver.name}님의 견적이 확정되었어요`,
+  });
+
+  return estimate;
 };
 
 export const getEstimateDetailService = async ({ estimateId }: { estimateId: string }) => {
@@ -71,9 +84,9 @@ export const getEstimateDetailService = async ({ estimateId }: { estimateId: str
     driver: estimate.driver
       ? {
           ...estimate.driver,
-          driverProfile: estimate.driver.driverProfile?.[0]
+          driverProfile: estimate.driver.driverProfile
             ? {
-                ...estimate.driver.driverProfile[0],
+                ...estimate.driver.driverProfile,
                 confirmedEstimateCount,
                 favoriteDriverCount,
               }
@@ -120,9 +133,9 @@ export const getReceivedEstimatesService = async ({
     ...estimate,
     driver: {
       ...estimate.driver,
-      driverProfile: estimate.driver.driverProfile?.[0]
+      driverProfile: estimate.driver.driverProfile
         ? {
-            ...estimate.driver.driverProfile[0],
+            ...estimate.driver.driverProfile,
             confirmedEstimateCount: confirmedCountMap[estimate.driver.id] || 0,
             favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
           }

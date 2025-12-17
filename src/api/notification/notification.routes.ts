@@ -1,11 +1,17 @@
-// 예시 파일입니다. 자유롭게 사용하세요.
 import { Router } from 'express';
+import {
+  getNotificationsController,
+  getNotificationStreamController,
+  readNotificationController,
+} from './notification.controller';
+import fakeAuthMiddleware from '../../middlewares/fakeAuthMiddleware';
 
 const router = Router();
 
-//테스트용 엔드포인트
-router.get('/test', (req, res) => {
-  return res.json({ test: '테스트' });
-});
+router.get('/stream', fakeAuthMiddleware, getNotificationStreamController);
+
+router.get('/', fakeAuthMiddleware, getNotificationsController);
+
+router.patch('/:id', fakeAuthMiddleware, readNotificationController);
 
 export default router;
