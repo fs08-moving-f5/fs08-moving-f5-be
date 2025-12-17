@@ -1,17 +1,17 @@
 import { Router } from 'express';
+import { authenticate } from '@/middlewares/authMiddleware';
 import {
   getNotificationsController,
   getNotificationStreamController,
   readNotificationController,
 } from './notification.controller';
-import fakeAuthMiddleware from '../../middlewares/fakeAuthMiddleware';
 
 const router = Router();
 
-router.get('/stream', fakeAuthMiddleware, getNotificationStreamController);
+router.get('/stream', authenticate, getNotificationStreamController);
 
-router.get('/', fakeAuthMiddleware, getNotificationsController);
+router.get('/', authenticate, getNotificationsController);
 
-router.patch('/:id', fakeAuthMiddleware, readNotificationController);
+router.patch('/:id', authenticate, readNotificationController);
 
 export default router;
