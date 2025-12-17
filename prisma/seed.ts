@@ -172,7 +172,7 @@ async function main() {
     name: '마스터 유저',
     email: 'master@example.com',
     password: masterPassword,
-    phone: 1000000000,
+    phone: '1000000000',
     refreshTokens: null,
     isDelete: false,
   });
@@ -194,7 +194,7 @@ async function main() {
       name: randomItem(koreanNames),
       email: `user${i + 1}@example.com`,
       password: isLocal ? masterPassword : null,
-      phone: parseInt(`10${String(randomInt(1000, 9999))}${String(randomInt(1000, 9999))}`),
+      phone: `10${String(randomInt(1000, 9999))}${String(randomInt(1000, 9999))}`,
       refreshTokens: null,
       isDelete: false,
     });
@@ -217,7 +217,7 @@ async function main() {
       name: randomItem(koreanNames),
       email: `driver${i + 1}@example.com`,
       password: isLocal ? masterPassword : null,
-      phone: parseInt(`10${String(randomInt(1000, 9999))}${String(randomInt(1000, 9999))}`),
+      phone: `10${String(randomInt(1000, 9999))}${String(randomInt(1000, 9999))}`,
       refreshTokens: null,
       isDelete: false,
     });
@@ -234,7 +234,7 @@ async function main() {
     name: 'new-driver',
     email: 'new-driver@example.com',
     password: masterPassword,
-    phone: 1099999999,
+    phone: '1099999999',
     refreshTokens: null,
     isDelete: false,
   });
