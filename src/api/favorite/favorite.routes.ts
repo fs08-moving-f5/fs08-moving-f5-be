@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import fakeAuthMiddleware from '../../middlewares/fakeAuthMiddleware';
+import { authenticate } from '@/middlewares/authMiddleware';
 import {
   addFavoriteDriverController,
   deleteFavoriteDriverController,
@@ -9,12 +9,12 @@ import {
 
 const router = Router();
 
-router.get('/', fakeAuthMiddleware, getFavoriteDriversController);
+router.get('/', authenticate, getFavoriteDriversController);
 
-router.delete('/driver', fakeAuthMiddleware, deleteManyFavoriteDriverController);
+router.delete('/driver', authenticate, deleteManyFavoriteDriverController);
 
-router.post('/driver/:driverId', fakeAuthMiddleware, addFavoriteDriverController);
+router.post('/driver/:driverId', authenticate, addFavoriteDriverController);
 
-router.delete('/driver/:driverId', fakeAuthMiddleware, deleteFavoriteDriverController);
+router.delete('/driver/:driverId', authenticate, deleteFavoriteDriverController);
 
 export default router;

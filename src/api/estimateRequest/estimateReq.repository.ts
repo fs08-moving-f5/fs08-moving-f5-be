@@ -1,7 +1,9 @@
 import prisma from '../../config/prisma';
 import { Prisma } from '../../generated/client';
 import { ServiceEnum, EstimateStatus, NotificationType } from '../../generated/enums';
-import { HttpError } from '../../types/error';
+import AppError from '@/utils/AppError';
+import HTTP_STATUS from '@/constants/http.constant';
+import ERROR_MESSAGE from '@/constants/errorMessage.constant';
 import {
   GetEstimateRequestsParams,
   CreateEstimateParams,
@@ -126,7 +128,7 @@ export async function createEstimateRepository({
   driverId,
 }: CreateEstimateParams) {
   if (!estimateRequestId) {
-    throw new HttpError('estimateRequestId가 필요합니다.', 400);
+    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
   }
 
   const existingEstimate = await prisma.estimate.findUnique({
@@ -139,7 +141,7 @@ export async function createEstimateRepository({
   });
 
   if (existingEstimate) {
-    throw new HttpError('이미 해당 요청에 견적을 제출했습니다.', 400);
+    throw new AppError(ERROR_MESSAGE.ALREADY_SUBMITTED, HTTP_STATUS.BAD_REQUEST);
   }
 
   return prisma.$transaction(async (tx) => {
@@ -201,7 +203,7 @@ export async function createEstimateRejectRepository({
   driverId,
 }: CreateEstimateRejectParams) {
   if (!estimateRequestId) {
-    throw new HttpError('estimateRequestId가 필요합니다.', 400);
+    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
   }
 
   const existingEstimate = await prisma.estimate.findUnique({
@@ -214,7 +216,7 @@ export async function createEstimateRejectRepository({
   });
 
   if (existingEstimate) {
-    throw new HttpError('이미 해당 요청에 견적을 제출했습니다.', 400);
+    throw new AppError(ERROR_MESSAGE.ALREADY_SUBMITTED, HTTP_STATUS.BAD_REQUEST);
   }
 
   return prisma.$transaction(async (tx) => {
