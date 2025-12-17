@@ -2,7 +2,7 @@
 ### 이 파일은 VSCode REST Client 확장을 사용하여 테스트할 수 있습니다.
 ### 또는 httpYac, Thunder Client 등으로도 사용 가능합니다.
 
-@baseUrl = http://localhost:3000/api/auth
+@baseUrl = http://localhost:4000/api/auth
 @contentType = application/json
 
 ### 변수 (테스트 결과에 따라 업데이트됩니다)
@@ -18,7 +18,7 @@ Content-Type: {{contentType}}
   "email": "testuser@example.com",
   "password": "TestPassword123!",
   "name": "테스트 유저",
-  "phone": 1012345678,
+  "phone": "01012345678",
   "type": "USER"
 }
 
@@ -31,7 +31,7 @@ Content-Type: {{contentType}}
   "email": "testdriver@example.com",
   "password": "TestPassword123!",
   "name": "테스트 기사",
-  "phone": 1087654321,
+  "phone": "01087654321",
   "type": "DRIVER"
 }
 
@@ -91,7 +91,7 @@ Content-Type: {{contentType}}
   "email": "testuser@example.com",
   "password": "TestPassword123!",
   "name": "중복 유저",
-  "phone": 1011112222,
+  "phone": "01011112222",
   "type": "USER"
 }
 
@@ -146,7 +146,7 @@ Content-Type: {{contentType}}
   "email": "invalid-email",
   "password": "TestPassword123!",
   "name": "테스트",
-  "phone": 1012345678,
+  "phone": "01012345678",
   "type": "USER"
 }
 
