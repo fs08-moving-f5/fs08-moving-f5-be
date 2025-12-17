@@ -1,7 +1,9 @@
 import prisma from '../../config/prisma';
 import { Prisma, Review } from '../../generated/client';
 import { ServiceEnum, EstimateStatus, NotificationType } from '../../generated/enums';
-import { HttpError } from '../../types/error';
+import AppError from '@/utils/AppError';
+import HTTP_STATUS from '@/constants/http.constant';
+import ERROR_MESSAGE from '@/constants/errorMessage.constant';
 import {
   GetReviewParams,
   WrittenReviewListResult,
@@ -198,7 +200,7 @@ export async function createReviewRepository({
   userId,
 }: CreateReviewParams) {
   if (!estimateId) {
-    throw new HttpError('estimateId가 필요합니다.', 400);
+    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
   }
 
   const review = await prisma.review.findFirst({
@@ -216,11 +218,11 @@ export async function createReviewRepository({
   });
 
   if (!review) {
-    throw new HttpError('리뷰 대상이 존재하지 않습니다.', 404);
+    throw new AppError(ERROR_MESSAGE.REVIEW.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
   }
 
   if (review.rating !== null || review.content !== null) {
-    throw new HttpError('이미 해당 견적에 리뷰를 제출했습니다.', 400);
+    throw new AppError(ERROR_MESSAGE.ALREADY_WRITTEN, HTTP_STATUS.BAD_REQUEST);
   }
 
   return prisma.$transaction(async (tx) => {
@@ -260,6 +262,6 @@ export async function createReviewRepository({
   });
 }
 
-// Notification / History 실패 시 → 전체 트랜잭션 롤백
+// History 실패 시 → 전체 트랜잭션 롤백
 // 운영 시 원인 파악이 어려울 수 있음
-// 알림/히스토리가 법적 기록, 감사 로그(감사 추적)가 반드시 필요, 금융 / 정산 / 계약 시스템일 경우 현재 구조가 더 안전
+// 히스토리가 법적 기록, 감사 로그(감사 추적)가 반드시 필요, 금융 / 정산 / 계약 시스템일 경우 현재 구조가 더 안전
