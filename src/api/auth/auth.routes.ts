@@ -1,11 +1,19 @@
-// 예시 파일입니다. 자유롭게 사용하세요.
 import { Router } from 'express';
+import {
+  signupController,
+  loginController,
+  logoutController,
+  refreshTokenController,
+  getMeController,
+} from './auth.controller';
+import { authenticate } from '@/middlewares/authMiddleware';
 
 const router = Router();
 
-//테스트용 엔드포인트
-router.get('/test', (req, res) => {
-  return res.json({ test: '테스트' });
-});
+router.post('/signup', signupController);
+router.post('/login', loginController);
+router.post('/logout', authenticate, logoutController);
+router.post('/refresh', refreshTokenController);
+router.get('/me', authenticate, getMeController);
 
 export default router;
