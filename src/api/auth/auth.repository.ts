@@ -1,5 +1,6 @@
-import { User, UserType, Prisma } from '@/generated/client';
 import prisma from '@/config/prisma';
+
+import type { User, UserType, Prisma } from '@/generated/client';
 
 // 이메일로 유저 찾기
 export const findUserByEmailRepository = async (email: string): Promise<User | null> => {
@@ -33,7 +34,7 @@ export const createUserRepository = async (data: {
   email: string;
   password?: string;
   name: string;
-  phone: number;
+  phone: string;
   type: UserType;
   provider?: string;
   providerId?: string;

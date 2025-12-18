@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
 import { signupService, loginService, logoutService, refreshTokenService } from './auth.service';
-import { signupSchema, loginSchema, refreshTokenSchema } from './validators/auth.validators';
+import { signupSchema, loginSchema } from './validators/auth.validators';
 import AppError from '@/utils/AppError';
 import { env } from '@/config/env';
 import asyncHandler from '@/middlewares/asyncHandler';
 import HTTP_STATUS from '@/constants/http.constant';
+
+import type { Request, Response } from 'express';
 
 // 회원가입
 export const signupController = asyncHandler(async (req: Request, res: Response) => {
@@ -71,7 +72,7 @@ export const logoutController = asyncHandler(async (req: Request, res: Response)
 
 // 토큰 갱신
 export const refreshTokenController = asyncHandler(async (req: Request, res: Response) => {
-  const refreshToken = req.cookies.refreshToken || refreshTokenSchema.parse(req.body).refreshToken;
+  const refreshToken = req.cookies.refreshToken; // 쿠키에서 리프레시 토큰 가져오기
 
   if (!refreshToken) {
     throw new AppError('리프레시 토큰이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
@@ -87,7 +88,8 @@ export const refreshTokenController = asyncHandler(async (req: Request, res: Res
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30일
   });
 
-  res.json({
+  res.status(HTTP_STATUS.OK).json({
+    // status 추가
     success: true,
     data: {
       accessToken: tokens.accessToken,
