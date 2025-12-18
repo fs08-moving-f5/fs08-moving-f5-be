@@ -73,7 +73,8 @@ export const loginService = async (
 ): Promise<LoginResponse> => {
   // 유저 조회
   const user = await findUserByEmailRepository(email); // 서비스가 validation 체크하기 - 고민해보기 << 현상유지
-  if (!user) { // 메세지를 백엔드에서 or 프론트엔드에서? ex)토스 << 개발자에게만 보여주는 메세지로 남겨놓기 (프론트에서 관리)
+  if (!user) {
+    // 메세지를 백엔드에서 or 프론트엔드에서? ex)토스 << 개발자에게만 보여주는 메세지로 남겨놓기 (프론트에서 관리)
     throw new AppError('이메일 또는 비밀번호가 올바르지 않습니다', HTTP_STATUS.UNAUTHORIZED);
   }
 

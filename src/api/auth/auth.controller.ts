@@ -72,7 +72,7 @@ export const logoutController = asyncHandler(async (req: Request, res: Response)
 
 // 토큰 갱신
 export const refreshTokenController = asyncHandler(async (req: Request, res: Response) => {
-  const refreshToken = req.cookies.refreshToken;  // 쿠키에서 리프레시 토큰 가져오기
+  const refreshToken = req.cookies.refreshToken; // 쿠키에서 리프레시 토큰 가져오기
 
   if (!refreshToken) {
     throw new AppError('리프레시 토큰이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
@@ -88,7 +88,8 @@ export const refreshTokenController = asyncHandler(async (req: Request, res: Res
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30일
   });
 
-  res.status(HTTP_STATUS.OK).json({ // status 추가
+  res.status(HTTP_STATUS.OK).json({
+    // status 추가
     success: true,
     data: {
       accessToken: tokens.accessToken,
