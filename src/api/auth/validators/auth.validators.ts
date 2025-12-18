@@ -15,18 +15,11 @@ export const passwordSchema = z
   .regex(/[0-9]/, '비밀번호는 숫자를 포함해야 합니다')
   .regex(/[!@#$%^&*(),.?":{}|<>]/, '비밀번호는 특수문자를 포함해야 합니다');
 
-// 전화번호 유효성 검사 (한국 형식: 010-1234-5678 또는 01012345678)
-export const phoneSchema = z.string().refine(
-  (value) => {
-    // 숫자만 추출
-    const digits = value.replace(/\D/g, '');
-    // 010으로 시작하고 11자리인지 확인
-    return /^010\d{8}$/.test(digits);
-  },
-  {
-    message: '올바른 전화번호 형식이 아닙니다 (예: 010-1234-5678 또는 01012345678)',
-  },
-);
+// 전화번호 유효성 검사 (숫자만 허용 및 변환)
+export const phoneSchema = z
+  .string()
+  .transform((value) => value.replace(/\D/g, '')); // 숫자 외 모든 문자 제거
+
 
 // 이름 유효성 검사
 export const nameSchema = z.string().min(2, '이름은 최소 2자 이상이어야 합니다');
