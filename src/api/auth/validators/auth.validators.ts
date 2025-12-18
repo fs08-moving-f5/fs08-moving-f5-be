@@ -16,10 +16,7 @@ export const passwordSchema = z
   .regex(/[!@#$%^&*(),.?":{}|<>]/, '비밀번호는 특수문자를 포함해야 합니다');
 
 // 전화번호 유효성 검사 (숫자만 허용 및 변환)
-export const phoneSchema = z
-  .string()
-  .transform((value) => value.replace(/\D/g, '')); // 숫자 외 모든 문자 제거
-
+export const phoneSchema = z.string().transform((value) => value.replace(/\D/g, '')); // 숫자 외 모든 문자 제거
 
 // 이름 유효성 검사
 export const nameSchema = z.string().min(2, '이름은 최소 2자 이상이어야 합니다');
