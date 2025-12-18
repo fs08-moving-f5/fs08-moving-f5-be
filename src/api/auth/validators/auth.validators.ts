@@ -28,11 +28,7 @@ export const phoneSchema = z
     {
       message: '올바른 전화번호 형식이 아닙니다 (예: 010-1234-5678 또는 01012345678)',
     },
-  )
-  .transform((value) => {
-    // 숫자만 추출하여 저장
-    return parseInt(value.replace(/\D/g, ''));
-  });
+  );
 
 // 이름 유효성 검사
 export const nameSchema = z.string().min(2, '이름은 최소 2자 이상이어야 합니다');

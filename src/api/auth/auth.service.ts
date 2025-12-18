@@ -1,4 +1,3 @@
-import { User, UserType } from '@/generated/client';
 import {
   findUserByEmailRepository,
   findUserByIdRepository,
@@ -14,6 +13,8 @@ import {
 import { LoginResponse, UserResponse, TokenResponse } from '@/types/auth';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
+
+import type { User, UserType } from '@/generated/client';
 
 // User를 UserResponse로 변환하는 헬퍼 함수
 const toUserResponse = (user: User): UserResponse => {
@@ -34,7 +35,7 @@ export const signupService = async (data: {
   email: string;
   password: string;
   name: string;
-  phone: number;
+  phone: string;
   type: UserType;
 }): Promise<LoginResponse> => {
   // 이메일 중복 체크
@@ -71,8 +72,8 @@ export const loginService = async (
   type: UserType,
 ): Promise<LoginResponse> => {
   // 유저 조회
-  const user = await findUserByEmailRepository(email);
-  if (!user) {
+  const user = await findUserByEmailRepository(email); // 서비스가 validation 체크하기 - 고민해보기 << 현상유지
+  if (!user) { // 메세지를 백엔드에서 or 프론트엔드에서? ex)토스 << 개발자에게만 보여주는 메세지로 남겨놓기 (프론트에서 관리)
     throw new AppError('이메일 또는 비밀번호가 올바르지 않습니다', HTTP_STATUS.UNAUTHORIZED);
   }
 

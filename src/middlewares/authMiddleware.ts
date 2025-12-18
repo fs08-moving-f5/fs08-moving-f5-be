@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { UserType } from '../generated/client';
 import { verifyAccessToken } from '../api/auth/utils/auth.utils';
 import AppError from '../utils/AppError';
+import HTTP_STATUS from '@/constants/http.constant';
 
 // JWT 인증 미들웨어
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
@@ -10,7 +11,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new AppError('인증 토큰이 필요합니다', 401);
+      throw new AppError('인증 토큰이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
     }
 
     const token = authHeader.substring(7); // "Bearer " 제거
@@ -28,7 +29,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     if (error instanceof AppError) {
       throw error;
     }
-    throw new AppError('유효하지 않은 토큰입니다', 401);
+    throw new AppError('유효하지 않은 토큰입니다', HTTP_STATUS.UNAUTHORIZED);
   }
 };
 
@@ -36,20 +37,20 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 export const authorizeUserType = (...allowedTypes: UserType[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      throw new AppError('인증이 필요합니다', 401);
+      throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
     }
 
     // 토큰을 다시 검증하여 전체 payload 가져오기
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new AppError('인증 토큰이 필요합니다', 401);
+      throw new AppError('인증 토큰이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
     }
 
     const token = authHeader.substring(7);
     const payload = verifyAccessToken(token);
 
     if (!allowedTypes.includes(payload.type)) {
-      throw new AppError('접근 권한이 없습니다', 403);
+      throw new AppError('접근 권한이 없습니다', HTTP_STATUS.FORBIDDEN);
     }
 
     next();
