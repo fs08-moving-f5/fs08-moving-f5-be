@@ -1,10 +1,15 @@
 import { Router } from 'express';
+import { authenticate } from '@/middlewares/authMiddleware';
+import {
+  getEstimateRequestsInProgress,
+  createEstimateRequest,
+} from './estimateReq.user.controller';
 
 const router = Router();
 
-//테스트용 엔드포인트
-router.get('/test', (req, res) => {
-  return res.json({ test: '테스트' });
-});
+// 진행 중인 견적 조회 (유저)
+router.get('/pending', authenticate, getEstimateRequestsInProgress);
+// 견적 요청 (유저)
+router.post('/request', authenticate, createEstimateRequest);
 
 export default router;
