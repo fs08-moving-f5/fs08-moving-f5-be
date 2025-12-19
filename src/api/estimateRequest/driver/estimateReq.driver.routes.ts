@@ -1,30 +1,26 @@
 //
 import { Router } from 'express';
 import * as controller from './estimateReq.driver.controller';
-import fakeAuthMiddleware from '@/middlewares/fakeAuthMiddleware';
+import { authenticate } from '@/middlewares/authMiddleware';
 
 const router = Router();
 
 // 받은 견적 요청 목록 조회 (기사)
-router.get('/requests', fakeAuthMiddleware, controller.getEstimateRequests);
+router.get('/requests', authenticate, controller.getEstimateRequests);
 
 // 견적 보내기 (기사)
-router.post('/requests/:estimateRequestId/create', fakeAuthMiddleware, controller.createEstimate);
+router.post('/requests/:estimateRequestId/create', authenticate, controller.createEstimate);
 
 // 견적 반려 (기사)
-router.post(
-  '/requests/:estimateRequestId/reject',
-  fakeAuthMiddleware,
-  controller.createEstimateReject,
-);
+router.post('/requests/:estimateRequestId/reject', authenticate, controller.createEstimateReject);
 
 // 확정 견적 목록 조회 (기사)
-router.get('/confirms', fakeAuthMiddleware, controller.getEstimateConfirm);
+router.get('/confirms', authenticate, controller.getEstimateConfirm);
 
 // 확정 견적 상세 조회 (기사)
-router.get('/confirms/:estimateId', fakeAuthMiddleware, controller.getEstimateConfirmId);
+router.get('/confirms/:estimateId', authenticate, controller.getEstimateConfirmId);
 
 // 반려 견적 목록 조회 (기사)
-router.get('/rejects', fakeAuthMiddleware, controller.getEstimateReject);
+router.get('/rejects', authenticate, controller.getEstimateReject);
 
 export default router;
