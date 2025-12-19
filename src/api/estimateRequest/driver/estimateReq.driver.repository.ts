@@ -90,6 +90,8 @@ export async function getEstimateRequestsRepository({
       movingType: true,
       movingDate: true,
       isDesignated: true,
+      createdAt: true,
+      updatedAt: true,
       user: { select: { id: true, name: true } },
       addresses: {
         select: {
@@ -114,6 +116,8 @@ export async function getEstimateRequestsRepository({
       movingType: req.movingType,
       movingDate: req.movingDate,
       isDesignated: req.isDesignated,
+      createdAt: req.createdAt,
+      updatedAt: req.updatedAt,
       from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
       to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
     };
