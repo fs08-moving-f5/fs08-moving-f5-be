@@ -342,6 +342,7 @@ export const getEstimateDetailRepository = async ({ estimateId }: { estimateId: 
       driver: {
         select: {
           id: true,
+          name: true,
           driverProfile: {
             select: {
               id: true,
@@ -398,6 +399,7 @@ export const getReceivedEstimatesRepository = async ({
       driver: {
         select: {
           id: true,
+          name: true,
           driverProfile: {
             select: {
               id: true,

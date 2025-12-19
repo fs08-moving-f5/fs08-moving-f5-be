@@ -160,6 +160,10 @@
  *           format: uuid
  *           description: 드라이버(기사) ID
  *           example: "123e4567-e89b-12d3-a456-426614174005"
+ *         name:
+ *           type: string
+ *           description: 드라이버 이름
+ *           example: "홍길동"
  *         isFavorite:
  *           type: boolean
  *           description: 찜하기 여부
@@ -269,6 +273,10 @@
  *               type: string
  *               format: uuid
  *               description: 드라이버 ID
+ *             name:
+ *               type: string
+ *               description: 드라이버 이름
+ *               example: "홍길동"
  *             driverProfile:
  *               oneOf:
  *                 - $ref: '#/components/schemas/DriverProfile'
@@ -336,6 +344,10 @@
  *                   type: string
  *                   format: uuid
  *                   description: 드라이버 ID
+ *                 name:
+ *                   type: string
+ *                   description: 드라이버 이름
+ *                   example: "홍길동"
  *                 driverProfile:
  *                   oneOf:
  *                     - $ref: '#/components/schemas/DriverProfile'
@@ -513,6 +525,7 @@
  *                           createdAt: "2024-01-15T10:30:00Z"
  *                           driver:
  *                             id: "123e4567-e89b-12d3-a456-426614174005"
+ *                             name: "홍길동"
  *                             isFavorite: true
  *                             driverProfile:
  *                               id: "123e4567-e89b-12d3-a456-426614174003"
@@ -528,6 +541,7 @@
  *                           createdAt: "2024-01-15T11:00:00Z"
  *                           driver:
  *                             id: "123e4567-e89b-12d3-a456-426614174007"
+ *                             name: "김철수"
  *                             isFavorite: false
  *                             driverProfile:
  *                               id: "123e4567-e89b-12d3-a456-426614174008"
@@ -606,6 +620,7 @@
  *                             sigungu: "강남구"
  *                       driver:
  *                         id: "123e4567-e89b-12d3-a456-426614174005"
+ *                         name: "홍길동"
  *                         driverProfile:
  *                           id: "123e4567-e89b-12d3-a456-426614174003"
  *                           imageUrl: "https://example.com/image.jpg"
@@ -637,6 +652,7 @@
  *                             sigungu: "강남구"
  *                       driver:
  *                         id: "123e4567-e89b-12d3-a456-426614174005"
+ *                         name: "홍길동"
  *                         driverProfile:
  *                           id: "123e4567-e89b-12d3-a456-426614174003"
  *                           imageUrl: "https://example.com/image.jpg"
@@ -718,6 +734,7 @@
  *                           address: "서울특별시 송파구 올림픽로 456"
  *                     driver:
  *                       id: "123e4567-e89b-12d3-a456-426614174005"
+ *                       name: "홍길동"
  *                       driverProfile:
  *                         id: "123e4567-e89b-12d3-a456-426614174003"
  *                         imageUrl: "https://example.com/image.jpg"
