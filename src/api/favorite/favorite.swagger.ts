@@ -125,10 +125,10 @@
  *               description: 드라이버 ID
  *               example: "123e4567-e89b-12d3-a456-426614174002"
  *             driverProfile:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/DriverProfileInfo'
- *               description: 드라이버 프로필 정보 목록
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/DriverProfileInfo'
+ *                 - type: "null"
+ *               description: 드라이버 프로필 정보
  *             reviews:
  *               type: array
  *               items:
@@ -289,15 +289,15 @@
  *                       driver:
  *                         id: "123e4567-e89b-12d3-a456-426614174002"
  *                         driverProfile:
- *                           - id: "123e4567-e89b-12d3-a456-426614174003"
- *                             imageUrl: "https://example.com/image.jpg"
- *                             career: "5년차 전문 이사 기사"
- *                             shortIntro: "안전하고 신속한 이사를 약속드립니다"
- *                             description: "10년 이상의 경력을 가진 전문 이사 기사입니다."
- *                             tasksCount: 150
- *                             favoriteCount: 45
- *                             createdAt: "2024-01-10T09:00:00Z"
- *                             updatedAt: "2024-01-15T10:00:00Z"
+ *                           id: "123e4567-e89b-12d3-a456-426614174003"
+ *                           imageUrl: "https://example.com/image.jpg"
+ *                           career: "5년차 전문 이사 기사"
+ *                           shortIntro: "안전하고 신속한 이사를 약속드립니다"
+ *                           description: "10년 이상의 경력을 가진 전문 이사 기사입니다."
+ *                           tasksCount: 150
+ *                           favoriteCount: 45
+ *                           createdAt: "2024-01-10T09:00:00Z"
+ *                           updatedAt: "2024-01-15T10:00:00Z"
  *                         reviews:
  *                           - id: "123e4567-e89b-12d3-a456-426614174004"
  *                             rating: 5
