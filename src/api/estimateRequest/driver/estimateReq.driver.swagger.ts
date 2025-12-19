@@ -1,5 +1,151 @@
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     EstimateConfirm:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           description: 견적 ID
+ *           example: "123e4567-e89b-12d3-a456-426614174000"
+ *         price:
+ *           type: integer
+ *           nullable: true
+ *           description: 견적 가격 (원)
+ *           example: 500000
+ *         status:
+ *           type: string
+ *           enum: [PENDING, CONFIRMED]
+ *           description: 견적 상태
+ *           example: "PENDING"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: 생성 일시
+ *           example: "2024-01-15T10:30:00Z"
+ *         hasReview:
+ *           type: boolean
+ *           description: 리뷰 작성 여부
+ *           example: false
+ *         user:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: string
+ *               format: uuid
+ *               description: 사용자 ID
+ *               example: "123e4567-e89b-12d3-a456-426614174001"
+ *             name:
+ *               type: string
+ *               description: 사용자 이름
+ *               example: "홍길동"
+ *         movingType:
+ *           type: string
+ *           enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
+ *           description: 이사 유형
+ *           example: "HOME_MOVING"
+ *         movingDate:
+ *           type: string
+ *           format: date-time
+ *           description: 이사 예정일
+ *           example: "2024-02-01T09:00:00Z"
+ *         isDesignated:
+ *           type: boolean
+ *           description: 지정 기사 여부
+ *           example: false
+ *         from:
+ *           type: object
+ *           nullable: true
+ *           properties:
+ *             sido:
+ *               type: string
+ *               description: 시도
+ *               example: "서울특별시"
+ *             sigungu:
+ *               type: string
+ *               description: 시군구
+ *               example: "강남구"
+ *         to:
+ *           type: object
+ *           nullable: true
+ *           properties:
+ *             sido:
+ *               type: string
+ *               description: 시도
+ *               example: "부산광역시"
+ *             sigungu:
+ *               type: string
+ *               description: 시군구
+ *               example: "해운대구"
+ *
+ *     EstimateConfirmDetail:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           description: 견적 ID
+ *           example: "123e4567-e89b-12d3-a456-426614174000"
+ *         price:
+ *           type: integer
+ *           nullable: true
+ *           description: 견적 가격 (원)
+ *           example: 500000
+ *         userName:
+ *           type: string
+ *           description: 사용자 이름
+ *           example: "홍길동"
+ *         movingType:
+ *           type: string
+ *           enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
+ *           description: 이사 유형
+ *           example: "HOME_MOVING"
+ *         movingDate:
+ *           type: string
+ *           format: date-time
+ *           description: 이사 예정일
+ *           example: "2024-02-01T09:00:00Z"
+ *         isDesignated:
+ *           type: boolean
+ *           description: 지정 기사 여부
+ *           example: false
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: 생성 일시
+ *           example: "2024-01-15T10:00:00Z"
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: 수정 일시
+ *           example: "2024-01-15T11:00:00Z"
+ *         fromAddress:
+ *           type: string
+ *           nullable: true
+ *           description: 출발지 주소
+ *           example: "서울특별시 강남구 테헤란로 123"
+ *         toAddress:
+ *           type: string
+ *           nullable: true
+ *           description: 도착지 주소
+ *           example: "부산광역시 해운대구 해운대해변로 264"
+ *
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: 에러 메시지
+ *         name:
+ *           type: string
+ *           description: 에러 이름
+ *         stack:
+ *           type: string
+ *           nullable: true
+ *           description: 에러 스택 트레이스 (개발 환경에서만 제공)
+ *
  * tags:
  *   name: EstimateReq
  *   description: 기사 견적 관련 API
