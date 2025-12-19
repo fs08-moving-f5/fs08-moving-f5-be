@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
-import * as service from './estimateReq.service';
+import * as service from './estimateReq.driver.service';
 import {
   GetEstimateRequestsParams,
   CreateEstimateParams,
   CreateEstimateRejectParams,
   EstimateSort,
   GetEstimateParams,
-} from '../../types/driverEstimate';
-import { ServiceEnum, EstimateStatus } from '../../generated/enums';
-import asyncHandler from '../../middlewares/asyncHandler';
+} from '@/types/driverEstimate';
+import { ServiceEnum, EstimateStatus } from '@/generated/enums';
+import asyncHandler from '@/middlewares/asyncHandler';
 
 // 받은 요청 목록 조회(기사)
 export const getEstimateRequests = asyncHandler(async (req: Request, res: Response) => {

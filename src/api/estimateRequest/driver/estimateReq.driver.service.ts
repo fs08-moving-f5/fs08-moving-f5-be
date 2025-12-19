@@ -1,4 +1,4 @@
-import * as repo from './estimateReq.repository';
+import * as repo from './estimateReq.driver.repository';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 import ERROR_MESSAGE from '@/constants/errorMessage.constant';
@@ -7,7 +7,7 @@ import {
   CreateEstimateParams,
   CreateEstimateRejectParams,
   GetEstimateParams,
-} from '../../types/driverEstimate';
+} from '@/types/driverEstimate';
 
 // 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsService(params: GetEstimateRequestsParams) {
