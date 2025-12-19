@@ -111,6 +111,7 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
             id: estimate.driver.id,
             name: estimate.driver.name,
             isFavorite: favoriteDriverIds.has(estimate.driver.id),
+            favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
             driverProfile: estimate.driver.driverProfile
               ? {
                   ...estimate.driver.driverProfile,
