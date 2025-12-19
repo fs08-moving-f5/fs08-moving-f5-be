@@ -104,6 +104,7 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
     estimates: request.estimate.map((estimate) => ({
       id: estimate.id,
       price: estimate.price,
+      status: estimate.status,
       createdAt: estimate.createdAt,
       driver: estimate.driver
         ? {

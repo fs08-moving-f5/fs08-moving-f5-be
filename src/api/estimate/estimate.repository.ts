@@ -95,6 +95,7 @@ export const getPendingEstimatesRepository = async ({ userId }: { userId: string
         select: {
           id: true,
           price: true,
+          status: true,
           createdAt: true,
           driver: {
             select: {
@@ -104,6 +105,7 @@ export const getPendingEstimatesRepository = async ({ userId }: { userId: string
                   id: true,
                   imageUrl: true,
                   career: true,
+                  shortIntro: true,
                 },
               },
             },
