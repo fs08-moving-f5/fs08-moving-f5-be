@@ -100,6 +100,7 @@ export const getPendingEstimatesRepository = async ({ userId }: { userId: string
           driver: {
             select: {
               id: true,
+              name: true,
               driverProfile: {
                 select: {
                   id: true,
