@@ -183,6 +183,11 @@
  *           nullable: true
  *           description: 견적 가격 (원)
  *           example: 500000
+ *         status:
+ *           type: string
+ *           enum: [PENDING, CONFIRMED, REJECTED, CANCELLED]
+ *           description: 견적 상태
+ *           example: "PENDING"
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -504,6 +509,7 @@
  *                       estimates:
  *                         - id: "123e4567-e89b-12d3-a456-426614174000"
  *                           price: 500000
+ *                           status: "PENDING"
  *                           createdAt: "2024-01-15T10:30:00Z"
  *                           driver:
  *                             id: "123e4567-e89b-12d3-a456-426614174005"
@@ -512,11 +518,13 @@
  *                               id: "123e4567-e89b-12d3-a456-426614174003"
  *                               imageUrl: "https://example.com/image.jpg"
  *                               career: "5년차 전문 이사 기사"
+ *                               shortIntro: "안전하고 신속한 이사를 약속드립니다"
  *                               confirmedEstimateCount: 150
  *                               favoriteDriverCount: 45
  *                               averageRating: 4.5
  *                         - id: "123e4567-e89b-12d3-a456-426614174006"
  *                           price: 450000
+ *                           status: "PENDING"
  *                           createdAt: "2024-01-15T11:00:00Z"
  *                           driver:
  *                             id: "123e4567-e89b-12d3-a456-426614174007"
@@ -525,6 +533,7 @@
  *                               id: "123e4567-e89b-12d3-a456-426614174008"
  *                               imageUrl: "https://example.com/image2.jpg"
  *                               career: "10년차 전문 이사 기사"
+ *                               shortIntro: "경험 많은 전문가가 책임지고 진행합니다"
  *                               confirmedEstimateCount: 200
  *                               favoriteDriverCount: 60
  *                               averageRating: 4.8
