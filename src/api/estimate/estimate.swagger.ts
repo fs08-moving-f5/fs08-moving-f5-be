@@ -155,8 +155,9 @@
  *           description: 드라이버(기사) ID
  *           example: "123e4567-e89b-12d3-a456-426614174005"
  *         driverProfile:
- *           $ref: '#/components/schemas/DriverProfile'
- *           nullable: true
+ *           oneOf:
+ *             - $ref: '#/components/schemas/DriverProfile'
+ *             - type: "null"
  *           description: 드라이버 프로필 정보
  *         reviews:
  *           type: array
@@ -252,8 +253,9 @@
  *               format: uuid
  *               description: 드라이버 ID
  *             driverProfile:
- *               $ref: '#/components/schemas/DriverProfile'
- *               nullable: true
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/DriverProfile'
+ *                 - type: "null"
  *               description: 드라이버 프로필 정보
  *           description: 드라이버 정보
  *
@@ -310,30 +312,32 @@
  *               description: 주소 정보 목록
  *           description: 견적 요청 정보
  *         driver:
- *           type: object
- *           nullable: true
- *           properties:
- *             id:
- *               type: string
- *               format: uuid
- *               description: 드라이버 ID
- *             driverProfile:
- *               $ref: '#/components/schemas/DriverProfile'
- *               nullable: true
- *               description: 드라이버 프로필 정보
- *             reviews:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                     format: uuid
- *                   rating:
- *                     type: integer
- *                     minimum: 1
- *                     maximum: 5
- *               description: 리뷰 목록
+ *           oneOf:
+ *             - type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   format: uuid
+ *                   description: 드라이버 ID
+ *                 driverProfile:
+ *                   oneOf:
+ *                     - $ref: '#/components/schemas/DriverProfile'
+ *                     - type: "null"
+ *                   description: 드라이버 프로필 정보
+ *                 reviews:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: uuid
+ *                       rating:
+ *                         type: integer
+ *                         minimum: 1
+ *                         maximum: 5
+ *                   description: 리뷰 목록
+ *             - type: "null"
  *           description: 드라이버 정보
  *
  *     ConfirmedEstimate:
