@@ -29,6 +29,10 @@ app.use('/api', apiRouter);
 
 // 4. Swagger 문서
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/openapi.json', (_req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.status(200).send(swaggerSpec);
+});
 
 // 5. 404 + Error Handler
 app.use(notFoundHandler);

@@ -1,6 +1,6 @@
-import prisma from '../../config/prisma';
-import { Prisma } from '../../generated/client';
-import { ServiceEnum, EstimateStatus, NotificationType } from '../../generated/enums';
+import prisma from '@/config/prisma';
+import { Prisma } from '@/generated/client';
+import { ServiceEnum, EstimateStatus, NotificationType } from '@/generated/enums';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 import ERROR_MESSAGE from '@/constants/errorMessage.constant';
@@ -9,9 +9,9 @@ import {
   CreateEstimateParams,
   CreateEstimateRejectParams,
   GetEstimateParams,
-} from '../../types/driverEstimate';
-import splitAddresses from '../../utils/splitAddresses';
-import { createNotificationAndPushUnreadService } from '../notification/notification.service';
+} from '@/types/driverEstimate';
+import splitAddresses from '@/utils/splitAddresses';
+import { createNotificationAndPushUnreadService } from '../../notification/notification.service';
 
 const DEFAULT_TAKE = 6;
 
@@ -90,6 +90,8 @@ export async function getEstimateRequestsRepository({
       movingType: true,
       movingDate: true,
       isDesignated: true,
+      createdAt: true,
+      updatedAt: true,
       user: { select: { id: true, name: true } },
       addresses: {
         select: {
@@ -114,6 +116,8 @@ export async function getEstimateRequestsRepository({
       movingType: req.movingType,
       movingDate: req.movingDate,
       isDesignated: req.isDesignated,
+      createdAt: req.createdAt,
+      updatedAt: req.updatedAt,
       from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
       to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
     };
