@@ -1,55 +1,116 @@
 import prisma from '../../config/prisma';
 import { EstimateStatus } from '../../generated/client';
 
+// 기존 코드 (Estimate 기준 조회)
+// export const getPendingEstimatesRepository = async ({ userId }: { userId: string }) => {
+//   return await prisma.estimate.findMany({
+//     where: {
+//       status: EstimateStatus.PENDING,
+//       isDelete: false,
+//       estimateRequest: {
+//         userId,
+//         isDelete: false,
+//         status: EstimateStatus.PENDING,
+//       },
+//     },
+//     select: {
+//       id: true,
+//       price: true,
+//       createdAt: true,
+//       estimateRequest: {
+//         select: {
+//           id: true,
+//           movingType: true,
+//           movingDate: true,
+//           isDesignated: true,
+//           createdAt: true,
+//           addresses: {
+//             select: {
+//               id: true,
+//               addressType: true,
+//               sido: true,
+//               sigungu: true,
+//             },
+//           },
+//         },
+//       },
+//       driver: {
+//         select: {
+//           id: true,
+//           driverProfile: {
+//             select: {
+//               id: true,
+//               imageUrl: true,
+//               career: true,
+//             },
+//           },
+//           reviews: {
+//             select: {
+//               id: true,
+//               rating: true,
+//               createdAt: true,
+//             },
+//           },
+//         },
+//       },
+//     },
+//     orderBy: {
+//       createdAt: 'desc',
+//     },
+//   });
+// };
+
 export const getPendingEstimatesRepository = async ({ userId }: { userId: string }) => {
-  return await prisma.estimate.findMany({
+  return await prisma.estimateRequest.findMany({
     where: {
+      userId,
       status: EstimateStatus.PENDING,
       isDelete: false,
-      estimateRequest: {
-        userId,
-        isDelete: false,
-        status: EstimateStatus.PENDING,
+      estimate: {
+        some: {
+          status: EstimateStatus.PENDING,
+          isDelete: false,
+        },
       },
     },
     select: {
       id: true,
-      price: true,
+      movingType: true,
+      movingDate: true,
+      isDesignated: true,
       createdAt: true,
-      estimateRequest: {
+      addresses: {
         select: {
           id: true,
-          movingType: true,
-          movingDate: true,
-          isDesignated: true,
+          addressType: true,
+          sido: true,
+          sigungu: true,
+        },
+      },
+      estimate: {
+        where: {
+          status: EstimateStatus.PENDING,
+          isDelete: false,
+        },
+        select: {
+          id: true,
+          price: true,
           createdAt: true,
-          addresses: {
+          driver: {
             select: {
               id: true,
-              addressType: true,
-              sido: true,
-              sigungu: true,
+              driverProfile: {
+                select: {
+                  id: true,
+                  imageUrl: true,
+                  career: true,
+                },
+              },
             },
           },
         },
-      },
-      driver: {
-        select: {
-          id: true,
-          driverProfile: {
-            select: {
-              id: true,
-              imageUrl: true,
-              career: true,
-            },
-          },
-          reviews: {
-            select: {
-              id: true,
-              rating: true,
-              createdAt: true,
-            },
-          },
+        orderBy: {
+          createdAt: 'desc',
         },
       },
     },
@@ -81,9 +142,6 @@ export const getUserFavoriteDriversRepository = async ({
 
 // ========== Driver 통계 조회 (여러 driverIds) ==========
 
-/**
- * 여러 driver들의 CONFIRMED 상태 Estimate 개수 조회
- */
 export const getConfirmedEstimateCountRepository = async ({
   driverIds,
 }: {
@@ -111,9 +169,6 @@ export const getConfirmedEstimateCountRepository = async ({
   });
 };
 
-/**
- * 여러 driver들의 favorite 수 조회
- */
 export const getFavoriteDriverCountRepository = async ({ driverIds }: { driverIds: string[] }) => {
   if (driverIds.length === 0) {
     return [];
@@ -135,11 +190,46 @@ export const getFavoriteDriverCountRepository = async ({ driverIds }: { driverId
   });
 };
 
+export const getDriverReviewAverageRepository = async ({ driverIds }: { driverIds: string[] }) => {
+  if (driverIds.length === 0) {
+    return [];
+  }
+
+  // 각 driver별로 리뷰 평균 계산 (원시 데이터 반환)
+  const reviewAverages = await Promise.all(
+    driverIds.map(async (driverId) => {
+      const result = await prisma.review.aggregate({
+        where: {
+          estimate: {
+            driverId,
+            status: EstimateStatus.CONFIRMED,
+            isDelete: false,
+          },
+          rating: {
+            not: null,
+          },
+        },
+        _avg: {
+          rating: true,
+        },
+        _count: {
+          id: true,
+        },
+      });
+
+      return {
+        driverId,
+        averageRating: result._avg.rating, // 원시 데이터 (null 또는 number)
+        reviewCount: result._count.id,
+      };
+    }),
+  );
+
+  return reviewAverages;
+};
+
 // ========== Driver 통계 조회 (단일 driverId) ==========
 
-/**
- * 단일 driver의 CONFIRMED 상태 Estimate 개수 조회
- */
 export const getConfirmedEstimateCountByDriverIdRepository = async ({
   driverId,
 }: {
@@ -157,9 +247,6 @@ export const getConfirmedEstimateCountByDriverIdRepository = async ({
   });
 };
 
-/**
- * 단일 driver의 favorite 수 조회
- */
 export const getFavoriteDriverCountByDriverIdRepository = async ({
   driverId,
 }: {
@@ -173,6 +260,31 @@ export const getFavoriteDriverCountByDriverIdRepository = async ({
       },
     },
   });
+};
+
+export const getDriverReviewAverageByDriverIdRepository = async ({
+  driverId,
+}: {
+  driverId: string;
+}) => {
+  const result = await prisma.review.aggregate({
+    where: {
+      estimate: {
+        driverId,
+        status: EstimateStatus.CONFIRMED,
+        isDelete: false,
+      },
+      rating: {
+        not: null,
+      },
+    },
+    _avg: {
+      rating: true,
+    },
+  });
+
+  // Repository는 원시 데이터만 반환 (데이터 변환은 Service 레이어에서)
+  return result._avg.rating;
 };
 
 export const confirmEstimateRepository = async ({ estimateId }: { estimateId: string }) => {
@@ -233,12 +345,6 @@ export const getEstimateDetailRepository = async ({ estimateId }: { estimateId: 
               imageUrl: true,
               career: true,
               shortIntro: true,
-            },
-          },
-          reviews: {
-            select: {
-              id: true,
-              rating: true,
             },
           },
         },
