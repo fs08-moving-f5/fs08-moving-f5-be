@@ -73,6 +73,46 @@ const koreanNames = [
   '류현수',
   '마동석',
   '서지훈',
+  '황보민',
+  '남궁준',
+  '독고영',
+  '사공혜',
+  '제갈우',
+  '선우진',
+  '어윤수',
+  '빈혜림',
+  '탁민규',
+  '계동욱',
+  '옥지훈',
+  '공혜진',
+  '망태현',
+  '청지원',
+  '평나영',
+  '초성호',
+  '필수진',
+  '화지은',
+  '풍미영',
+  '설준호',
+  '설동욱',
+  '설민수',
+  '설영희',
+  '설태현',
+  '설소영',
+  '설대현',
+  '설혜진',
+  '설민규',
+  '설지현',
+  '설성민',
+  '설나영',
+  '설진우',
+  '설지원',
+  '설승현',
+  '설혜림',
+  '설상우',
+  '설은지',
+  '설현수',
+  '설동석',
+  '설지훈',
 ];
 
 const driverNicknames = [
@@ -111,17 +151,45 @@ const descriptions = [
   '고객 중심의 서비스를 제공하며, 이사 전 상담부터 이사 후 정리까지 꼼꼼하게 챙겨드립니다. 믿고 맡기실 수 있는 이사 전문가입니다.',
 ];
 
+const driverImageUrls = [
+  'https://i.namu.wiki/i/R9CaXvBxFRYSOxfdLYvoMGskeQmKRYSosCjJetLZR7NUQcsqAIy3AHeg4T875zLLARCKvPyVM3SbmqRayxsvrbhL-uw4ZNpC8PFh4lu7NwrOkZcxwcKV1YmyOTZwOJ0WxMF76j0-sFCSuq3QtFxQDg.webp',
+  'https://i.namu.wiki/i/67NnDWsYGsinFvAlcL-sWsUMYPLAvGe3Dvp23MH-GbKffBkY_BgbCoYNR94tzJLYteX8qKhrLgt-m2PmCbaLCb6KQlqS94DW-QtQR31C3zcPw0wzFeHlc60-QmG9tKIziCARlivxqz1d4_ox6V9LKQ.webp',
+];
+
 const addresses = [
   { sido: '서울특별시', sigungu: '강남구', address: '테헤란로 123', zoneCode: '06141' },
   { sido: '서울특별시', sigungu: '강동구', address: '천호대로 456', zoneCode: '05278' },
   { sido: '서울특별시', sigungu: '송파구', address: '올림픽로 789', zoneCode: '05551' },
+  { sido: '서울특별시', sigungu: '강서구', address: '공항대로 321', zoneCode: '07590' },
+  { sido: '서울특별시', sigungu: '서초구', address: '서초대로 654', zoneCode: '06570' },
+  { sido: '서울특별시', sigungu: '마포구', address: '홍대로 987', zoneCode: '04120' },
+  { sido: '서울특별시', sigungu: '용산구', address: '한강대로 147', zoneCode: '04340' },
+  { sido: '서울특별시', sigungu: '종로구', address: '세종대로 258', zoneCode: '03150' },
   { sido: '경기도', sigungu: '성남시', address: '분당구 정자동 101', zoneCode: '13561' },
   { sido: '경기도', sigungu: '수원시', address: '영통구 월드컵로 202', zoneCode: '16490' },
+  { sido: '경기도', sigungu: '고양시', address: '일산동구 중앙로 369', zoneCode: '10300' },
+  { sido: '경기도', sigungu: '용인시', address: '기흥구 신갈로 741', zoneCode: '16890' },
+  { sido: '경기도', sigungu: '안양시', address: '만안구 안양로 852', zoneCode: '13900' },
   { sido: '인천광역시', sigungu: '연수구', address: '송도과학로 303', zoneCode: '21984' },
+  { sido: '인천광역시', sigungu: '남동구', address: '인주대로 963', zoneCode: '21580' },
   { sido: '부산광역시', sigungu: '해운대구', address: '해운대해변로 404', zoneCode: '48058' },
+  { sido: '부산광역시', sigungu: '사상구', address: '낙동대로 741', zoneCode: '46940' },
   { sido: '대구광역시', sigungu: '수성구', address: '범어천로 505', zoneCode: '42211' },
+  { sido: '대구광역시', sigungu: '중구', address: '중앙대로 852', zoneCode: '41920' },
   { sido: '대전광역시', sigungu: '유성구', address: '대학로 606', zoneCode: '34111' },
+  { sido: '대전광역시', sigungu: '서구', address: '둔산대로 963', zoneCode: '35260' },
   { sido: '광주광역시', sigungu: '북구', address: '첨단과기로 707', zoneCode: '61007' },
+  { sido: '광주광역시', sigungu: '서구', address: '상무중앙로 147', zoneCode: '61920' },
+  { sido: '울산광역시', sigungu: '남구', address: '삼산로 258', zoneCode: '44790' },
+  { sido: '세종특별자치시', sigungu: '조치원읍', address: '세종로 369', zoneCode: '30010' },
+  { sido: '강원도', sigungu: '춘천시', address: '중앙로 741', zoneCode: '24210' },
+  { sido: '충청북도', sigungu: '청주시', address: '상당로 852', zoneCode: '28110' },
+  { sido: '충청남도', sigungu: '천안시', address: '서북구 번영로 963', zoneCode: '31010' },
+  { sido: '전라북도', sigungu: '전주시', address: '완산구 태평로 147', zoneCode: '55010' },
+  { sido: '전라남도', sigungu: '목포시', address: '해안로 258', zoneCode: '58610' },
+  { sido: '경상북도', sigungu: '포항시', address: '남구 대잠동 369', zoneCode: '37600' },
+  { sido: '경상남도', sigungu: '창원시', address: '성산구 중앙대로 741', zoneCode: '51410' },
+  { sido: '제주특별자치도', sigungu: '제주시', address: '연오로 852', zoneCode: '63110' },
 ];
 
 const reviewContents = [
@@ -154,7 +222,7 @@ async function main() {
   await prisma.user.deleteMany();
   console.log('✅ Existing data deleted\n');
 
-  // User 생성 (일반 유저 25명, 기사님 15명, 마스터 유저 1명 = 총 41명)
+  // User 생성 (일반 유저 125명, 기사님 75명, 마스터 유저 1명, new-driver 1명, 테스트 유저 3명 = 총 205명)
   console.log('👥 Creating users...');
   const users: Prisma.UserCreateManyInput[] = [];
   const userIds: string[] = [];
@@ -177,8 +245,8 @@ async function main() {
     isDelete: false,
   });
 
-  // 일반 유저 25명 생성
-  for (let i = 0; i < 25; i++) {
+  // 일반 유저 125명 생성 (5배)
+  for (let i = 0; i < 125; i++) {
     const userId = uuidv4();
     userIds.push(userId);
 
@@ -200,8 +268,8 @@ async function main() {
     });
   }
 
-  // 기사님 15명 생성
-  for (let i = 0; i < 15; i++) {
+  // 기사님 75명 생성 (5배)
+  for (let i = 0; i < 75; i++) {
     const driverId = uuidv4();
     driverIds.push(driverId);
 
@@ -239,34 +307,52 @@ async function main() {
     isDelete: false,
   });
 
+  // 추가 테스트 유저 3명 (다양한 시나리오 테스트용)
+  for (let i = 0; i < 3; i++) {
+    const testUserId = uuidv4();
+    userIds.push(testUserId);
+    users.push({
+      id: testUserId,
+      providerId: null,
+      provider: 'local',
+      type: 'USER',
+      name: `테스트유저${i + 1}`,
+      email: `testuser${i + 1}@example.com`,
+      password: masterPassword,
+      phone: `10${9000 + i}000000`,
+      refreshTokens: null,
+      isDelete: false,
+    });
+  }
+
   await prisma.user.createMany({ data: users, skipDuplicates: true });
   console.log(
     `✅ Created ${users.length} users (${userIds.length} users, ${driverIds.length} drivers)\n`,
   );
 
-  // UserProfile 생성 (일반 유저 중 20명만 프로필 생성 - 5명은 프로필 없음, 마스터 유저는 프로필 있음)
+  // UserProfile 생성 (일반 유저 중 100명만 프로필 생성 - 25명은 프로필 없음, 마스터 유저는 프로필 있음)
   console.log('👤 Creating user profiles...');
-  const usersWithProfile = [masterUserId, ...userIds.slice(1, 20)]; // 마스터 유저 포함
+  const usersWithProfile = [masterUserId, ...userIds.slice(1, 100)]; // 마스터 유저 포함
   const userProfiles: Prisma.UserProfileCreateManyInput[] = usersWithProfile.map((userId) => ({
     userId,
     imageUrl: `https://example.com/profile/${userId}.jpg`,
-    regions: randomItems(regions, randomInt(1, 3)),
+    regions: randomItems(regions, randomInt(1, 5)),
     services: randomItems(services, randomInt(1, 3)),
   }));
 
   await prisma.userProfile.createMany({ data: userProfiles, skipDuplicates: true });
   console.log(`✅ Created ${userProfiles.length} user profiles\n`);
 
-  // DriverProfile 생성 (기사님 15명 전부 프로필 생성 + new-driver)
+  // DriverProfile 생성 (기사님 75명 전부 프로필 생성 + new-driver)
   console.log('🚗 Creating driver profiles...');
   const driverProfiles: Prisma.DriverProfileCreateManyInput[] = driverIds.map(
     (driverId, index) => ({
       driverId,
-      imageUrl: `https://example.com/driver/${driverId}.jpg`,
-      career: `${randomInt(5, 25)}년`,
+      imageUrl: randomItem(driverImageUrls),
+      career: `${randomInt(1, 30)}년`, // 경력 범위 확장
       shortIntro: randomItem(shortIntros),
       description: randomItem(descriptions),
-      regions: randomItems(regions, randomInt(2, 5)),
+      regions: randomItems(regions, randomInt(1, 8)), // 지역 범위 확장
       services: randomItems(services, randomInt(1, 3)),
     }),
   );
@@ -274,7 +360,7 @@ async function main() {
   // new-driver 프로필 추가 (프로필 정보는 모두 있지만 아직 활동 없음)
   driverProfiles.push({
     driverId: newDriverId,
-    imageUrl: `https://example.com/driver/${newDriverId}.jpg`,
+    imageUrl: randomItem(driverImageUrls),
     career: `${randomInt(5, 25)}년`,
     shortIntro: randomItem(shortIntros),
     description: randomItem(descriptions),
@@ -285,23 +371,54 @@ async function main() {
   await prisma.driverProfile.createMany({ data: driverProfiles, skipDuplicates: true });
   console.log(`✅ Created ${driverProfiles.length} driver profiles\n`);
 
-  // EstimateRequest 생성 (40개 - 다양한 상태, 마스터 유저에게도 다양한 시나리오 포함)
+  // EstimateRequest 생성 (관계성 촘촘히 설계)
+  // 규칙: 유저당 진행 중인 요청(PENDING)은 최대 1개만 가능
   console.log('📋 Creating estimate requests...');
   const estimateRequests: Prisma.EstimateRequestCreateManyInput[] = [];
   const estimateRequestIds: string[] = [];
+  const userPendingRequestMap = new Map<string, boolean>(); // 유저별 PENDING 요청 존재 여부
 
   // 과거 날짜부터 미래 날짜까지 다양한 이사일 생성
   const now = new Date();
   const pastDate = new Date(now);
-  pastDate.setDate(pastDate.getDate() - 60); // 60일 전
+  pastDate.setDate(pastDate.getDate() - 180); // 180일 전까지 확장
 
   // 마스터 유저를 위한 다양한 상태의 견적 요청 생성 (테스트용)
-  const masterRequestStatuses: EstimateStatus[] = ['PENDING', 'CONFIRMED', 'REJECTED', 'CANCELLED'];
-  for (let i = 0; i < 4; i++) {
+  // 마스터 유저는 PENDING 1개 + 다른 상태들 여러 개
+  const masterRequestStatuses: EstimateStatus[] = [
+    'PENDING', // 진행 중인 요청 1개
+    'CONFIRMED',
+    'CONFIRMED',
+    'REJECTED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'REJECTED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'REJECTED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'CANCELLED',
+    'CONFIRMED',
+  ];
+
+  for (let i = 0; i < masterRequestStatuses.length; i++) {
     const requestId = uuidv4();
     estimateRequestIds.push(requestId);
+    const status = masterRequestStatuses[i];
 
-    const daysOffset = randomInt(-30, 30);
+    // PENDING인 경우 체크
+    if (status === 'PENDING') {
+      userPendingRequestMap.set(masterUserId, true);
+    }
+
+    const daysOffset = randomInt(-90, 90);
     const movingDate = new Date(now);
     movingDate.setDate(movingDate.getDate() + daysOffset);
 
@@ -310,40 +427,77 @@ async function main() {
       userId: masterUserId,
       movingType: randomItem(services),
       movingDate,
-      status: masterRequestStatuses[i],
-      isDesignated: i === 1, // 하나는 지정 요청
+      status,
+      isDesignated: i % 5 === 1, // 일부는 지정 요청
       isDelete: false,
     });
   }
 
-  // 나머지 견적 요청 생성
-  for (let i = 0; i < 36; i++) {
+  // 나머지 유저들에 대한 견적 요청 생성
+  // 각 유저당: PENDING 0~1개, CONFIRMED/REJECTED/CANCELLED 여러 개 가능
+  const availableUsers = [...userIds]; // 마스터 유저 제외한 유저들
+  const userRequestCount = new Map<string, number>(); // 유저별 요청 수 추적
+
+  // 각 유저당 0~3개의 과거 요청 생성 (PENDING 제외)
+  for (const userId of availableUsers) {
+    const requestCount = randomInt(0, 3); // 유저당 0~3개의 과거 요청
+    userRequestCount.set(userId, requestCount);
+
+    for (let i = 0; i < requestCount; i++) {
+      const requestId = uuidv4();
+      estimateRequestIds.push(requestId);
+
+      // 과거 날짜로 설정
+      const daysOffset = randomInt(-90, -1); // 과거만
+      const movingDate = new Date(now);
+      movingDate.setDate(movingDate.getDate() + daysOffset);
+
+      // 상태 분포: CONFIRMED 50%, REJECTED 30%, CANCELLED 20% (PENDING 제외)
+      const statusRand = Math.random();
+      let status: EstimateStatus;
+      if (statusRand < 0.5) status = 'CONFIRMED';
+      else if (statusRand < 0.8) status = 'REJECTED';
+      else status = 'CANCELLED';
+
+      const isDesignated = Math.random() < 0.2;
+
+      estimateRequests.push({
+        id: requestId,
+        userId,
+        movingType: randomItem(services),
+        movingDate,
+        status,
+        isDesignated,
+        isDelete: false,
+      });
+    }
+  }
+
+  // 일부 유저들에게 PENDING 요청 1개씩 추가 (진행 중인 요청)
+  const usersWithPendingRequest = randomItems(
+    availableUsers,
+    Math.min(Math.floor(availableUsers.length * 0.3), availableUsers.length), // 30%의 유저만 PENDING 요청
+  );
+
+  for (const userId of usersWithPendingRequest) {
+    if (userPendingRequestMap.has(userId)) continue; // 이미 PENDING 요청이 있으면 스킵
+
     const requestId = uuidv4();
     estimateRequestIds.push(requestId);
+    userPendingRequestMap.set(userId, true);
 
-    // 이사일: 과거 30일 ~ 미래 30일
-    const daysOffset = randomInt(-30, 30);
+    // 미래 날짜로 설정 (진행 중인 요청)
+    const daysOffset = randomInt(1, 90);
     const movingDate = new Date(now);
     movingDate.setDate(movingDate.getDate() + daysOffset);
 
-    // 상태 분포: PENDING 40%, CONFIRMED 30%, REJECTED 20%, CANCELLED 10%
-    const statusRand = Math.random();
-    let status: EstimateStatus;
-    if (statusRand < 0.4) status = 'PENDING';
-    else if (statusRand < 0.7) status = 'CONFIRMED';
-    else if (statusRand < 0.9) status = 'REJECTED';
-    else status = 'CANCELLED';
-
-    // 지정 요청은 20% 정도
-    const isDesignated = Math.random() < 0.2;
-
     estimateRequests.push({
       id: requestId,
-      userId: randomItem(userIds),
+      userId,
       movingType: randomItem(services),
       movingDate,
-      status,
-      isDesignated,
+      status: 'PENDING',
+      isDesignated: Math.random() < 0.2,
       isDelete: false,
     });
   }
@@ -388,10 +542,13 @@ async function main() {
   await prisma.address.createMany({ data: addressesData, skipDuplicates: true });
   console.log(`✅ Created ${addressesData.length} addresses\n`);
 
-  // Estimate 생성 (50개 - 다양한 상태)
+  // Estimate 생성 (관계성 촘촘히 설계)
+  // 규칙: 한 견적 요청에 최대 8개의 견적
   console.log('💰 Creating estimates...');
   const estimates: Prisma.EstimateCreateManyInput[] = [];
   const estimateIds: string[] = [];
+  const requestEstimateCount = new Map<string, number>(); // 요청별 견적 수 추적
+  const requestConfirmedEstimate = new Map<string, boolean>(); // 요청별 CONFIRMED 견적 존재 여부
 
   // 각 요청에 대해 견적 생성
   const requestMap = new Map(
@@ -402,38 +559,71 @@ async function main() {
     const request = requestMap.get(requestId);
     if (!request) continue;
 
-    // 지정 요청인 경우 최대 3개, 일반 요청인 경우 최대 5개
-    const maxEstimates = request.isDesignated ? 3 : 5;
+    // 지정 요청인 경우 최대 3개, 일반 요청인 경우 최대 8개
+    const maxEstimates = request.isDesignated ? 3 : 8;
     const estimateCount = randomInt(1, maxEstimates);
+    requestEstimateCount.set(requestId, estimateCount);
 
-    // 해당 요청의 서비스 가능한 기사님 선택 (지역 및 서비스 타입 고려)
-    const availableDrivers = randomItems(driverIds, Math.min(estimateCount, driverIds.length));
+    // 해당 요청의 서비스 가능한 기사님 선택 (같은 요청 내에서 중복 방지)
+    // 같은 기사는 한 요청에 견적을 1개만 낼 수 있음
+    const selectedDrivers = randomItems(driverIds, Math.min(estimateCount, driverIds.length));
 
     for (let i = 0; i < estimateCount; i++) {
       const estimateId = uuidv4();
       estimateIds.push(estimateId);
 
-      const driverId = availableDrivers[i];
+      const driverId = selectedDrivers[i];
       if (!driverId) break;
 
-      // 견적 상태: 요청이 CONFIRMED면 일부만 CONFIRMED, 나머지는 PENDING 또는 REJECTED
+      // 견적 상태: 요청 상태에 따라 명확한 관계성 설정
       let status: EstimateStatus;
+
       if (request.status === 'CONFIRMED') {
-        // 첫 번째 견적만 CONFIRMED, 나머지는 REJECTED
-        status = i === 0 ? 'CONFIRMED' : 'REJECTED';
+        // CONFIRMED 요청: 정확히 1개의 CONFIRMED 견적 + 나머지는 모두 REJECTED
+        if (i === 0 && !requestConfirmedEstimate.has(requestId)) {
+          status = 'CONFIRMED';
+          requestConfirmedEstimate.set(requestId, true);
+        } else {
+          status = 'REJECTED';
+        }
       } else if (request.status === 'REJECTED') {
-        status = Math.random() < 0.5 ? 'REJECTED' : 'PENDING';
+        // REJECTED 요청: 대부분 REJECTED, 일부는 PENDING (아직 처리 안 된 경우)
+        const rand = Math.random();
+        if (rand < 0.7) status = 'REJECTED';
+        else status = 'PENDING';
+      } else if (request.status === 'CANCELLED') {
+        // CANCELLED 요청: 대부분 CANCELLED, 일부는 PENDING (취소 전에 받은 견적)
+        const rand = Math.random();
+        if (rand < 0.6) status = 'CANCELLED';
+        else status = 'PENDING';
       } else {
-        status = 'PENDING';
+        // PENDING 요청: 대부분 PENDING, 일부는 REJECTED (기사가 거절한 경우)
+        const rand = Math.random();
+        if (rand < 0.9) status = 'PENDING';
+        else status = 'REJECTED';
       }
+
+      // 가격 범위 (더 다양한 가격대)
+      const priceRange = randomInt(300000, 5000000);
 
       estimates.push({
         id: estimateId,
         estimateRequestId: requestId,
         driverId,
-        price: status !== 'REJECTED' ? randomInt(500000, 3000000) : null,
-        comment: status !== 'REJECTED' ? `안전하고 신속하게 진행하겠습니다.` : null,
-        rejectReason: status === 'REJECTED' ? '일정이 맞지 않습니다.' : null,
+        price: status !== 'REJECTED' && status !== 'CANCELLED' ? priceRange : null,
+        comment:
+          status !== 'REJECTED' && status !== 'CANCELLED'
+            ? `안전하고 신속하게 진행하겠습니다. ${randomInt(1, 100)}번째 이사입니다.`
+            : null,
+        rejectReason:
+          status === 'REJECTED'
+            ? randomItem([
+                '일정이 맞지 않습니다.',
+                '지역이 맞지 않습니다.',
+                '서비스 타입이 맞지 않습니다.',
+                '개인 사정으로 인해 불가능합니다.',
+              ])
+            : null,
         status,
         isDelete: false,
       });
@@ -443,27 +633,64 @@ async function main() {
   await prisma.estimate.createMany({ data: estimates, skipDuplicates: true });
   console.log(`✅ Created ${estimates.length} estimates\n`);
 
-  // Review 생성 (확정된 견적 중 30개에 리뷰 작성)
+  // Review 생성 (확정된 견적에 충분한 리뷰 작성 - 다양한 점수 분포)
   console.log('⭐ Creating reviews...');
   const reviews: Prisma.ReviewCreateManyInput[] = [];
 
   // CONFIRMED 상태인 견적 찾기
   const confirmedEstimates = estimates.filter((est) => est.status === 'CONFIRMED');
-  const estimatesToReview = confirmedEstimates.slice(0, Math.min(30, confirmedEstimates.length));
+  console.log(`   Found ${confirmedEstimates.length} CONFIRMED estimates`);
 
-  for (const estimate of estimatesToReview) {
+  for (const estimate of confirmedEstimates) {
     const request = requestMap.get(estimate.estimateRequestId);
     if (!request) continue;
 
-    // 이사일이 지난 경우에만 리뷰 작성
     const movingDate = new Date(request.movingDate as Date);
-    if (movingDate > now) continue; // 아직 이사일이 지나지 않음
+    const daysSinceMoving = (now.getTime() - movingDate.getTime()) / (1000 * 60 * 60 * 24);
+
+    // 리뷰 작성 조건 완화:
+    // 1. 이사일이 지난 경우 (과거 180일 이내) - 90% 확률로 리뷰 작성
+    // 2. 이사일이 미래인 경우 - 30% 확률로 리뷰 작성 (사전 리뷰)
+    // 3. 너무 오래된 경우 (180일 이상) - 20% 확률로 리뷰 작성
+    let shouldCreateReview = false;
+    if (movingDate <= now && daysSinceMoving <= 180) {
+      // 과거 180일 이내: 90% 확률
+      shouldCreateReview = Math.random() < 0.9;
+    } else if (movingDate > now) {
+      // 미래: 30% 확률 (사전 리뷰)
+      shouldCreateReview = Math.random() < 0.3;
+    } else {
+      // 180일 이상 지난 경우: 20% 확률
+      shouldCreateReview = Math.random() < 0.2;
+    }
+
+    if (!shouldCreateReview) continue;
+
+    // 점수 분포: 5점 50%, 4점 30%, 3점 15%, 2점 4%, 1점 1% (더 현실적인 분포)
+    const ratingRand = Math.random();
+    let rating: number;
+    if (ratingRand < 0.5) rating = 5;
+    else if (ratingRand < 0.8) rating = 4;
+    else if (ratingRand < 0.95) rating = 3;
+    else if (ratingRand < 0.99) rating = 2;
+    else rating = 1;
+
+    // 낮은 점수일 경우 더 구체적인 리뷰 내용
+    const content =
+      rating <= 2
+        ? randomItem([
+            '시간 약속을 지키지 않았습니다.',
+            '가구 보호가 제대로 되지 않았습니다.',
+            '서비스가 기대에 못 미쳤습니다.',
+            '가격 대비 서비스가 아쉬웠습니다.',
+          ])
+        : randomItem(reviewContents);
 
     reviews.push({
       estimateId: estimate.id!,
       userId: request.userId as string,
-      rating: randomInt(3, 5), // 3~5점
-      content: randomItem(reviewContents),
+      rating,
+      content,
     });
   }
 
@@ -481,8 +708,8 @@ async function main() {
     driverFavoriteCount.set(driverId, 0);
   });
 
-  // 40개의 좋아요 생성 (랜덤하게 분배)
-  for (let i = 0; i < 40; i++) {
+  // 200개의 좋아요 생성 (랜덤하게 분배, 일부 기사님은 많이 받고 일부는 적게)
+  for (let i = 0; i < 200; i++) {
     const userId = randomItem(userIds);
     let driverId = randomItem(driverIds);
     const pairKey = `${userId}-${driverId}`;
@@ -513,7 +740,7 @@ async function main() {
     `✅ Created ${favorites.length} favorite drivers (${driversWithFavorites}/${driverIds.length} drivers received favorites)\n`,
   );
 
-  // Notification 생성 (50개 - 다양한 타입)
+  // Notification 생성 (250개 - 다양한 타입, 더 현실적인 분포)
   console.log('🔔 Creating notifications...');
   const notificationTypes: NotificationType[] = [
     'REQUEST_SENT',
@@ -531,8 +758,34 @@ async function main() {
 
   const notifications: Prisma.NotificationCreateManyInput[] = [];
 
-  for (let i = 0; i < 50; i++) {
-    const type = randomItem(notificationTypes);
+  // 알림 타입별 가중치 (더 현실적인 분포)
+  const getWeightedNotificationType = (): NotificationType => {
+    const rand = Math.random();
+    if (rand < 0.25)
+      return 'ESTIMATE_RECEIVED'; // 25%
+    else if (rand < 0.4)
+      return 'ESTIMATE_CONFIRMED'; // 15%
+    else if (rand < 0.5)
+      return 'NEW_REVIEW'; // 10%
+    else if (rand < 0.6)
+      return 'FAVORITE_ADDED'; // 10%
+    else if (rand < 0.7)
+      return 'ESTIMATE_REJECTED'; // 10%
+    else if (rand < 0.8)
+      return 'REQUEST_SENT'; // 10%
+    else if (rand < 0.85)
+      return 'ESTIMATE_EXPIRED'; // 5%
+    else if (rand < 0.9)
+      return 'REQUEST_REJECTED'; // 5%
+    else if (rand < 0.95)
+      return 'REQUEST_CANCELLED'; // 5%
+    else if (rand < 0.98)
+      return 'SYSTEM_NOTICE'; // 3%
+    else return 'PROMOTION'; // 2%
+  };
+
+  for (let i = 0; i < 250; i++) {
+    const type = getWeightedNotificationType();
     let message = '';
     let userId = '';
 
@@ -553,6 +806,10 @@ async function main() {
         userId = randomItem(driverIds);
         message = '견적 요청이 반려되었습니다.';
         break;
+      case 'ESTIMATE_EXPIRED':
+        userId = randomItem(userIds);
+        message = '견적이 만료되었습니다.';
+        break;
       case 'NEW_REVIEW':
         userId = randomItem(driverIds);
         message = '새로운 리뷰가 작성되었습니다.';
@@ -561,17 +818,28 @@ async function main() {
         userId = randomItem(driverIds);
         message = '찜하기 목록에 추가되었습니다.';
         break;
+      case 'SYSTEM_NOTICE':
+        userId = Math.random() < 0.5 ? randomItem(userIds) : randomItem(driverIds);
+        message = '시스템 공지사항이 있습니다.';
+        break;
+      case 'PROMOTION':
+        userId = Math.random() < 0.5 ? randomItem(userIds) : randomItem(driverIds);
+        message = '새로운 프로모션이 진행 중입니다.';
+        break;
       default:
         userId = Math.random() < 0.5 ? randomItem(userIds) : randomItem(driverIds);
         message = `${type} 알림입니다.`;
     }
+
+    // 읽음 상태: 최근 알림일수록 읽을 확률 높음 (시간 기반 가중치)
+    const isRead = Math.random() < 0.4; // 40%는 읽음
 
     notifications.push({
       userId,
       type,
       message,
       datajson: Prisma.JsonNull,
-      isRead: Math.random() < 0.3, // 30%는 읽음
+      isRead,
       isDelete: false,
     });
   }
@@ -579,7 +847,7 @@ async function main() {
   await prisma.notification.createMany({ data: notifications, skipDuplicates: true });
   console.log(`✅ Created ${notifications.length} notifications\n`);
 
-  // History 생성 (50개)
+  // History 생성 (250개 - 더 다양한 액션 타입 분포)
   console.log('📜 Creating histories...');
   const historyActionTypes: HistoryActionType[] = [
     'CREATE_REQUEST',
@@ -613,8 +881,42 @@ async function main() {
 
   const histories: Prisma.HistoryCreateManyInput[] = [];
 
-  for (let i = 0; i < 50; i++) {
-    const actionType = randomItem(historyActionTypes);
+  // 액션 타입별 가중치 (더 현실적인 분포)
+  const getWeightedActionType = (): HistoryActionType => {
+    const rand = Math.random();
+    if (rand < 0.25)
+      return 'CREATE_REQUEST'; // 25%
+    else if (rand < 0.4)
+      return 'CREATE_ESTIMATE'; // 15%
+    else if (rand < 0.5)
+      return 'CONFIRMED_ESTIMATE'; // 10%
+    else if (rand < 0.58)
+      return 'CREATE_REVIEW'; // 8%
+    else if (rand < 0.65)
+      return 'CREATE_FAVORITE'; // 7%
+    else if (rand < 0.72)
+      return 'UPDATE_PROFILE'; // 7%
+    else if (rand < 0.78)
+      return 'REJECTED_ESTIMATE'; // 6%
+    else if (rand < 0.83)
+      return 'UPDATE_REQUEST'; // 5%
+    else if (rand < 0.87)
+      return 'UPDATE_ESTIMATE'; // 4%
+    else if (rand < 0.9)
+      return 'UPDATE_REVIEW'; // 3%
+    else if (rand < 0.93)
+      return 'DELETE_FAVORITE'; // 3%
+    else if (rand < 0.96)
+      return 'EXPIRED_ESTIMATE'; // 3%
+    else if (rand < 0.98)
+      return 'DELETE_REQUEST'; // 2%
+    else if (rand < 0.99)
+      return 'DELETE_ESTIMATE'; // 1%
+    else return 'DELETE_REVIEW'; // 1%
+  };
+
+  for (let i = 0; i < 250; i++) {
+    const actionType = getWeightedActionType();
     const entityType = randomItem(historyEntityTypes);
 
     let userId = '';
@@ -672,6 +974,19 @@ async function main() {
   console.log(`   - Favorite Drivers: ${favorites.length}`);
   console.log(`   - Notifications: ${notifications.length}`);
   console.log(`   - Histories: ${histories.length}`);
+  console.log('\n🔗 Relationship Rules Applied:');
+  console.log('   ✓ Each user can have max 1 PENDING request');
+  console.log('   ✓ Each request can have max 8 estimates');
+  console.log('   ✓ CONFIRMED requests: exactly 1 CONFIRMED estimate + others REJECTED');
+  console.log('   ✓ PENDING requests: mostly PENDING estimates (some REJECTED)');
+  console.log('   ✓ REJECTED requests: mostly REJECTED estimates (some PENDING)');
+  console.log('   ✓ CANCELLED requests: mostly CANCELLED estimates (some PENDING)');
+  console.log('\n✨ Enhanced test scenarios:');
+  console.log('   - Extended date range: -90 to +90 days');
+  console.log('   - More diverse estimate statuses and prices');
+  console.log('   - Realistic review rating distribution');
+  console.log('   - Weighted notification and history types');
+  console.log('   - Expanded address pool (34 locations)');
 }
 
 main()
