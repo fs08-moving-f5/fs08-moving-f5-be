@@ -2,7 +2,8 @@ import { Router } from 'express';
 
 import authRouter from './auth/index';
 import estimateRouter from './estimate/index';
-import estimateReqRouter from './estimateRequest/index';
+import userEstimateReqRouter from './estimateRequest/user/index';
+import driverEstimateReqRouter from './estimateRequest/driver/index';
 import favoriteRouter from './favorite/index';
 import notificationRouter from './notification/index';
 import profileRouter from './profiles/index';
@@ -12,7 +13,8 @@ const router = Router();
 
 router.use('/auth', authRouter);
 router.use('/estimate', estimateRouter);
-router.use('/driver-estimate', estimateReqRouter);
+router.use('/estimate-request/user', userEstimateReqRouter);
+router.use('/estimate-request/driver', driverEstimateReqRouter);
 router.use('/favorite', favoriteRouter);
 router.use('/notifications', notificationRouter);
 router.use('/profile', profileRouter);

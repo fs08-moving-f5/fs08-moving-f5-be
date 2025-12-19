@@ -7,7 +7,7 @@
 
 /**
  * @swagger
- * /api/driver-estimate/requests:
+ * /api/estimate-request/driver/requests:
  *   get:
  *     summary: 받은 견적 요청 목록 조회 (기사)
  *     description: |
@@ -111,7 +111,7 @@
 
 /**
  * @swagger
- * /api/driver-estimate/requests/:estimateRequestId/create:
+ * /api/estimate-request/driver/requests/:estimateRequestId/create:
  *   post:
  *     summary: 견적 보내기 (기사)
  *     tags: [EstimateReq]
@@ -140,7 +140,7 @@
 
 /**
  * @swagger
- * /api/driver-estimate/requests/:estimateRequestId/reject:
+ * /api/estimate-request/driver/requests/:estimateRequestId/reject:
  *   post:
  *     summary: 견적 반려 (기사)
  *     tags: [EstimateReq]
@@ -166,7 +166,7 @@
 
 /**
  * @swagger
- * /api/driver-estimate/confirms:
+ * /api/estimate-request/driver/confirms:
  *   get:
  *     summary: 확정(및 대기) 견적 목록 조회 (기사)
  *     description: >
@@ -225,7 +225,7 @@
 
 /**
  * @swagger
- * /api/estimate/confirms/{estimateId}:
+ * /api/estimate-request/driver/confirms/{estimateId}:
  *   get:
  *     summary: 확정 견적 상세 조회 (기사)
  *     description: 기사가 유저에게 보낸 견적의 상세 정보를 조회합니다.
@@ -263,7 +263,7 @@
 
 /**
  * @swagger
- * /api/driver-estimate/rejects:
+ * /api/estimate-request/driver/rejects:
  *   get:
  *     summary: 반려 견적 목록 조회 (기사)
  *     description: |

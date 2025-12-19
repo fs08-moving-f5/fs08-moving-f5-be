@@ -1,7 +1,7 @@
 //
 import { Router } from 'express';
-import * as controller from './estimateReq.controller';
-import fakeAuthMiddleware from '../../middlewares/fakeAuthMiddleware';
+import * as controller from './estimateReq.driver.controller';
+import fakeAuthMiddleware from '@/middlewares/fakeAuthMiddleware';
 
 const router = Router();
 
