@@ -111,6 +111,12 @@ export const getPendingEstimatesRepository = async ({ userId }: { userId: string
               },
             },
           },
+          estimateRequest: {
+            select: {
+              id: true,
+              isDesignated: true,
+            },
+          },
         },
         orderBy: {
           createdAt: 'desc',

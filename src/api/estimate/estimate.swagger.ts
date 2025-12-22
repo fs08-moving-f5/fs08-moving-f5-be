@@ -201,6 +201,15 @@
  *           format: date-time
  *           description: 생성 일시
  *           example: "2024-01-15T10:30:00Z"
+ *         estimateRequestId:
+ *           type: string
+ *           format: uuid
+ *           description: 견적 요청 ID
+ *           example: "123e4567-e89b-12d3-a456-426614174001"
+ *         isDesignated:
+ *           type: boolean
+ *           description: 지정 기사 여부
+ *           example: false
  *         driver:
  *           oneOf:
  *             - $ref: '#/components/schemas/Driver'
@@ -527,6 +536,8 @@
  *                           price: 500000
  *                           status: "PENDING"
  *                           createdAt: "2024-01-15T10:30:00Z"
+ *                           estimateRequestId: "123e4567-e89b-12d3-a456-426614174001"
+ *                           isDesignated: false
  *                           driver:
  *                             id: "123e4567-e89b-12d3-a456-426614174005"
  *                             name: "홍길동"
@@ -544,6 +555,8 @@
  *                           price: 450000
  *                           status: "PENDING"
  *                           createdAt: "2024-01-15T11:00:00Z"
+ *                           estimateRequestId: "123e4567-e89b-12d3-a456-426614174001"
+ *                           isDesignated: false
  *                           driver:
  *                             id: "123e4567-e89b-12d3-a456-426614174007"
  *                             name: "김철수"
