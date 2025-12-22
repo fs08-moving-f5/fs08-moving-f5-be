@@ -368,8 +368,8 @@ const userImageUrls = [
 ];
 
 const driverImageUrls = [
-  'https://i.namu.wiki/i/R9CaXvBxFRYSOxfdLYvoMGskeQmKRYSosCjJetLZR7NUQcsqAIy3AHeg4T875zLLARCKvPyVM3SbmqRayxsvrbhL-uw4ZNpC8PFh4lu7NwrOkZcxwcKV1YmyOTZwOJ0WxMF76j0-sFCSuq3QtFxQDg.webp',
-  'https://i.namu.wiki/i/67NnDWsYGsinFvAlcL-sWsUMYPLAvGe3Dvp23MH-GbKffBkY_BgbCoYNR94tzJLYteX8qKhrLgt-m2PmCbaLCb6KQlqS94DW-QtQR31C3zcPw0wzFeHlc60-QmG9tKIziCARlivxqz1d4_ox6V9LKQ.webp',
+  'https://i.namu.wiki/i/8kUtA4Ww_VmtkhXXxEHGPBhcxlhLq5dPSDr2WP7uAgsvE9vOy2pycKqkX1f3YVMiTe_pQSP7ARNOj6w1H96qc0hTYKdBXLg-cicsVI1SZJmJIrVL1Bp55QLX27g9NAFtwKbgwHOHuGusCyIkUOLf5w.webp',
+  'https://i.namu.wiki/i/vcERs-_SLgMJa618qP1U2iUj7Ipxx8d9mIucAkqNyxL0H3aDBLHOK15yv7Sv3HJj7VpHFtS3-mf5-j4WSSDRop80T9LTK10ngteBUFyD-4jTnpYqVYlTz1y_7uHVGVx7MrPPIA6ifKcV7uASXf8jTA.webp',
 ];
 
 // 주소 확장 (더 다양한 주소)
