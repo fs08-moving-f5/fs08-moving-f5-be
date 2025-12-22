@@ -1,17 +1,7 @@
 import prisma from '../../config/prisma';
-import { Prisma, Review } from '../../generated/client';
-import { ServiceEnum, EstimateStatus, NotificationType } from '../../generated/enums';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
-import ERROR_MESSAGE from '@/constants/errorMessage.constant';
-import {
-  GetReviewParams,
-  WrittenReviewListResult,
-  WritableReviewListResult,
-  CreateReviewParams,
-} from '../../types/review';
-import splitAddresses from '../../utils/splitAddresses';
-import { createNotificationAndPushUnreadService } from '../notification/notification.service';
+import { Prisma } from '../../generated/client';
+import { EstimateStatus, HistoryEntityType, HistoryActionType } from '../../generated/enums';
+import { GetReviewParams } from '../../types/review';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
 export async function getReviewWrittenRepository({
@@ -19,7 +9,7 @@ export async function getReviewWrittenRepository({
   sort = 'latest',
   offset = 0,
   limit = 10,
-}: GetReviewParams): Promise<WrittenReviewListResult> {
+}: GetReviewParams) {
   // offset, limit를 숫자로 변환
   const parsedOffset = typeof offset === 'string' ? parseInt(offset, 10) : offset;
   const parsedLimit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
@@ -43,64 +33,45 @@ export async function getReviewWrittenRepository({
       break;
   }
 
-  const [reviews, total] = await prisma.$transaction([
-    prisma.review.findMany({
-      where,
-      select: {
-        rating: true,
-        content: true,
-        createdAt: true,
-
-        estimate: {
-          select: {
-            driver: { select: { name: true, driverProfile: { select: { shortIntro: true } } } },
-
-            estimateRequest: {
-              select: {
-                movingDate: true,
-                movingType: true,
-                isDesignated: true,
-
-                addresses: { select: { addressType: true, sido: true, sigungu: true } },
+  const reviews = await prisma.review.findMany({
+    where,
+    select: {
+      rating: true,
+      content: true,
+      createdAt: true,
+      estimate: {
+        select: {
+          driver: {
+            select: {
+              name: true,
+              driverProfile: { select: { shortIntro: true } },
+            },
+          },
+          estimateRequest: {
+            select: {
+              movingDate: true,
+              movingType: true,
+              isDesignated: true,
+              addresses: {
+                select: {
+                  addressType: true,
+                  sido: true,
+                  sigungu: true,
+                },
               },
             },
           },
         },
       },
-      orderBy,
-      skip: finalOffset,
-      take: finalLimit,
-    }),
-    prisma.review.count({ where }),
-  ]);
-
-  const mappedReviews = reviews.map((review) => {
-    const addresses = review.estimate.estimateRequest.addresses;
-    const { from, to } = splitAddresses(addresses);
-
-    return {
-      rating: review.rating,
-      content: review.content,
-      createdAt: review.createdAt,
-
-      driver: {
-        name: review.estimate.driver.name,
-        shortIntro: review.estimate.driver.driverProfile?.shortIntro ?? null,
-      },
-
-      movingType: review.estimate.estimateRequest.movingType,
-      movingDate: review.estimate.estimateRequest.movingDate,
-      isDesignated: review.estimate.estimateRequest.isDesignated,
-
-      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
-      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
-    };
+    },
+    orderBy,
+    skip: finalOffset,
+    take: finalLimit,
   });
 
-  return {
-    reviews: mappedReviews,
-    total,
-  };
+  const total = await prisma.review.count({ where });
+
+  return { reviews, total };
 }
 
 // 작성 가능한 리뷰 목록 조회 (일반 유저)
@@ -109,7 +80,7 @@ export async function getReviewWritableRepository({
   sort = 'latest',
   offset = 0,
   limit = 10,
-}: GetReviewParams): Promise<WritableReviewListResult> {
+}: GetReviewParams) {
   // offset, limit를 숫자로 변환
   const parsedOffset = typeof offset === 'string' ? parseInt(offset, 10) : offset;
   const parsedLimit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
@@ -135,133 +106,90 @@ export async function getReviewWritableRepository({
       break;
   }
 
-  const [estimates, total] = await prisma.$transaction([
-    prisma.estimate.findMany({
-      where,
-      select: {
-        id: true,
-        price: true,
-        createdAt: true,
-
-        driver: { select: { name: true, driverProfile: { select: { shortIntro: true } } } },
-
-        estimateRequest: {
-          select: {
-            movingDate: true,
-            movingType: true,
-            isDesignated: true,
-
-            addresses: { select: { addressType: true, sido: true, sigungu: true } },
+  const estimates = await prisma.estimate.findMany({
+    where,
+    select: {
+      id: true,
+      price: true,
+      createdAt: true,
+      driver: {
+        select: {
+          name: true,
+          driverProfile: { select: { shortIntro: true } },
+        },
+      },
+      estimateRequest: {
+        select: {
+          movingDate: true,
+          movingType: true,
+          isDesignated: true,
+          addresses: {
+            select: {
+              addressType: true,
+              sido: true,
+              sigungu: true,
+            },
           },
         },
       },
-
-      orderBy,
-      skip: finalOffset,
-      take: finalLimit,
-    }),
-    prisma.estimate.count({ where }),
-  ]);
-
-  const mappedReviews = estimates.map((estimate) => {
-    const addresses = estimate.estimateRequest.addresses;
-    const { from, to } = splitAddresses(addresses);
-
-    return {
-      id: estimate.id,
-      price: estimate.price,
-      createdAt: estimate.createdAt,
-
-      driver: {
-        name: estimate.driver.name,
-        shortIntro: estimate.driver.driverProfile?.shortIntro ?? null,
-      },
-
-      movingType: estimate.estimateRequest.movingType,
-      movingDate: estimate.estimateRequest.movingDate,
-      isDesignated: estimate.estimateRequest.isDesignated,
-
-      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
-      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
-    };
+    },
+    orderBy,
+    skip: parsedOffset,
+    take: parsedLimit,
   });
 
-  return {
-    estimates: mappedReviews,
-    total,
-  };
+  const total = await prisma.estimate.count({ where });
+
+  return { estimates, total };
+}
+
+// 리뷰 존재 여부 조회
+export async function findReviewForWriteRepository({
+  estimateId,
+  userId,
+}: {
+  estimateId: string;
+  userId: string;
+}) {
+  return await prisma.review.findFirst({
+    where: { estimateId, userId },
+    include: {
+      estimate: { select: { driverId: true } },
+    },
+  });
 }
 
 // 리뷰 작성 (일반 유저)
-export async function createReviewRepository({
-  estimateId,
+export async function updateReviewRepository({
+  reviewId,
   rating,
   content,
-  userId,
-}: CreateReviewParams) {
-  if (!estimateId) {
-    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
-  }
-
-  const review = await prisma.review.findFirst({
-    where: {
-      estimateId,
-      userId,
-    },
-    include: {
-      estimate: {
-        select: {
-          driverId: true,
-        },
-      },
-    },
-  });
-
-  if (!review) {
-    throw new AppError(ERROR_MESSAGE.REVIEW.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
-  }
-
-  if (review.rating !== null || review.content !== null) {
-    throw new AppError(ERROR_MESSAGE.ALREADY_WRITTEN, HTTP_STATUS.BAD_REQUEST);
-  }
-
-  return prisma.$transaction(async (tx) => {
-    // Review
-    const updatedReview = await tx.review.update({
-      where: { id: review.id },
-      data: {
-        rating,
-        content,
-      },
-      include: { estimate: { select: { id: true } } },
-    });
-
-    // History (리뷰 작성자 기준)
-    await tx.history.create({
-      data: {
-        userId,
-        actionType: 'CREATE_REVIEW',
-        entityType: 'REVIEW',
-        entityId: review.id,
-        actionDesc: '리뷰 작성',
-        newData: {
-          rating,
-          content,
-        },
-      },
-    });
-
-    // Notification + SSE
-    createNotificationAndPushUnreadService({
-      userId: review.estimate.driverId,
-      type: NotificationType.NEW_REVIEW,
-      message: '새로운 리뷰가 등록되었습니다.',
-    }).catch(console.error); // 실패해도 롤백 영향 없음
-
-    return updatedReview;
+}: {
+  reviewId: string;
+  rating: number;
+  content: string;
+}) {
+  return await prisma.review.update({
+    where: { id: reviewId },
+    data: { rating, content },
   });
 }
 
-// History 실패 시 → 전체 트랜잭션 롤백
-// 운영 시 원인 파악이 어려울 수 있음
-// 히스토리가 법적 기록, 감사 로그(감사 추적)가 반드시 필요, 금융 / 정산 / 계약 시스템일 경우 현재 구조가 더 안전
+// 히스토리 생성
+export async function createReviewHistoryRepository({
+  userId,
+  entityId,
+}: {
+  userId: string;
+  entityId: string;
+}) {
+  return await prisma.history.create({
+    data: {
+      userId,
+      entityId,
+      entityType: HistoryEntityType.REVIEW,
+      actionType: HistoryActionType.CREATE_REVIEW,
+      actionDesc: '리뷰 작성',
+    },
+  });
+}
