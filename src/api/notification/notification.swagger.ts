@@ -104,7 +104,7 @@
 
 /**
  * @swagger
- * /api/notification/stream:
+ * /api/notifications/stream:
  *   get:
  *     tags:
  *       - Notification
@@ -150,7 +150,7 @@
 
 /**
  * @swagger
- * /api/notification:
+ * /api/notifications:
  *   get:
  *     tags:
  *       - Notification
@@ -212,7 +212,7 @@
 
 /**
  * @swagger
- * /api/notification/{id}:
+ * /api/notifications/{id}:
  *   patch:
  *     tags:
  *       - Notification
