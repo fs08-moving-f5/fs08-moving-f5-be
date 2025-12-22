@@ -1,38 +1,127 @@
+import prisma from '../../config/prisma';
 import * as repo from './review.repository';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 import ERROR_MESSAGE from '@/constants/errorMessage.constant';
-import { GetReviewParams, CreateReviewParams } from '../../types/review';
+import {
+  GetReviewParams,
+  CreateReviewParams,
+  WrittenReviewListResult,
+  WritableReviewListResult,
+} from '../../types/review';
+import splitAddresses from '@/utils/splitAddresses';
+import { NotificationType } from '../../generated/enums';
+import { createNotificationAndPushUnreadService } from '../notification/notification.service';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
-export async function getReviewWrittenService(params: GetReviewParams) {
+export async function getReviewWrittenService(
+  params: GetReviewParams,
+): Promise<WrittenReviewListResult> {
   if (!params.userId) {
     throw new AppError(ERROR_MESSAGE.USER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
   }
 
-  return repo.getReviewWrittenRepository(params);
+  const { reviews, total } = await repo.getReviewWrittenRepository(params);
+
+  const mapped = reviews.map((review) => {
+    const { from, to } = splitAddresses(review.estimate.estimateRequest.addresses);
+
+    return {
+      rating: review.rating,
+      content: review.content,
+      createdAt: review.createdAt,
+      driver: {
+        name: review.estimate.driver.name,
+        shortIntro: review.estimate.driver.driverProfile?.shortIntro ?? null,
+      },
+      movingType: review.estimate.estimateRequest.movingType,
+      movingDate: review.estimate.estimateRequest.movingDate,
+      isDesignated: review.estimate.estimateRequest.isDesignated,
+      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
+      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
+    };
+  });
+
+  return { reviews: mapped, total };
 }
 
 // 작성 가능한 리뷰 목록 조회 (일반 유저)
-export async function getReviewWritableService(params: GetReviewParams) {
+export async function getReviewWritableService(
+  params: GetReviewParams,
+): Promise<WritableReviewListResult> {
   if (!params.userId) {
     throw new AppError(ERROR_MESSAGE.USER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
   }
 
-  return repo.getReviewWritableRepository(params);
+  const { estimates, total } = await repo.getReviewWritableRepository(params);
+
+  const mapped = estimates.map((estimate) => {
+    const { from, to } = splitAddresses(estimate.estimateRequest.addresses);
+
+    return {
+      id: estimate.id,
+      price: estimate.price,
+      createdAt: estimate.createdAt,
+      driver: {
+        name: estimate.driver.name,
+        shortIntro: estimate.driver.driverProfile?.shortIntro ?? null,
+      },
+      movingType: estimate.estimateRequest.movingType,
+      movingDate: estimate.estimateRequest.movingDate,
+      isDesignated: estimate.estimateRequest.isDesignated,
+      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
+      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
+    };
+  });
+
+  return { estimates: mapped, total };
 }
 
 // 리뷰 작성 (일반 유저)
-export async function createReviewService(data: CreateReviewParams) {
-  const { estimateId, userId, rating, content } = data;
+export async function createReviewService(params: CreateReviewParams) {
+  const { estimateId, userId, rating, content } = params;
 
-  if (!data.userId) {
+  if (!userId) {
     throw new AppError(ERROR_MESSAGE.USER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
   }
 
-  if (!estimateId || !userId || rating == null || content == null) {
+  if (!estimateId || rating == null || content == null) {
     throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
   }
 
-  return repo.createReviewRepository(data);
+  const review = await repo.findReviewForWriteRepository({
+    estimateId,
+    userId,
+  });
+
+  if (!review) {
+    throw new AppError(ERROR_MESSAGE.REVIEW.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (review.rating !== null || review.content !== null) {
+    throw new AppError(ERROR_MESSAGE.ALREADY_WRITTEN, HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const result = await prisma.$transaction(async () => {
+    const updated = await repo.updateReviewRepository({
+      reviewId: review.id,
+      rating,
+      content,
+    });
+
+    await repo.createReviewHistoryRepository({
+      userId,
+      entityId: review.id,
+    });
+
+    return updated;
+  });
+
+  await createNotificationAndPushUnreadService({
+    userId: review.estimate.driverId,
+    type: NotificationType.NEW_REVIEW,
+    message: '새로운 리뷰가 등록되었습니다.',
+  });
+
+  return result;
 }

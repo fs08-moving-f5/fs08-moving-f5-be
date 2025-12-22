@@ -9,10 +9,11 @@ import {
 } from '@/types/driverEstimate';
 import { ServiceEnum, EstimateStatus } from '@/generated/enums';
 import asyncHandler from '@/middlewares/asyncHandler';
+import HTTP_STATUS from '@/constants/http.constant';
 
 // 받은 요청 목록 조회(기사)
 export const getEstimateRequests = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const { driverId } = req.params;
 
   const params: GetEstimateRequestsParams = {
     driverId,
@@ -29,12 +30,12 @@ export const getEstimateRequests = asyncHandler(async (req: Request, res: Respon
 
   const estimates = await service.getEstimateRequestsService(params);
 
-  res.status(200).json({ message: '받은 견적 요청 목록 조회 성공', data: estimates });
+  res.status(HTTP_STATUS.OK).json({ success: true, data: estimates });
 });
 
 // 견적 보내기(기사)
 export const createEstimate = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const { driverId } = req.params;
 
   const data: CreateEstimateParams = {
     estimateRequestId: req.body.estimateRequestId,
@@ -45,12 +46,12 @@ export const createEstimate = asyncHandler(async (req: Request, res: Response) =
 
   const estimate = await service.createEstimateService(data);
 
-  res.status(200).json({ message: '견적 보내기 성공', data: estimate });
+  res.status(HTTP_STATUS.OK).json({ success: true, data: estimate });
 });
 
 // 견적 반려(기사)
 export const createEstimateReject = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const { driverId } = req.params;
 
   const data: CreateEstimateRejectParams = {
     estimateRequestId: req.body.estimateRequestId,
@@ -60,12 +61,12 @@ export const createEstimateReject = asyncHandler(async (req: Request, res: Respo
 
   const estimate = await service.createEstimateRejectService(data);
 
-  res.status(200).json({ message: '견적 반려 성공', data: estimate });
+  res.status(HTTP_STATUS.OK).json({ success: true, data: estimate });
 });
 
 // 확정 견적 목록 조회
 export const getEstimateConfirm = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const { driverId } = req.params;
 
   const data: GetEstimateParams = {
     driverId,
@@ -76,25 +77,25 @@ export const getEstimateConfirm = asyncHandler(async (req: Request, res: Respons
 
   const estimateConfirm = await service.getEstimateConfirmService(data);
 
-  res.status(200).json({ message: '확정 견적 목록 조회 성공', data: estimateConfirm });
+  res.status(HTTP_STATUS.OK).json({ success: true, data: estimateConfirm });
 });
 
 // 확정 견적 상세 조회
 export const getEstimateConfirmId = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const { driverId } = req.params;
   const { estimateId } = req.params;
 
   const estimate = await service.getEstimateConfirmIdService(estimateId, driverId);
 
-  res.status(200).json({
-    message: '확정 견적 상세 조회 성공',
+  res.status(HTTP_STATUS.OK).json({
+    success: true,
     data: estimate,
   });
 });
 
 // 반려 견적 목록 조회
 export const getEstimateReject = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const { driverId } = req.params;
 
   const data: GetEstimateParams = {
     driverId,
@@ -105,5 +106,5 @@ export const getEstimateReject = asyncHandler(async (req: Request, res: Response
 
   const estimateReject = await service.getEstimateRejectService(data);
 
-  res.status(200).json({ message: '반려 견적 목록 조회 성공', data: estimateReject });
+  res.status(HTTP_STATUS.OK).json({ success: true, data: estimateReject });
 });
