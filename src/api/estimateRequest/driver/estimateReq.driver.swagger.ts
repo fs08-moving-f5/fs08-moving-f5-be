@@ -147,7 +147,7 @@
  *           description: 에러 스택 트레이스 (개발 환경에서만 제공)
  *
  * tags:
- *   name: EstimateReq
+ *   name: Driver EstimateReq
  *   description: 기사 견적 관련 API
  */
 
@@ -162,7 +162,7 @@
  *       - isDesignated = false 인 요청만 조회됩니다.
  *       - 커서 기반 페이지네이션을 지원합니다.
  *     tags:
- *       - EstimateReq
+ *       - Driver EstimateReq
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -260,7 +260,7 @@
  * /api/estimate-request/driver/requests/:estimateRequestId/create:
  *   post:
  *     summary: 견적 보내기 (기사)
- *     tags: [EstimateReq]
+ *     tags: [Driver EstimateReq]
  *     requestBody:
  *       required: true
  *       content:
@@ -289,7 +289,7 @@
  * /api/estimate-request/driver/requests/:estimateRequestId/reject:
  *   post:
  *     summary: 견적 반려 (기사)
- *     tags: [EstimateReq]
+ *     tags: [Driver EstimateReq]
  *     requestBody:
  *       required: true
  *       content:
@@ -320,7 +320,7 @@
  *       상태가 PENDING 또는 CONFIRMED 인 견적 목록을 조회합니다.
  *       이사 완료 여부는 isCompleted 필드로 판단합니다.
  *     tags:
- *       - EstimateReq
+ *       - Driver EstimateReq
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -376,7 +376,7 @@
  *     summary: 확정 견적 상세 조회 (기사)
  *     description: 기사가 유저에게 보낸 견적의 상세 정보를 조회합니다.
  *     tags:
- *       - EstimateReq
+ *       - Driver EstimateReq
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -418,7 +418,7 @@
  *       - status는 항상 REJECTED 입니다.
  *       - 커서 기반 페이지네이션을 지원합니다.
  *     tags:
- *       - EstimateReq
+ *       - Driver EstimateReq
  *     security:
  *       - bearerAuth: []
  *     parameters:
