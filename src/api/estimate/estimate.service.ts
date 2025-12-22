@@ -106,6 +106,8 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
       price: estimate.price,
       status: estimate.status,
       createdAt: estimate.createdAt,
+      estimateRequestId: estimate.estimateRequest.id,
+      isDesignated: estimate.estimateRequest.isDesignated,
       driver: estimate.driver
         ? {
             id: estimate.driver.id,
