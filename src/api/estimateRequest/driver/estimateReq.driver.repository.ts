@@ -1,17 +1,12 @@
 import prisma from '@/config/prisma';
 import { Prisma } from '@/generated/client';
-import { ServiceEnum, EstimateStatus, NotificationType } from '@/generated/enums';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
-import ERROR_MESSAGE from '@/constants/errorMessage.constant';
+import { EstimateStatus, HistoryActionType, HistoryEntityType } from '@/generated/enums';
 import {
   GetEstimateRequestsParams,
   CreateEstimateParams,
   CreateEstimateRejectParams,
   GetEstimateParams,
 } from '@/types/driverEstimate';
-import splitAddresses from '@/utils/splitAddresses';
-import { createNotificationAndPushUnreadService } from '../../notification/notification.service';
 
 const DEFAULT_TAKE = 6;
 
@@ -19,9 +14,7 @@ const DEFAULT_TAKE = 6;
 export async function getEstimateRequestsRepository({
   driverId,
   movingType,
-  movingDate,
   isDesignated = false,
-  status,
   serviceRegionFilter,
   search,
   sort = 'latest',
@@ -40,8 +33,6 @@ export async function getEstimateRequestsRepository({
 
   if (!driverProfile) return [];
 
-  const driverRegions = driverProfile.regions;
-
   const where: Prisma.EstimateRequestWhereInput = {
     isDelete: false,
     isDesignated: false,
@@ -59,7 +50,7 @@ export async function getEstimateRequestsRepository({
       addresses: {
         some: {
           sido: {
-            in: driverRegions, // 핵심: Address.sido ∈ DriverProfile.regions
+            in: driverProfile.regions, // 핵심: Address.sido ∈ DriverProfile.regions
           },
         },
       },
@@ -83,7 +74,7 @@ export async function getEstimateRequestsRepository({
       break;
   }
 
-  const estimateReq = await prisma.estimateRequest.findMany({
+  return await prisma.estimateRequest.findMany({
     where,
     select: {
       id: true,
@@ -106,23 +97,25 @@ export async function getEstimateRequestsRepository({
     skip: cursor ? 1 : 0,
     ...(cursor && { cursor: { id: cursor } }),
   });
-
-  return estimateReq.map((req) => {
-    const { from, to } = splitAddresses(req.addresses);
-
-    return {
-      id: req.id,
-      name: req.user.name,
-      movingType: req.movingType,
-      movingDate: req.movingDate,
-      isDesignated: req.isDesignated,
-      createdAt: req.createdAt,
-      updatedAt: req.updatedAt,
-      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
-      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
-    };
-  });
 }
+
+// 기존 견적 존재 여부
+export const findExistingEstimateRepository = async ({
+  estimateRequestId,
+  driverId,
+}: {
+  estimateRequestId: string;
+  driverId: string;
+}) => {
+  return await prisma.estimate.findUnique({
+    where: {
+      estimateRequestId_driverId: {
+        estimateRequestId,
+        driverId,
+      },
+    },
+  });
+};
 
 // 견적 보내기 (기사)
 export async function createEstimateRepository({
@@ -131,72 +124,18 @@ export async function createEstimateRepository({
   comment,
   driverId,
 }: CreateEstimateParams) {
-  if (!estimateRequestId) {
-    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
-  }
-
-  const existingEstimate = await prisma.estimate.findUnique({
-    where: {
-      estimateRequestId_driverId: {
-        estimateRequestId,
-        driverId,
-      },
+  return await prisma.estimate.create({
+    data: {
+      estimateRequestId,
+      driverId,
+      price,
+      comment,
+      status: EstimateStatus.CONFIRMED,
     },
-  });
-
-  if (existingEstimate) {
-    throw new AppError(ERROR_MESSAGE.ALREADY_SUBMITTED, HTTP_STATUS.BAD_REQUEST);
-  }
-
-  return prisma.$transaction(async (tx) => {
-    // Estimate 생성
-    const estimate = await tx.estimate.create({
-      data: {
-        estimateRequestId,
-        driverId,
-        price,
-        comment,
-        status: EstimateStatus.CONFIRMED,
-      },
-      include: {
-        estimateRequest: true,
-        driver: true,
-      },
-    });
-
-    // Review
-    await tx.review.create({
-      data: {
-        estimateId: estimate.id,
-        userId: estimate.estimateRequest.userId, // 리뷰 작성자
-        rating: null,
-        content: null,
-      },
-    });
-
-    // History (기사 기준)
-    await tx.history.create({
-      data: {
-        userId: driverId,
-        actionType: 'CREATE_ESTIMATE',
-        entityType: 'ESTIMATE_RESPONSE',
-        entityId: estimate.id,
-        actionDesc: '견적서 생성',
-        newData: {
-          price,
-          comment,
-        },
-      },
-    });
-
-    // Notification + SSE
-    createNotificationAndPushUnreadService({
-      userId: estimate.estimateRequest.userId,
-      type: NotificationType.ESTIMATE_RECEIVED,
-      message: '새 견적이 도착했습니다.',
-    }).catch(console.error);
-
-    return estimate;
+    include: {
+      estimateRequest: true,
+      driver: true,
+    },
   });
 }
 
@@ -206,59 +145,56 @@ export async function createEstimateRejectRepository({
   rejectReason,
   driverId,
 }: CreateEstimateRejectParams) {
-  if (!estimateRequestId) {
-    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
-  }
-
-  const existingEstimate = await prisma.estimate.findUnique({
-    where: {
-      estimateRequestId_driverId: {
-        estimateRequestId,
-        driverId,
-      },
+  return await prisma.estimate.create({
+    data: {
+      estimateRequestId,
+      driverId,
+      rejectReason,
+      status: EstimateStatus.REJECTED,
+    },
+    include: {
+      estimateRequest: true,
+      driver: true,
     },
   });
-
-  if (existingEstimate) {
-    throw new AppError(ERROR_MESSAGE.ALREADY_SUBMITTED, HTTP_STATUS.BAD_REQUEST);
-  }
-
-  return prisma.$transaction(async (tx) => {
-    // Estimate 생성 (반려)
-    const estimate = await tx.estimate.create({
-      data: {
-        estimateRequestId,
-        driverId,
-        rejectReason,
-        status: EstimateStatus.REJECTED,
-      },
-      include: { estimateRequest: true, driver: true },
-    });
-
-    // History (기사 기준)
-    await tx.history.create({
-      data: {
-        userId: driverId,
-        actionType: 'REJECTED_ESTIMATE',
-        entityType: 'ESTIMATE_RESPONSE',
-        entityId: estimate.id,
-        actionDesc: '견적 요청 반려',
-        newData: {
-          rejectReason,
-        },
-      },
-    });
-
-    // Notification + SSE
-    createNotificationAndPushUnreadService({
-      userId: estimate.estimateRequest.userId,
-      type: NotificationType.REQUEST_REJECTED,
-      message: '기사님이 견적 요청을 반려했습니다.',
-    }).catch(console.error);
-
-    return estimate;
-  });
 }
+
+// 리뷰 테이블 생성
+export const createReviewRepository = async ({
+  estimateId,
+  userId,
+}: {
+  estimateId: string;
+  userId: string;
+}) => {
+  return await prisma.review.create({
+    data: {
+      estimateId,
+      userId,
+      rating: null,
+      content: null,
+    },
+  });
+};
+
+// 히스토리 생성
+export const createHistoryRepository = async ({
+  userId,
+  entityId,
+}: {
+  userId: string;
+  entityId: string;
+  actionType: string;
+}) => {
+  return await prisma.history.create({
+    data: {
+      userId,
+      entityType: HistoryEntityType.ESTIMATE_RESPONSE,
+      entityId,
+      actionType: HistoryActionType.CREATE_ESTIMATE,
+    },
+  });
+};
 
 // 확정 견적 목록 조회
 export async function getEstimateConfirmRepository({
@@ -287,7 +223,7 @@ export async function getEstimateConfirmRepository({
       break;
   }
 
-  const estimate = await prisma.estimate.findMany({
+  return await prisma.estimate.findMany({
     where,
     select: {
       id: true,
@@ -326,35 +262,11 @@ export async function getEstimateConfirmRepository({
     skip: cursor ? 1 : 0,
     ...(cursor && { cursor: { id: cursor } }),
   });
-
-  return estimate.map((e) => {
-    const { from, to } = splitAddresses(e.estimateRequest.addresses);
-
-    return {
-      id: e.id,
-      price: e.price,
-      status: e.status,
-      createdAt: e.createdAt,
-      hasReview: !!e.review,
-
-      user: {
-        id: e.estimateRequest.user.id,
-        name: e.estimateRequest.user.name,
-      },
-
-      movingType: e.estimateRequest.movingType,
-      movingDate: e.estimateRequest.movingDate,
-      isDesignated: e.estimateRequest.isDesignated,
-
-      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
-      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
-    };
-  });
 }
 
 // 확정 견적 상세 조회
 export async function getEstimateConfirmIdRepository(estimateId: string, driverId: string) {
-  const estimate = await prisma.estimate.findFirst({
+  return await prisma.estimate.findFirst({
     where: { id: estimateId, driverId, isDelete: false },
     select: {
       id: true,
@@ -375,26 +287,6 @@ export async function getEstimateConfirmIdRepository(estimateId: string, driverI
       },
     },
   });
-
-  if (!estimate) return null;
-
-  const { from, to } = splitAddresses(estimate.estimateRequest.addresses);
-
-  return {
-    id: estimate.id,
-    price: estimate.price,
-
-    userName: estimate.estimateRequest.user.name,
-
-    movingType: estimate.estimateRequest.movingType,
-    movingDate: estimate.estimateRequest.movingDate,
-    isDesignated: estimate.estimateRequest.isDesignated,
-    createdAt: estimate.estimateRequest.createdAt,
-    updatedAt: estimate.estimateRequest.updatedAt,
-
-    fromAddress: from?.address ?? null,
-    toAddress: to?.address ?? null,
-  };
 }
 
 // 반려 견적 목록 조회
@@ -422,7 +314,7 @@ export async function getEstimateRejectRepository({
       break;
   }
 
-  const estimate = await prisma.estimate.findMany({
+  return await prisma.estimate.findMany({
     where,
     orderBy,
     take: finalTake,
@@ -451,26 +343,5 @@ export async function getEstimateRejectRepository({
         },
       },
     },
-  });
-
-  return estimate.map((e) => {
-    const { from, to } = splitAddresses(e.estimateRequest.addresses);
-
-    return {
-      id: e.id,
-      status: e.status,
-
-      estimateRequestId: e.estimateRequest.id,
-      movingType: e.estimateRequest.movingType,
-      movingDate: e.estimateRequest.movingDate,
-
-      user: {
-        id: e.estimateRequest.user.id,
-        name: e.estimateRequest.user.name,
-      },
-
-      from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
-      to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
-    };
   });
 }
