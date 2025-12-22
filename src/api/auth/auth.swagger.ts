@@ -161,18 +161,22 @@
  *     ErrorResponse:
  *       type: object
  *       properties:
- *         success:
- *           type: boolean
- *           example: false
- *         error:
- *           type: object
- *           properties:
- *             message:
- *               type: string
- *               example: "에러 메시지"
- *             statusCode:
- *               type: integer
- *               example: 400
+ *         message:
+ *           type: string
+ *           description: 에러 메시지
+ *           example: "에러 메시지"
+ *         statusCode:
+ *           type: integer
+ *           description: HTTP 상태 코드
+ *           example: 400
+ *         name:
+ *           type: string
+ *           description: 에러 이름
+ *           example: "Error"
+ *         stack:
+ *           type: string
+ *           nullable: true
+ *           description: 에러 스택 트레이스 (개발 환경에서만 제공)
  *
  *   securitySchemes:
  *     bearerAuth:
