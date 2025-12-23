@@ -49,7 +49,12 @@ export const logoutController = asyncHandler(async (req: Request, res: Response)
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
 
-  await logoutService(req.user.id);
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    throw new AppError('리프레시 토큰이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
+  }
+
+  await logoutService(req.user.id, refreshToken);
 
   // 쿠키 삭제
   res.clearCookie('refreshToken', getClearCookieOptions());

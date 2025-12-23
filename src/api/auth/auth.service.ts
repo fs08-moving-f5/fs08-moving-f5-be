@@ -106,7 +106,14 @@ export const loginService = async (
 };
 
 // 로그아웃
-export const logoutService = async (userId: string): Promise<void> => {
+export const logoutService = async (userId: string, refreshToken: string): Promise<void> => {
+  // 리프레시 토큰 검증 및 소유권 확인
+  const payload = verifyRefreshToken(refreshToken);
+  
+  if (payload.userId !== userId) {
+    throw new AppError('유효하지 않은 토큰입니다', HTTP_STATUS.UNAUTHORIZED);
+  }
+
   await updateRefreshTokenRepository(userId, null);
 };
 
