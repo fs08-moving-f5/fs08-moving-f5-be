@@ -28,7 +28,7 @@ export const getNotificationStreamController = asyncHandler(async (req, res) => 
     } catch {}
   }, 30000);
 
-  res.on('close', () => {
+  req.on('close', () => {
     clearInterval(heartbeat);
     removeSseClient(userId, res);
   });
