@@ -6,6 +6,7 @@ import {
   readNotificationRepository,
 } from './notification.repository';
 import { NotificationType } from '../../generated/enums';
+import { Prisma } from '@/generated/client';
 
 export const pushUnreadCount = async ({ userId }: { userId: string }) => {
   const count = await getUnreadNotificationCountRepository({ userId });
@@ -17,8 +18,9 @@ export const createNotificationAndPushUnreadService = async (params: {
   userId: string;
   type: NotificationType;
   message: string;
+  tx?: Prisma.TransactionClient;
 }) => {
-  await createNotificationRepository(params);
+  await createNotificationRepository({ ...params, tx: params.tx });
 
   await pushUnreadCount({ userId: params.userId });
 };

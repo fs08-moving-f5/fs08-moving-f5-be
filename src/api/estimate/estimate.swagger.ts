@@ -294,6 +294,10 @@
  *               type: boolean
  *               description: 찜하기 여부
  *               example: true
+ *             favoriteDriverCount:
+ *               type: integer
+ *               description: 해당 드라이버를 찜한 사용자 수
+ *               example: 45
  *             driverProfile:
  *               oneOf:
  *                 - $ref: '#/components/schemas/DriverProfile'
@@ -373,6 +377,10 @@
  *                   type: boolean
  *                   description: 찜하기 여부
  *                   example: true
+ *                 favoriteDriverCount:
+ *                   type: integer
+ *                   description: 해당 드라이버를 찜한 사용자 수
+ *                   example: 45
  *                 driverProfile:
  *                   oneOf:
  *                     - $ref: '#/components/schemas/DriverProfile'
@@ -653,6 +661,7 @@
  *                         id: "123e4567-e89b-12d3-a456-426614174005"
  *                         name: "홍길동"
  *                         isFavorite: true
+ *                         favoriteDriverCount: 45
  *                         driverProfile:
  *                           id: "123e4567-e89b-12d3-a456-426614174003"
  *                           imageUrl: "https://example.com/image.jpg"
@@ -686,6 +695,7 @@
  *                         id: "123e4567-e89b-12d3-a456-426614174005"
  *                         name: "홍길동"
  *                         isFavorite: true
+ *                         favoriteDriverCount: 45
  *                         driverProfile:
  *                           id: "123e4567-e89b-12d3-a456-426614174003"
  *                           imageUrl: "https://example.com/image.jpg"
@@ -770,6 +780,7 @@
  *                       id: "123e4567-e89b-12d3-a456-426614174005"
  *                       name: "홍길동"
  *                       isFavorite: true
+ *                       favoriteDriverCount: 45
  *                       driverProfile:
  *                         id: "123e4567-e89b-12d3-a456-426614174003"
  *                         imageUrl: "https://example.com/image.jpg"

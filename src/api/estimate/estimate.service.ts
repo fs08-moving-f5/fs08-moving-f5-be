@@ -11,11 +11,13 @@ import {
   getDriverReviewAverageByDriverIdRepository,
   getReceivedEstimatesRepository,
   getIsMyFavoriteDriverRepository,
+  confirmEstimateRequestRepository,
 } from './estimate.repository';
-import { EstimateStatus } from '../../generated/client';
+import { EstimateStatus, NotificationType } from '../../generated/client';
 import { createNotificationAndPushUnreadService } from '../notification/notification.service';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
+import prisma from '@/config/prisma';
 
 // 기존 코드 (Estimate 기준 반환)
 // export const getPendingEstimatesService = async ({ userId }: { userId: string }) => {
@@ -131,19 +133,44 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
   }));
 };
 
+// export const confirmEstimateService = async ({ estimateId }: { estimateId: string }) => {
+//   const estimate = await confirmEstimateRepository({ estimateId });
+
+//   if (!estimate) {
+//     return null;
+//   }
+//   await createNotificationAndPushUnreadService({
+//     userId: estimate.driverId,
+//     type: 'ESTIMATE_CONFIRMED',
+//     message: `${estimate.driver.name}님의 견적이 확정되었어요`,
+//   });
+
+//   return estimate;
+// };
+
 export const confirmEstimateService = async ({ estimateId }: { estimateId: string }) => {
-  const estimate = await confirmEstimateRepository({ estimateId });
+  return await prisma.$transaction(async (tx) => {
+    const estimate = await confirmEstimateRepository({ estimateId, tx });
 
-  if (!estimate) {
-    return null;
-  }
-  await createNotificationAndPushUnreadService({
-    userId: estimate.driverId,
-    type: 'ESTIMATE_CONFIRMED',
-    message: `${estimate.driver.name}님의 견적이 확정되었어요`,
+    if (!estimate) {
+      return null;
+    }
+
+    await confirmEstimateRequestRepository({
+      estimateRequestId: estimate.estimateRequestId,
+      userId: estimate.driverId,
+      tx,
+    });
+
+    await createNotificationAndPushUnreadService({
+      userId: estimate.driverId,
+      type: NotificationType.ESTIMATE_CONFIRMED,
+      message: `${estimate.driver.name}님의 견적이 확정되었어요`,
+      tx,
+    });
+
+    return estimate;
   });
-
-  return estimate;
 };
 
 export const getEstimateDetailService = async ({
