@@ -1,5 +1,4 @@
 import {
-  getPendingEstimatesRepository,
   getUserFavoriteDriversRepository,
   getConfirmedEstimateCountRepository,
   getFavoriteDriverCountRepository,
@@ -12,6 +11,8 @@ import {
   getReceivedEstimatesRepository,
   getIsMyFavoriteDriverRepository,
   confirmEstimateRequestRepository,
+  getEstimateRequestDetailRepository,
+  getEstimateManyDriversRepository,
 } from './estimate.repository';
 import { EstimateStatus, NotificationType } from '../../generated/client';
 import { createNotificationAndPushUnreadService } from '../notification/notification.service';
@@ -19,134 +20,80 @@ import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 import prisma from '@/config/prisma';
 
-// 기존 코드 (Estimate 기준 반환)
-// export const getPendingEstimatesService = async ({ userId }: { userId: string }) => {
-//   const estimates = await getPendingEstimatesRepository({ userId });
-
-//   const driverIds = estimates.map((estimate) => estimate.driver.id);
-
-//   const [favoriteDrivers, tasksCounts, favoriteCounts] = await Promise.all([
-//     getUserFavoriteDriversRepository({ userId, driverIds }),
-//     getConfirmedEstimateCountRepository({ driverIds }),
-//     getFavoriteDriverCountRepository({ driverIds }),
-//   ]);
-
-//   const favoriteDriverIds = new Set(favoriteDrivers.map((driver) => driver.driverId));
-
-//   const tasksCountMap = tasksCounts.reduce<Record<string, number>>((acc, item) => {
-//     acc[item.driverId] = item._count.id;
-//     return acc;
-//   }, {});
-
-//   const favoriteCountMap = favoriteCounts.reduce<Record<string, number>>((acc, item) => {
-//     acc[item.driverId] = item._count.id;
-//     return acc;
-//   }, {});
-
-//   return estimates.map((estimate) => ({
-//     ...estimate,
-//     isFavorite: favoriteDriverIds.has(estimate.driver.id),
-//     driver: {
-//       ...estimate.driver,
-//       driverProfile: estimate.driver.driverProfile
-//         ? {
-//             ...estimate.driver.driverProfile,
-//             confirmedEstimateCount: tasksCountMap[estimate.driver.id] || 0,
-//             favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
-//           }
-//         : null,
-//     },
-//   }));
-// };
-
 export const getPendingEstimatesService = async ({ userId }: { userId: string }) => {
-  const estimateRequests = await getPendingEstimatesRepository({ userId });
+  return await prisma.$transaction(async (tx) => {
+    const estimateRequest = await getEstimateRequestDetailRepository({ userId, tx });
 
-  // 모든 estimate의 driver ID 수집
-  const driverIds: string[] = [];
-  estimateRequests.forEach((request) => {
-    request.estimate.forEach((estimate) => {
-      if (estimate.driver?.id) {
-        driverIds.push(estimate.driver.id);
+    if (!estimateRequest) {
+      return null;
+    }
+
+    const { estimate, ...restEstimateRequest } = estimateRequest;
+
+    const driverIds: string[] = [];
+    estimate.forEach((estimate) => {
+      if (estimate?.driverId) {
+        driverIds.push(estimate.driverId);
       }
     });
-  });
 
-  const uniqueDriverIds = [...new Set(driverIds)];
+    const uniqueDriverIds = [...new Set(driverIds)];
 
-  const [favoriteDrivers, tasksCounts, favoriteCounts, reviewAverages] = await Promise.all([
-    getUserFavoriteDriversRepository({ userId, driverIds: uniqueDriverIds }),
-    getConfirmedEstimateCountRepository({ driverIds: uniqueDriverIds }),
-    getFavoriteDriverCountRepository({ driverIds: uniqueDriverIds }),
-    getDriverReviewAverageRepository({ driverIds: uniqueDriverIds }),
-  ]);
+    const estimates = await getEstimateManyDriversRepository({
+      driverIds: uniqueDriverIds,
+      estimateRequestId: restEstimateRequest.id,
+      tx,
+    });
 
-  const favoriteDriverIds = new Set(favoriteDrivers.map((driver) => driver.driverId));
+    const [favoriteDrivers, tasksCounts, favoriteCounts, reviewAverages] = await Promise.all([
+      getUserFavoriteDriversRepository({ userId, driverIds: uniqueDriverIds, tx }),
+      getConfirmedEstimateCountRepository({ driverIds: uniqueDriverIds, tx }),
+      getFavoriteDriverCountRepository({ driverIds: uniqueDriverIds, tx }),
+      getDriverReviewAverageRepository({ driverIds: uniqueDriverIds, tx }),
+    ]);
 
-  const tasksCountMap = tasksCounts.reduce<Record<string, number>>((acc, item) => {
-    acc[item.driverId] = item._count.id;
-    return acc;
-  }, {});
+    const favoriteDriverIds = new Set(favoriteDrivers.map((driver) => driver.driverId));
 
-  const favoriteCountMap = favoriteCounts.reduce<Record<string, number>>((acc, item) => {
-    acc[item.driverId] = item._count.id;
-    return acc;
-  }, {});
+    const tasksCountMap = tasksCounts.reduce<Record<string, number>>((acc, item) => {
+      acc[item.driverId] = item._count.id;
+      return acc;
+    }, {});
 
-  const reviewAverageMap = reviewAverages.reduce<Record<string, number | null>>((acc, item) => {
-    acc[item.driverId] = item.averageRating ? Number(item.averageRating.toFixed(1)) : null;
-    return acc;
-  }, {});
-  return estimateRequests.map((request) => ({
-    estimateRequest: {
-      id: request.id,
-      movingType: request.movingType,
-      movingDate: request.movingDate,
-      isDesignated: request.isDesignated,
-      createdAt: request.createdAt,
-      addresses: request.addresses,
-    },
-    estimates: request.estimate.map((estimate) => ({
-      id: estimate.id,
-      price: estimate.price,
-      status: estimate.status,
-      createdAt: estimate.createdAt,
-      estimateRequestId: estimate.estimateRequest.id,
-      isDesignated: estimate.estimateRequest.isDesignated,
-      driver: estimate.driver
-        ? {
-            id: estimate.driver.id,
-            name: estimate.driver.name,
-            isFavorite: favoriteDriverIds.has(estimate.driver.id),
+    const favoriteCountMap = favoriteCounts.reduce<Record<string, number>>((acc, item) => {
+      acc[item.driverId] = item._count.id;
+      return acc;
+    }, {});
+
+    const reviewAverageMap = reviewAverages.reduce<Record<string, number | null>>((acc, item) => {
+      acc[item.driverId] = item.averageRating ? Number(item.averageRating.toFixed(1)) : null;
+      return acc;
+    }, {});
+
+    const estimateResult = estimates.map((estimate) => {
+      const { estimateRequest, ...restEstimate } = estimate;
+
+      return {
+        ...restEstimate,
+        isDesignated: estimateRequest.isDesignated,
+        driver: {
+          ...estimate.driver,
+          isFavorite: favoriteDriverIds.has(estimate.driver.id),
+          driverProfile: {
+            ...estimate.driver.driverProfile,
             favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
-            driverProfile: estimate.driver.driverProfile
-              ? {
-                  ...estimate.driver.driverProfile,
-                  confirmedEstimateCount: tasksCountMap[estimate.driver.id] || 0,
-                  favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
-                  averageRating: reviewAverageMap[estimate.driver.id] ?? null,
-                }
-              : null,
-          }
-        : null,
-    })),
-  }));
+            confirmedEstimateCount: tasksCountMap[estimate.driver.id] || 0,
+            averageRating: reviewAverageMap[estimate.driver.id] ?? null,
+          },
+        },
+      };
+    });
+
+    return {
+      ...restEstimateRequest,
+      estimates: estimate.length > 0 ? estimateResult : [],
+    };
+  });
 };
-
-// export const confirmEstimateService = async ({ estimateId }: { estimateId: string }) => {
-//   const estimate = await confirmEstimateRepository({ estimateId });
-
-//   if (!estimate) {
-//     return null;
-//   }
-//   await createNotificationAndPushUnreadService({
-//     userId: estimate.driverId,
-//     type: 'ESTIMATE_CONFIRMED',
-//     message: `${estimate.driver.name}님의 견적이 확정되었어요`,
-//   });
-
-//   return estimate;
-// };
 
 export const confirmEstimateService = async ({ estimateId }: { estimateId: string }) => {
   return await prisma.$transaction(async (tx) => {
