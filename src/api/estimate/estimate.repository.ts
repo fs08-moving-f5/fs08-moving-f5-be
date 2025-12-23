@@ -1,5 +1,6 @@
 import prisma from '../../config/prisma';
 import { EstimateStatus } from '../../generated/client';
+import { Prisma } from '@/generated/client';
 
 // 기존 코드 (Estimate 기준 조회)
 // export const getPendingEstimatesRepository = async ({ userId }: { userId: string }) => {
@@ -316,8 +317,14 @@ export const getDriverReviewAverageByDriverIdRepository = async ({
   return result._avg.rating;
 };
 
-export const confirmEstimateRepository = async ({ estimateId }: { estimateId: string }) => {
-  return await prisma.estimate.update({
+export const confirmEstimateRepository = async ({
+  estimateId,
+  tx,
+}: {
+  estimateId: string;
+  tx?: Prisma.TransactionClient;
+}) => {
+  return await (tx ?? prisma).estimate.update({
     where: {
       id: estimateId,
     },
@@ -337,6 +344,30 @@ export const confirmEstimateRepository = async ({ estimateId }: { estimateId: st
           name: true,
         },
       },
+    },
+  });
+};
+
+export const confirmEstimateRequestRepository = async ({
+  estimateRequestId,
+  tx,
+}: {
+  estimateRequestId: string;
+  tx?: Prisma.TransactionClient;
+}) => {
+  return await (tx ?? prisma).estimateRequest.update({
+    where: {
+      id: estimateRequestId,
+      isDelete: false,
+    },
+    data: {
+      status: EstimateStatus.CONFIRMED,
+    },
+    select: {
+      id: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
     },
   });
 };
