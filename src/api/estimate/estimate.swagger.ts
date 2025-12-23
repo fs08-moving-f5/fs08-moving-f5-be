@@ -422,6 +422,19 @@
  *           format: date-time
  *           description: 수정 일시
  *           example: "2024-01-15T11:00:00Z"
+ *         driver:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: string
+ *               format: uuid
+ *               description: 드라이버 ID
+ *               example: "123e4567-e89b-12d3-a456-426614174005"
+ *             name:
+ *               type: string
+ *               description: 드라이버 이름
+ *               example: "홍길동"
+ *           description: 드라이버 정보
  *
  *     ApiResponse:
  *       type: object
@@ -860,6 +873,9 @@
  *                     price: 500000
  *                     createdAt: "2024-01-15T10:30:00Z"
  *                     updatedAt: "2024-01-15T11:00:00Z"
+ *                     driver:
+ *                       id: "123e4567-e89b-12d3-a456-426614174005"
+ *                       name: "홍길동"
  *       '400':
  *         description: 잘못된 요청입니다. estimateId가 유효하지 않거나 이미 확정/취소된 견적입니다.
  *         content:
