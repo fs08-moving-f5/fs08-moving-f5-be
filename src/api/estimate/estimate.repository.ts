@@ -149,6 +149,26 @@ export const getUserFavoriteDriversRepository = async ({
   });
 };
 
+export const getIsMyFavoriteDriverRepository = async ({
+  userId,
+  driverId,
+}: {
+  userId: string;
+  driverId: string;
+}) => {
+  return await prisma.favoriteDriver.findUnique({
+    where: {
+      userId_driverId: {
+        userId,
+        driverId,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+};
+
 // ========== Driver 통계 조회 (여러 driverIds) ==========
 
 export const getConfirmedEstimateCountRepository = async ({

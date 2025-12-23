@@ -48,9 +48,10 @@ export const confirmEstimateController = asyncHandler(async (req, res) => {
 });
 
 export const getEstimateDetailController = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
   const { estimateId } = req.params;
 
-  const estimate = await getEstimateDetailService({ estimateId });
+  const estimate = await getEstimateDetailService({ estimateId, userId });
 
   res.status(HTTP_STATUS.OK).json({
     success: true,
