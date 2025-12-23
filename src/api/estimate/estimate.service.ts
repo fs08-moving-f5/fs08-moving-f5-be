@@ -158,7 +158,6 @@ export const confirmEstimateService = async ({ estimateId }: { estimateId: strin
 
     await confirmEstimateRequestRepository({
       estimateRequestId: estimate.estimateRequestId,
-      userId: estimate.driverId,
       tx,
     });
 

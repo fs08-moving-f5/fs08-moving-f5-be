@@ -350,16 +350,13 @@ export const confirmEstimateRepository = async ({
 
 export const confirmEstimateRequestRepository = async ({
   estimateRequestId,
-  userId,
   tx,
 }: {
   estimateRequestId: string;
-  userId: string;
   tx?: Prisma.TransactionClient;
 }) => {
   return await (tx ?? prisma).estimateRequest.update({
     where: {
-      userId,
       id: estimateRequestId,
       isDelete: false,
     },
