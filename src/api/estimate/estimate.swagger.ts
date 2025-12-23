@@ -219,14 +219,40 @@
  *     PendingEstimate:
  *       type: object
  *       properties:
- *         estimateRequest:
- *           $ref: '#/components/schemas/EstimateRequestInfo'
- *           description: 견적 요청 정보
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           description: 견적 요청 ID
+ *           example: "123e4567-e89b-12d3-a456-426614174001"
+ *         movingType:
+ *           type: string
+ *           enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
+ *           description: 이사 유형
+ *           example: "HOME_MOVING"
+ *         movingDate:
+ *           type: string
+ *           format: date-time
+ *           description: 이사 예정일
+ *           example: "2024-02-01T09:00:00Z"
+ *         isDesignated:
+ *           type: boolean
+ *           description: 지정 기사 여부
+ *           example: false
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: 생성 일시
+ *           example: "2024-01-15T10:00:00Z"
+ *         addresses:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/AddressInfo'
+ *           description: 주소 정보 목록
  *         estimates:
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/PendingEstimateItem'
- *           description: 해당 견적 요청에 대한 견적 목록
+ *           description: 해당 견적 요청에 대한 견적 목록 (빈 배열일 수 있음)
  *
  *     ReceivedEstimate:
  *       type: object
@@ -520,12 +546,13 @@
  *   get:
  *     tags:
  *       - Estimate
- *     summary: 대기 중인 견적 목록 조회
+ *     summary: 대기 중인 견적 조회
  *     description: |
- *       현재 사용자가 요청한 견적 중에서 상태가 PENDING인 견적 요청 목록을 조회합니다.
- *       각 견적 요청에는 해당 요청에 대한 모든 PENDING 견적들이 포함됩니다.
+ *       현재 사용자가 요청한 견적 중에서 상태가 PENDING인 견적 요청을 조회합니다.
+ *       대기 중인 견적 요청이 없으면 null을 반환합니다.
+ *       견적 요청이 있으면 해당 요청에 대한 모든 PENDING 견적들이 포함됩니다.
  *       각 견적에는 드라이버 정보, 찜하기 여부, 드라이버의 확정된 견적 수, 찜하기 수, 리뷰 평균 점수가 포함됩니다.
- *       응답은 EstimateRequest 기준으로 그룹화되어 제공됩니다.
+ *       estimates 필드는 견적이 없을 경우 빈 배열([])로 반환됩니다.
  *     operationId: getPendingEstimates
  *     security:
  *       - bearerAuth: []
@@ -540,31 +567,30 @@
  *                 - type: object
  *                   properties:
  *                     data:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/PendingEstimate'
+ *                       oneOf:
+ *                         - $ref: '#/components/schemas/PendingEstimate'
+ *                         - type: "null"
  *             examples:
  *               success:
- *                 summary: 성공 응답 예시
+ *                 summary: 성공 응답 예시 (견적이 있는 경우)
  *                 value:
  *                   success: true
  *                   data:
- *                     - estimateRequest:
- *                         id: "123e4567-e89b-12d3-a456-426614174001"
- *                         movingType: "HOME_MOVING"
- *                         movingDate: "2024-02-01T09:00:00Z"
- *                         isDesignated: false
- *                         createdAt: "2024-01-15T10:00:00Z"
- *                         addresses:
- *                           - id: "123e4567-e89b-12d3-a456-426614174002"
- *                             addressType: "FROM"
- *                             sido: "서울특별시"
- *                             sigungu: "강남구"
- *                           - id: "123e4567-e89b-12d3-a456-426614174003"
- *                             addressType: "TO"
- *                             sido: "서울특별시"
- *                             sigungu: "송파구"
- *                       estimates:
+ *                     id: "123e4567-e89b-12d3-a456-426614174001"
+ *                     movingType: "HOME_MOVING"
+ *                     movingDate: "2024-02-01T09:00:00Z"
+ *                     isDesignated: false
+ *                     createdAt: "2024-01-15T10:00:00Z"
+ *                     addresses:
+ *                       - id: "123e4567-e89b-12d3-a456-426614174002"
+ *                         addressType: "FROM"
+ *                         sido: "서울특별시"
+ *                         sigungu: "강남구"
+ *                       - id: "123e4567-e89b-12d3-a456-426614174003"
+ *                         addressType: "TO"
+ *                         sido: "서울특별시"
+ *                         sigungu: "송파구"
+ *                     estimates:
  *                         - id: "123e4567-e89b-12d3-a456-426614174000"
  *                           price: 500000
  *                           status: "PENDING"
@@ -603,6 +629,27 @@
  *                               confirmedEstimateCount: 200
  *                               favoriteDriverCount: 60
  *                               averageRating: 4.8
+ *               emptyEstimates:
+ *                 summary: 견적이 없는 경우 (estimates가 빈 배열)
+ *                 value:
+ *                   success: true
+ *                   data:
+ *                     id: "123e4567-e89b-12d3-a456-426614174001"
+ *                     movingType: "HOME_MOVING"
+ *                     movingDate: "2024-02-01T09:00:00Z"
+ *                     isDesignated: false
+ *                     createdAt: "2024-01-15T10:00:00Z"
+ *                     addresses:
+ *                       - id: "123e4567-e89b-12d3-a456-426614174002"
+ *                         addressType: "FROM"
+ *                         sido: "서울특별시"
+ *                         sigungu: "강남구"
+ *                     estimates: []
+ *               noRequest:
+ *                 summary: 대기 중인 견적 요청이 없는 경우
+ *                 value:
+ *                   success: true
+ *                   data: null
  *       '401':
  *         description: 인증되지 않은 사용자입니다.
  *         content:
