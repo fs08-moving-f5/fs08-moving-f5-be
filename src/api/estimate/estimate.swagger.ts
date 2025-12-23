@@ -333,6 +333,10 @@
  *             isDesignated:
  *               type: boolean
  *               description: 지정 기사 여부
+ *             createdAt:
+ *               type: string
+ *               format: date-time
+ *               description: 생성 일시
  *             addresses:
  *               type: array
  *               items:
@@ -744,6 +748,7 @@
  *                       movingType: "HOME_MOVING"
  *                       movingDate: "2024-02-01T09:00:00Z"
  *                       isDesignated: false
+ *                       createdAt: "2024-01-15T10:00:00Z"
  *                       addresses:
  *                         - id: "123e4567-e89b-12d3-a456-426614174002"
  *                           addressType: "FROM"
