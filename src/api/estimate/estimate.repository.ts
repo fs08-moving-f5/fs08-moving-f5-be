@@ -336,6 +336,7 @@ export const getEstimateDetailRepository = async ({ estimateId }: { estimateId: 
           movingType: true,
           movingDate: true,
           isDesignated: true,
+          createdAt: true,
           addresses: {
             select: {
               id: true,
