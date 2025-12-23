@@ -10,9 +10,12 @@ import {
   getConfirmedEstimateCountByDriverIdRepository,
   getDriverReviewAverageByDriverIdRepository,
   getReceivedEstimatesRepository,
+  getIsMyFavoriteDriverRepository,
 } from './estimate.repository';
 import { EstimateStatus } from '../../generated/client';
 import { createNotificationAndPushUnreadService } from '../notification/notification.service';
+import AppError from '@/utils/AppError';
+import HTTP_STATUS from '@/constants/http.constant';
 
 // 기존 코드 (Estimate 기준 반환)
 // export const getPendingEstimatesService = async ({ userId }: { userId: string }) => {
@@ -143,12 +146,30 @@ export const confirmEstimateService = async ({ estimateId }: { estimateId: strin
   return estimate;
 };
 
-export const getEstimateDetailService = async ({ estimateId }: { estimateId: string }) => {
+export const getEstimateDetailService = async ({
+  estimateId,
+  userId,
+}: {
+  estimateId: string;
+  userId: string;
+}) => {
+  if (!userId) {
+    throw new AppError('유저 ID가 필요합니다.', HTTP_STATUS.BAD_REQUEST);
+  }
+
   const estimate = await getEstimateDetailRepository({ estimateId });
 
   if (!estimate) {
     return null;
   }
+
+  const driverId = estimate.driver?.id;
+
+  if (!driverId) {
+    throw new AppError('기사 ID가 필요합니다.', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const isMyFavoriteDriver = await getIsMyFavoriteDriverRepository({ userId, driverId });
 
   const [confirmedEstimateCount, favoriteDriverCount, averageRatingRaw] = await Promise.all([
     getConfirmedEstimateCountByDriverIdRepository({ driverId: estimate.driver?.id || '' }),
@@ -163,6 +184,7 @@ export const getEstimateDetailService = async ({ estimateId }: { estimateId: str
     driver: estimate.driver
       ? {
           ...estimate.driver,
+          isFavorite: isMyFavoriteDriver ? true : false,
           driverProfile: estimate.driver.driverProfile
             ? {
                 ...estimate.driver.driverProfile,
