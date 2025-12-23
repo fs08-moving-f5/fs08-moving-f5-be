@@ -290,6 +290,10 @@
  *               type: string
  *               description: 드라이버 이름
  *               example: "홍길동"
+ *             isFavorite:
+ *               type: boolean
+ *               description: 찜하기 여부
+ *               example: true
  *             driverProfile:
  *               oneOf:
  *                 - $ref: '#/components/schemas/DriverProfile'
@@ -365,6 +369,10 @@
  *                   type: string
  *                   description: 드라이버 이름
  *                   example: "홍길동"
+ *                 isFavorite:
+ *                   type: boolean
+ *                   description: 찜하기 여부
+ *                   example: true
  *                 driverProfile:
  *                   oneOf:
  *                     - $ref: '#/components/schemas/DriverProfile'
@@ -644,6 +652,7 @@
  *                       driver:
  *                         id: "123e4567-e89b-12d3-a456-426614174005"
  *                         name: "홍길동"
+ *                         isFavorite: true
  *                         driverProfile:
  *                           id: "123e4567-e89b-12d3-a456-426614174003"
  *                           imageUrl: "https://example.com/image.jpg"
@@ -676,6 +685,7 @@
  *                       driver:
  *                         id: "123e4567-e89b-12d3-a456-426614174005"
  *                         name: "홍길동"
+ *                         isFavorite: true
  *                         driverProfile:
  *                           id: "123e4567-e89b-12d3-a456-426614174003"
  *                           imageUrl: "https://example.com/image.jpg"
@@ -759,6 +769,7 @@
  *                     driver:
  *                       id: "123e4567-e89b-12d3-a456-426614174005"
  *                       name: "홍길동"
+ *                       isFavorite: true
  *                       driverProfile:
  *                         id: "123e4567-e89b-12d3-a456-426614174003"
  *                         imageUrl: "https://example.com/image.jpg"
