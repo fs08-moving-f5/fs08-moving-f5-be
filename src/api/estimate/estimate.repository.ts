@@ -2,65 +2,6 @@ import prisma from '../../config/prisma';
 import { EstimateStatus } from '../../generated/client';
 import { Prisma } from '@/generated/client';
 
-// 기존 코드 (Estimate 기준 조회)
-// export const getPendingEstimatesRepository = async ({ userId }: { userId: string }) => {
-//   return await prisma.estimate.findMany({
-//     where: {
-//       status: EstimateStatus.PENDING,
-//       isDelete: false,
-//       estimateRequest: {
-//         userId,
-//         isDelete: false,
-//         status: EstimateStatus.PENDING,
-//       },
-//     },
-//     select: {
-//       id: true,
-//       price: true,
-//       createdAt: true,
-//       estimateRequest: {
-//         select: {
-//           id: true,
-//           movingType: true,
-//           movingDate: true,
-//           isDesignated: true,
-//           createdAt: true,
-//           addresses: {
-//             select: {
-//               id: true,
-//               addressType: true,
-//               sido: true,
-//               sigungu: true,
-//             },
-//           },
-//         },
-//       },
-//       driver: {
-//         select: {
-//           id: true,
-//           driverProfile: {
-//             select: {
-//               id: true,
-//               imageUrl: true,
-//               career: true,
-//             },
-//           },
-//           reviews: {
-//             select: {
-//               id: true,
-//               rating: true,
-//               createdAt: true,
-//             },
-//           },
-//         },
-//       },
-//     },
-//     orderBy: {
-//       createdAt: 'desc',
-//     },
-//   });
-// };
-
 export const getPendingEstimatesRepository = async ({ userId }: { userId: string }) => {
   return await prisma.estimateRequest.findMany({
     where: {
@@ -133,11 +74,13 @@ export const getPendingEstimatesRepository = async ({ userId }: { userId: string
 export const getUserFavoriteDriversRepository = async ({
   userId,
   driverIds,
+  tx,
 }: {
   userId: string;
   driverIds: string[];
+  tx?: Prisma.TransactionClient;
 }) => {
-  return await prisma.favoriteDriver.findMany({
+  return await (tx ?? prisma).favoriteDriver.findMany({
     where: {
       userId,
       driverId: {
@@ -174,14 +117,16 @@ export const getIsMyFavoriteDriverRepository = async ({
 
 export const getConfirmedEstimateCountRepository = async ({
   driverIds,
+  tx,
 }: {
   driverIds: string[];
+  tx?: Prisma.TransactionClient;
 }) => {
   if (driverIds.length === 0) {
     return [];
   }
 
-  return await prisma.estimate.groupBy({
+  return await (tx ?? prisma).estimate.groupBy({
     by: ['driverId'],
     where: {
       driverId: {
@@ -199,12 +144,18 @@ export const getConfirmedEstimateCountRepository = async ({
   });
 };
 
-export const getFavoriteDriverCountRepository = async ({ driverIds }: { driverIds: string[] }) => {
+export const getFavoriteDriverCountRepository = async ({
+  driverIds,
+  tx,
+}: {
+  driverIds: string[];
+  tx?: Prisma.TransactionClient;
+}) => {
   if (driverIds.length === 0) {
     return [];
   }
 
-  return await prisma.favoriteDriver.groupBy({
+  return await (tx ?? prisma).favoriteDriver.groupBy({
     by: ['driverId'],
     where: {
       driverId: {
@@ -220,7 +171,13 @@ export const getFavoriteDriverCountRepository = async ({ driverIds }: { driverId
   });
 };
 
-export const getDriverReviewAverageRepository = async ({ driverIds }: { driverIds: string[] }) => {
+export const getDriverReviewAverageRepository = async ({
+  driverIds,
+  tx,
+}: {
+  driverIds: string[];
+  tx?: Prisma.TransactionClient;
+}) => {
   if (driverIds.length === 0) {
     return [];
   }
@@ -228,7 +185,7 @@ export const getDriverReviewAverageRepository = async ({ driverIds }: { driverId
   // 각 driver별로 리뷰 평균 계산 (원시 데이터 반환)
   const reviewAverages = await Promise.all(
     driverIds.map(async (driverId) => {
-      const result = await prisma.review.aggregate({
+      const result = await (tx ?? prisma).review.aggregate({
         where: {
           estimate: {
             driverId,
@@ -466,6 +423,93 @@ export const getReceivedEstimatesRepository = async ({
               shortIntro: true,
             },
           },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+};
+
+export const getEstimateRequestDetailRepository = async ({
+  userId,
+  tx,
+}: {
+  userId: string;
+  tx?: Prisma.TransactionClient;
+}) => {
+  return await (tx ?? prisma).estimateRequest.findFirst({
+    where: {
+      userId,
+      isDelete: false,
+      status: EstimateStatus.PENDING,
+    },
+    select: {
+      id: true,
+      movingType: true,
+      movingDate: true,
+      isDesignated: true,
+      createdAt: true,
+      addresses: {
+        select: {
+          id: true,
+          addressType: true,
+          sido: true,
+          sigungu: true,
+        },
+      },
+      estimate: {
+        select: {
+          id: true,
+          driverId: true,
+        },
+      },
+    },
+  });
+};
+
+export const getEstimateManyDriversRepository = async ({
+  driverIds,
+  estimateRequestId,
+  tx,
+}: {
+  driverIds: string[];
+  estimateRequestId: string;
+  tx?: Prisma.TransactionClient;
+}) => {
+  return await (tx ?? prisma).estimate.findMany({
+    where: {
+      driverId: {
+        in: driverIds,
+      },
+      estimateRequestId,
+      isDelete: false,
+      status: EstimateStatus.PENDING,
+    },
+    select: {
+      id: true,
+      price: true,
+      status: true,
+      createdAt: true,
+      driver: {
+        select: {
+          id: true,
+          name: true,
+          driverProfile: {
+            select: {
+              id: true,
+              imageUrl: true,
+              career: true,
+              shortIntro: true,
+            },
+          },
+        },
+      },
+      estimateRequest: {
+        select: {
+          id: true,
+          isDesignated: true,
         },
       },
     },
