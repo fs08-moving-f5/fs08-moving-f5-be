@@ -12,9 +12,9 @@ const schema = z.object({
 
   // JWT
   JWT_SECRET: z.string().min(10, 'JWT_SECRET is required (>=10 chars)'),
-  JWT_EXPIRES_IN: z.string().default('7d'),
+  JWT_EXPIRES_IN: z.string().default('7'),
   JWT_REFRESH_SECRET: z.string().min(10, 'JWT_REFRESH_SECRET is required (>=10 chars)'),
-  JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('30'),
 
   // AWS S3
   // AWS_REGION: z.string().min(1, 'AWS_REGION is required').optional(),

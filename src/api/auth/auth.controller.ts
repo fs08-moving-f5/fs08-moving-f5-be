@@ -1,9 +1,9 @@
 import { signupService, loginService, logoutService, refreshTokenService } from './auth.service';
 import { signupSchema, loginSchema } from './validators/auth.validators';
 import AppError from '@/utils/AppError';
-import { env } from '@/config/env';
 import asyncHandler from '@/middlewares/asyncHandler';
 import HTTP_STATUS from '@/constants/http.constant';
+import { getRefreshTokenCookieOptions, getClearCookieOptions } from '@/utils/cookieOptions';
 
 import type { Request, Response } from 'express';
 
@@ -14,12 +14,7 @@ export const signupController = asyncHandler(async (req: Request, res: Response)
   const result = await signupService(validatedData);
 
   // 리프레시 토큰은 httpOnly 쿠키로 설정
-  res.cookie('refreshToken', result.tokens.refreshToken, {
-    httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30일
-  });
+  res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
 
   res.status(HTTP_STATUS.CREATED).json({
     success: true,
@@ -37,12 +32,7 @@ export const loginController = asyncHandler(async (req: Request, res: Response) 
   const result = await loginService(email, password, type);
 
   // 리프레시 토큰은 httpOnly 쿠키로 설정
-  res.cookie('refreshToken', result.tokens.refreshToken, {
-    httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30일
-  });
+  res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
 
   res.json({
     success: true,
@@ -59,10 +49,15 @@ export const logoutController = asyncHandler(async (req: Request, res: Response)
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
 
-  await logoutService(req.user.id);
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    throw new AppError('리프레시 토큰이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
+  }
+
+  await logoutService(req.user.id, refreshToken);
 
   // 쿠키 삭제
-  res.clearCookie('refreshToken');
+  res.clearCookie('refreshToken', getClearCookieOptions());
 
   res.json({
     success: true,
@@ -81,12 +76,7 @@ export const refreshTokenController = asyncHandler(async (req: Request, res: Res
   const tokens = await refreshTokenService(refreshToken);
 
   // 새 리프레시 토큰은 httpOnly 쿠키로 설정
-  res.cookie('refreshToken', tokens.refreshToken, {
-    httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30일
-  });
+  res.cookie('refreshToken', tokens.refreshToken, getRefreshTokenCookieOptions());
 
   res.status(HTTP_STATUS.OK).json({
     // status 추가
