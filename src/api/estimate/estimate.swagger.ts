@@ -175,7 +175,7 @@
  *         driverProfile:
  *           oneOf:
  *             - $ref: '#/components/schemas/DriverProfile'
- *             - type: "null"
+ *             - type: null
  *           description: 드라이버 프로필 정보
  *
  *     PendingEstimateItem:
@@ -213,7 +213,7 @@
  *         driver:
  *           oneOf:
  *             - $ref: '#/components/schemas/Driver'
- *             - type: "null"
+ *             - type: null
  *           description: 드라이버 정보
  *
  *     PendingEstimate:
@@ -327,7 +327,7 @@
  *             driverProfile:
  *               oneOf:
  *                 - $ref: '#/components/schemas/DriverProfile'
- *                 - type: "null"
+ *                 - type: null
  *               description: 드라이버 프로필 정보
  *           description: 드라이버 정보
  *
@@ -410,9 +410,9 @@
  *                 driverProfile:
  *                   oneOf:
  *                     - $ref: '#/components/schemas/DriverProfile'
- *                     - type: "null"
+ *                     - type: null
  *                   description: 드라이버 프로필 정보
- *             - type: "null"
+ *             - type: null
  *           description: 드라이버 정보
  *
  *     ConfirmedEstimate:
@@ -597,14 +597,20 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       oneOf:
- *                         - $ref: '#/components/schemas/PendingEstimate'
- *                         - type: "null"
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   oneOf:
+ *                     - $ref: '#/components/schemas/PendingEstimate'
+ *                     - type: null
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시 (견적이 있는 경우)
@@ -725,16 +731,22 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/ReceivedEstimate'
- *                     pagination:
- *                       $ref: '#/components/schemas/Pagination'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ReceivedEstimate'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               allEstimates:
  *                 summary: 전체 견적 조회 (status 파라미터 없음)
@@ -852,14 +864,20 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       oneOf:
- *                         - $ref: '#/components/schemas/EstimateDetail'
- *                         - type: "null"
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   oneOf:
+ *                     - $ref: '#/components/schemas/EstimateDetail'
+ *                     - type: null
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
@@ -948,12 +966,18 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/ConfirmedEstimate'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/ConfirmedEstimate'
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
