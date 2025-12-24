@@ -375,11 +375,17 @@ export const getEstimateDetailRepository = async ({ estimateId }: { estimateId: 
 export const getReceivedEstimatesRepository = async ({
   userId,
   status,
+  cursorId,
+  limit = 15,
+  tx,
 }: {
   userId: string;
   status?: EstimateStatus;
+  cursorId?: string;
+  limit?: number;
+  tx?: Prisma.TransactionClient;
 }) => {
-  return await prisma.estimate.findMany({
+  return await (tx ?? prisma).estimate.findMany({
     where: {
       isDelete: false,
       estimateRequest: {
@@ -429,6 +435,13 @@ export const getReceivedEstimatesRepository = async ({
     orderBy: {
       createdAt: 'desc',
     },
+    take: limit + 1,
+    ...(cursorId
+      ? {
+          cursor: { id: cursorId },
+          skip: 1,
+        }
+      : {}),
   });
 };
 
