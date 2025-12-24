@@ -7,13 +7,7 @@ import {
   getPendingEstimatesService,
   getReceivedEstimatesService,
 } from './estimate.service';
-
-const VALID_STATUSES: readonly string[] = [
-  EstimateStatus.PENDING,
-  EstimateStatus.CONFIRMED,
-  EstimateStatus.REJECTED,
-  EstimateStatus.CANCELLED,
-];
+import AppError from '@/utils/AppError';
 
 const isValidEstimateStatus = (value: string): value is EstimateStatus => {
   const upperValue = value.toUpperCase();
@@ -62,36 +56,34 @@ export const getEstimateDetailController = asyncHandler(async (req, res) => {
 export const getReceivedEstimatesController = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { status } = req.query;
+  const limit = req.query.limit ? Number(req.query.limit) : 15;
+  const cursor = req.query.cursor ? String(req.query.cursor) : undefined;
 
   // status가 제공된 경우 유효성 검증
   let validatedStatus: EstimateStatus | undefined;
   if (status) {
     if (typeof status !== 'string') {
-      const error = new Error(
-        `유효하지 않은 status 값입니다. 가능한 값: ${VALID_STATUSES.join(', ')}`,
-      );
-      Object.assign(error, { status: HTTP_STATUS.BAD_REQUEST });
-      throw error;
+      throw new AppError('유효하지 않은 status 값입니다.', HTTP_STATUS.BAD_REQUEST);
     }
 
     const upperStatus = status.toUpperCase();
-    if (!isValidEstimateStatus(upperStatus)) {
-      const error = new Error(
-        `유효하지 않은 status 값입니다. 가능한 값: ${VALID_STATUSES.join(', ')}`,
-      );
-      Object.assign(error, { status: HTTP_STATUS.BAD_REQUEST });
-      throw error;
+    if (isValidEstimateStatus(upperStatus)) {
+      validatedStatus = upperStatus;
+    } else {
+      throw new AppError('유효하지 않은 status 값입니다.', HTTP_STATUS.BAD_REQUEST);
     }
-    validatedStatus = upperStatus;
   }
 
-  const estimates = await getReceivedEstimatesService({
+  const { data, pagination } = await getReceivedEstimatesService({
     userId,
     status: validatedStatus,
+    cursorId: cursor,
+    limit,
   });
 
   res.status(HTTP_STATUS.OK).json({
     success: true,
-    data: estimates,
+    data,
+    pagination,
   });
 });
