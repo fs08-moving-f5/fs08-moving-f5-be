@@ -37,9 +37,21 @@ export const updateUserProfileSchema = z.object({
 // 기사 프로필 생성 스키마
 export const createDriverProfileSchema = z.object({
   imageUrl: imageUrlSchema,
-  career: z.string().max(500, '경력은 최대 500자까지 입력 가능합니다').optional(),
-  shortIntro: z.string().max(100, '한줄 소개는 최대 100자까지 입력 가능합니다').optional(),
-  description: z.string().max(2000, '상세 설명은 최대 2000자까지 입력 가능합니다').optional(),
+  career: z
+    .string()
+    .regex(/^[0-9]*$/, '숫자만 입력해주세요.')
+    .max(500, '경력은 최대 500자까지 입력 가능합니다')
+    .optional(),
+  shortIntro: z
+    .string()
+    .min(8, '8자 이상 입력해주세요.')
+    .max(100, '한줄 소개는 최대 100자까지 입력 가능합니다')
+    .optional(),
+  description: z
+    .string()
+    .min(10, '10자 이상 입력해주세요.')
+    .max(2000, '상세 설명은 최대 2000자까지 입력 가능합니다')
+    .optional(),
   regions: regionsSchema,
   services: servicesSchema,
 });
@@ -49,16 +61,19 @@ export const updateDriverProfileSchema = z.object({
   imageUrl: imageUrlSchema.or(z.literal(null)), // null 허용
   career: z
     .string()
+    .regex(/^[0-9]*$/, '숫자만 입력해주세요.')
     .max(500, '경력은 최대 500자까지 입력 가능합니다')
     .optional()
     .or(z.literal(null)),
   shortIntro: z
     .string()
+    .min(8, '8자 이상 입력해주세요.')
     .max(100, '한줄 소개는 최대 100자까지 입력 가능합니다')
     .optional()
     .or(z.literal(null)),
   description: z
     .string()
+    .min(10, '10자 이상 입력해주세요.')
     .max(2000, '상세 설명은 최대 2000자까지 입력 가능합니다')
     .optional()
     .or(z.literal(null)),
