@@ -8,7 +8,7 @@
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: 견적 요청 성공
+ *         description: 진행 중인 견적 요청 조회 성공
  *         content:
  *           application/json:
  *             schema:
@@ -16,7 +16,7 @@
  *               properties:
  *                 message:
  *                   type: string
- *                   example: 견적 요청 성공
+ *                   example: 진행 중인 견적 요청 조회 성공
  *                 data:
  *                   type: array
  *                   items:
@@ -64,7 +64,7 @@
 
 /**
  * @swagger
- * /api/estimate-request/user/create:
+ * /api/estimate-request/user/request:
  *   post:
  *     summary: 견적 요청 (유저)
  *     tags: [EstimateReq]
@@ -171,9 +171,9 @@
  *                     id:
  *                       type: string
  *                       example: "uuid-estimate-request-id"
- *                     userId:
+ *                     name:
  *                       type: string
- *                       example: "uuid-estimate-request-id"
+ *                       example: 홍길동
  *                     movingType:
  *                       type: string
  *                       example: HOME
@@ -204,14 +204,6 @@
  *                         sigungu:
  *                           type: string
  *                           example: 해운대구
- *                     createdAt:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-12-01T00:00:00.000Z"
- *                     updatedAt:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-12-01T00:00:00.000Z"
  *       401:
  *         description: 유저 인증 실패
  *       400:
