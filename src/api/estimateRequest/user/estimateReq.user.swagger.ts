@@ -93,7 +93,7 @@
  *               from:
  *                 type: object
  *                 required:
- *                   - zonecode
+ *                   - zoneCode
  *                   - address
  *                   - addressEnglish
  *                   - sido
@@ -101,7 +101,7 @@
  *                   - sigungu
  *                   - sigunguEnglish
  *                 properties:
- *                   zonecode:
+ *                   zoneCode:
  *                      type: string
  *                      example: 06035
  *                   address:
@@ -125,7 +125,7 @@
  *               to:
  *                 type: object
  *                 required:
- *                   - zonecode
+ *                   - zoneCode
  *                   - address
  *                   - addressEnglish
  *                   - sido
@@ -133,7 +133,7 @@
  *                   - sigungu
  *                   - sigunguEnglish
  *                 properties:
- *                   zonecode:
+ *                   zoneCode:
  *                      type: string
  *                      example: 06035
  *                   address:
