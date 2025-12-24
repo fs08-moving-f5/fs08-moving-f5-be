@@ -174,53 +174,81 @@ export const getEstimateDetailService = async ({
 export const getReceivedEstimatesService = async ({
   userId,
   status,
+  cursorId,
+  limit = 15,
 }: {
   userId: string;
   status?: EstimateStatus;
+  cursorId?: string;
+  limit?: number;
 }) => {
-  const receivedEstimates = await getReceivedEstimatesRepository({
-    userId,
-    status,
+  return await prisma.$transaction(async (tx) => {
+    const receivedEstimates = await getReceivedEstimatesRepository({
+      userId,
+      status,
+      cursorId,
+      limit,
+      tx,
+    });
+
+    if (receivedEstimates.length === 0) {
+      return {
+        data: [],
+        pagination: {
+          hasNext: false,
+          nextCursor: null,
+        },
+      };
+    }
+
+    const hasNext = receivedEstimates.length > limit;
+    const data = hasNext ? receivedEstimates.slice(0, limit) : receivedEstimates;
+    const nextCursor = hasNext ? data[data.length - 1].id : null;
+
+    const driverIds = data.map((estimate) => estimate.driver.id);
+
+    const [confirmedCounts, favoriteCounts, reviewAverages] = await Promise.all([
+      getConfirmedEstimateCountRepository({ driverIds, tx }),
+      getFavoriteDriverCountRepository({ driverIds, tx }),
+      getDriverReviewAverageRepository({ driverIds, tx }),
+    ]);
+
+    const confirmedCountMap = confirmedCounts.reduce<Record<string, number>>((acc, item) => {
+      acc[item.driverId] = item._count.id;
+      return acc;
+    }, {});
+
+    const favoriteCountMap = favoriteCounts.reduce<Record<string, number>>((acc, item) => {
+      acc[item.driverId] = item._count.id;
+      return acc;
+    }, {});
+
+    const reviewAverageMap = reviewAverages.reduce<Record<string, number | null>>((acc, item) => {
+      acc[item.driverId] = item.averageRating ? Number(item.averageRating.toFixed(1)) : null;
+      return acc;
+    }, {});
+
+    const result = data.map((estimate) => ({
+      ...estimate,
+      driver: {
+        ...estimate.driver,
+        driverProfile: estimate.driver.driverProfile
+          ? {
+              ...estimate.driver.driverProfile,
+              confirmedEstimateCount: confirmedCountMap[estimate.driver.id] || 0,
+              favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
+              averageRating: reviewAverageMap[estimate.driver.id] ?? null,
+            }
+          : null,
+      },
+    }));
+
+    return {
+      data: result,
+      pagination: {
+        hasNext,
+        nextCursor,
+      },
+    };
   });
-
-  if (receivedEstimates.length === 0) {
-    return [];
-  }
-
-  const driverIds = receivedEstimates.map((estimate) => estimate.driver.id);
-
-  const [confirmedCounts, favoriteCounts, reviewAverages] = await Promise.all([
-    getConfirmedEstimateCountRepository({ driverIds }),
-    getFavoriteDriverCountRepository({ driverIds }),
-    getDriverReviewAverageRepository({ driverIds }),
-  ]);
-
-  const confirmedCountMap = confirmedCounts.reduce<Record<string, number>>((acc, item) => {
-    acc[item.driverId] = item._count.id;
-    return acc;
-  }, {});
-
-  const favoriteCountMap = favoriteCounts.reduce<Record<string, number>>((acc, item) => {
-    acc[item.driverId] = item._count.id;
-    return acc;
-  }, {});
-
-  const reviewAverageMap = reviewAverages.reduce<Record<string, number | null>>((acc, item) => {
-    acc[item.driverId] = item.averageRating ? Number(item.averageRating.toFixed(1)) : null;
-    return acc;
-  }, {});
-  return receivedEstimates.map((estimate) => ({
-    ...estimate,
-    driver: {
-      ...estimate.driver,
-      driverProfile: estimate.driver.driverProfile
-        ? {
-            ...estimate.driver.driverProfile,
-            confirmedEstimateCount: confirmedCountMap[estimate.driver.id] || 0,
-            favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
-            averageRating: reviewAverageMap[estimate.driver.id] ?? null,
-          }
-        : null,
-    },
-  }));
 };

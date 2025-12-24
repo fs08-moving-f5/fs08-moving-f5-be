@@ -507,6 +507,20 @@
  *           type: string
  *           description: 에러 메시지
  *
+ *     Pagination:
+ *       type: object
+ *       properties:
+ *         hasNext:
+ *           type: boolean
+ *           description: 다음 페이지 존재 여부
+ *           example: true
+ *         nextCursor:
+ *           type: string
+ *           format: uuid
+ *           nullable: true
+ *           description: 다음 페이지 조회를 위한 커서 (hasNext가 false이면 null)
+ *           example: "123e4567-e89b-12d3-a456-426614174000"
+ *
  *   parameters:
  *     estimateId:
  *       in: path
@@ -527,6 +541,27 @@
  *         enum: [PENDING, CONFIRMED, REJECTED, CANCELLED]
  *       description: 견적 상태 필터 (대소문자 구분 없음)
  *       example: "PENDING"
+ *
+ *     limitQuery:
+ *       in: query
+ *       name: limit
+ *       required: false
+ *       schema:
+ *         type: integer
+ *         minimum: 1
+ *         default: 15
+ *       description: 한 페이지에 조회할 견적 수 (기본값: 15)
+ *       example: 15
+ *
+ *     cursorQuery:
+ *       in: query
+ *       name: cursor
+ *       required: false
+ *       schema:
+ *         type: string
+ *         format: uuid
+ *       description: 페이지네이션 커서 (다음 페이지 조회 시 사용)
+ *       example: "123e4567-e89b-12d3-a456-426614174000"
  *
  *   securitySchemes:
  *     bearerAuth:
@@ -676,11 +711,14 @@
  *       status 쿼리 파라미터를 통해 특정 상태의 견적만 필터링할 수 있습니다.
  *       가능한 상태 값: PENDING, CONFIRMED, REJECTED, CANCELLED (대소문자 구분 없음)
  *       각 견적에는 드라이버 정보, 견적 요청 정보, 드라이버의 확정된 견적 수, 찜하기 수, 리뷰 평균 점수가 포함됩니다.
+ *       페이지네이션을 지원하며, limit과 cursor 파라미터를 사용하여 페이지 단위로 조회할 수 있습니다.
  *     operationId: getReceivedEstimates
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - $ref: '#/components/parameters/statusQuery'
+ *       - $ref: '#/components/parameters/limitQuery'
+ *       - $ref: '#/components/parameters/cursorQuery'
  *     responses:
  *       '200':
  *         description: 성공적으로 받은 견적 목록을 조회했습니다.
@@ -695,6 +733,8 @@
  *                       type: array
  *                       items:
  *                         $ref: '#/components/schemas/ReceivedEstimate'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
  *             examples:
  *               allEstimates:
  *                 summary: 전체 견적 조회 (status 파라미터 없음)
@@ -730,6 +770,9 @@
  *                           confirmedEstimateCount: 150
  *                           favoriteDriverCount: 45
  *                           averageRating: 4.5
+ *                   pagination:
+ *                     hasNext: true
+ *                     nextCursor: "123e4567-e89b-12d3-a456-426614174000"
  *               filteredEstimates:
  *                 summary: 특정 상태 견적 조회 (status=PENDING)
  *                 value:
@@ -764,6 +807,9 @@
  *                           confirmedEstimateCount: 150
  *                           favoriteDriverCount: 45
  *                           averageRating: 4.5
+ *                   pagination:
+ *                     hasNext: false
+ *                     nextCursor: null
  *       '400':
  *         description: 잘못된 요청입니다. status 값이 유효하지 않습니다.
  *         content:
