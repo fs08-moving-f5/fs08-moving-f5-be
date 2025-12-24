@@ -175,7 +175,7 @@
  *         driverProfile:
  *           oneOf:
  *             - $ref: '#/components/schemas/DriverProfile'
- *             - type: null
+ *             - type: 'null'
  *           description: 드라이버 프로필 정보
  *
  *     PendingEstimateItem:
@@ -213,7 +213,7 @@
  *         driver:
  *           oneOf:
  *             - $ref: '#/components/schemas/Driver'
- *             - type: null
+ *             - type: 'null'
  *           description: 드라이버 정보
  *
  *     PendingEstimate:
@@ -327,7 +327,7 @@
  *             driverProfile:
  *               oneOf:
  *                 - $ref: '#/components/schemas/DriverProfile'
- *                 - type: null
+ *                 - type: 'null'
  *               description: 드라이버 프로필 정보
  *           description: 드라이버 정보
  *
@@ -410,9 +410,9 @@
  *                 driverProfile:
  *                   oneOf:
  *                     - $ref: '#/components/schemas/DriverProfile'
- *                     - type: null
+ *                     - type: 'null'
  *                   description: 드라이버 프로필 정보
- *             - type: null
+ *             - type: 'null'
  *           description: 드라이버 정보
  *
  *     ConfirmedEstimate:
@@ -550,7 +550,7 @@
  *         type: integer
  *         minimum: 1
  *         default: 15
- *       description: 한 페이지에 조회할 견적 수 (기본값: 15)
+ *       description: "한 페이지에 조회할 견적 수 (기본값: 15)"
  *       example: 15
  *
  *     cursorQuery:
@@ -606,7 +606,7 @@
  *                 data:
  *                   oneOf:
  *                     - $ref: '#/components/schemas/PendingEstimate'
- *                     - type: null
+ *                     - type: 'null'
  *                 message:
  *                   type: string
  *                   nullable: true
@@ -873,7 +873,7 @@
  *                 data:
  *                   oneOf:
  *                     - $ref: '#/components/schemas/EstimateDetail'
- *                     - type: null
+ *                     - type: 'null'
  *                 message:
  *                   type: string
  *                   nullable: true
