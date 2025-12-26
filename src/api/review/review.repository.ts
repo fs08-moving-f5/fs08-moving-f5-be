@@ -164,12 +164,14 @@ export async function updateReviewRepository({
   reviewId,
   rating,
   content,
+  tx,
 }: {
   reviewId: string;
   rating: number;
   content: string;
+  tx?: Prisma.TransactionClient;
 }) {
-  return await prisma.review.update({
+  return await (tx ?? prisma).review.update({
     where: { id: reviewId },
     data: { rating, content },
   });
@@ -179,11 +181,13 @@ export async function updateReviewRepository({
 export async function createReviewHistoryRepository({
   userId,
   entityId,
+  tx,
 }: {
   userId: string;
   entityId: string;
+  tx?: Prisma.TransactionClient;
 }) {
-  return await prisma.history.create({
+  return await (tx ?? prisma).history.create({
     data: {
       userId,
       entityId,

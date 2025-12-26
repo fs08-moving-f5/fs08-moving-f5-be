@@ -15,10 +15,6 @@ import { createNotificationAndPushUnreadService } from '@/api/notification/notif
 
 // 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsService(params: GetEstimateRequestsParams) {
-  if (!params.driverId) {
-    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
-  }
-
   const requests = await repo.getEstimateRequestsRepository(params);
 
   return requests.map((req) => {
@@ -42,10 +38,6 @@ export async function getEstimateRequestsService(params: GetEstimateRequestsPara
 export async function createEstimateService(data: CreateEstimateParams) {
   const { estimateRequestId, driverId, price, comment } = data;
 
-  if (!data.driverId) {
-    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
-  }
-
   if (!estimateRequestId || !driverId || !price || !comment) {
     throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
   }
@@ -59,27 +51,30 @@ export async function createEstimateService(data: CreateEstimateParams) {
     throw new AppError(ERROR_MESSAGE.ALREADY_SUBMITTED, HTTP_STATUS.BAD_REQUEST);
   }
 
-  const estimate = await prisma.$transaction(async () => {
-    const created = await repo.createEstimateRepository(data);
+  const estimate = await prisma.$transaction(async (tx) => {
+    const created = await repo.createEstimateRepository({ ...data, tx });
 
     await repo.createReviewRepository({
       estimateId: created.id,
       userId: created.estimateRequest.userId,
+      tx,
     });
 
     await repo.createHistoryRepository({
       userId: driverId,
       entityId: created.id,
       actionType: 'CREATE_ESTIMATE',
+      tx,
+    });
+
+    await createNotificationAndPushUnreadService({
+      userId: created.estimateRequest.userId,
+      type: NotificationType.ESTIMATE_RECEIVED,
+      message: '새 견적이 도착했습니다.',
+      tx,
     });
 
     return created;
-  });
-
-  await createNotificationAndPushUnreadService({
-    userId: estimate.estimateRequest.userId,
-    type: NotificationType.ESTIMATE_RECEIVED,
-    message: '새 견적이 도착했습니다.',
   });
 
   return estimate;
@@ -88,10 +83,6 @@ export async function createEstimateService(data: CreateEstimateParams) {
 // 견적 반려(기사)
 export async function createEstimateRejectService(data: CreateEstimateRejectParams) {
   const { estimateRequestId, rejectReason, driverId } = data;
-
-  if (!data.driverId) {
-    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
-  }
 
   if (!estimateRequestId || !driverId || !rejectReason) {
     throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
@@ -106,22 +97,24 @@ export async function createEstimateRejectService(data: CreateEstimateRejectPara
     throw new AppError(ERROR_MESSAGE.ALREADY_SUBMITTED, HTTP_STATUS.BAD_REQUEST);
   }
 
-  const estimate = await prisma.$transaction(async () => {
-    const created = await repo.createEstimateRejectRepository(data);
+  const estimate = await prisma.$transaction(async (tx) => {
+    const created = await repo.createEstimateRejectRepository({ ...data, tx });
 
     await repo.createHistoryRepository({
       userId: driverId,
       entityId: created.id,
       actionType: 'REJECTED_ESTIMATE',
+      tx,
+    });
+
+    await createNotificationAndPushUnreadService({
+      userId: created.estimateRequest.userId,
+      type: NotificationType.REQUEST_REJECTED,
+      message: '기사님이 견적 요청을 반려했습니다.',
+      tx,
     });
 
     return created;
-  });
-
-  await createNotificationAndPushUnreadService({
-    userId: estimate.estimateRequest.userId,
-    type: NotificationType.REQUEST_REJECTED,
-    message: '기사님이 견적 요청을 반려했습니다.',
   });
 
   return estimate;
@@ -129,10 +122,6 @@ export async function createEstimateRejectService(data: CreateEstimateRejectPara
 
 // 확정 견적 목록 조회
 export async function getEstimateConfirmService(params: GetEstimateParams) {
-  if (!params.driverId) {
-    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
-  }
-
   const estimates = await repo.getEstimateConfirmRepository(params);
 
   return estimates.map((e) => {
@@ -159,10 +148,6 @@ export async function getEstimateConfirmService(params: GetEstimateParams) {
 
 // 확정 견적 상세 조회
 export async function getEstimateConfirmIdService(estimateId: string, driverId: string) {
-  if (!driverId) {
-    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
-  }
-
   if (!estimateId) {
     throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
   }
@@ -191,10 +176,6 @@ export async function getEstimateConfirmIdService(estimateId: string, driverId: 
 
 // 반려 견적 목록 조회
 export async function getEstimateRejectService(params: GetEstimateParams) {
-  if (!params.driverId) {
-    throw new AppError(ERROR_MESSAGE.DRIVER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
-  }
-
   const estimates = await repo.getEstimateRejectRepository(params);
 
   return estimates.map((e) => {
