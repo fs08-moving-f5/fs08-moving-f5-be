@@ -1,3 +1,4 @@
+import { Prisma } from '@/generated/client';
 import { ServiceEnum, EstimateStatus } from '../generated/enums';
 
 export type EstimateSort = 'latest' | 'oldest' | 'moving-latest' | 'moving-oldest';
@@ -21,12 +22,14 @@ export interface CreateEstimateParams {
   price: number;
   comment: string;
   driverId: string;
+  tx?: Prisma.TransactionClient;
 }
 
 export interface CreateEstimateRejectParams {
   estimateRequestId: string;
   rejectReason: string;
   driverId: string;
+  tx?: Prisma.TransactionClient;
 }
 
 export interface GetEstimateParams {

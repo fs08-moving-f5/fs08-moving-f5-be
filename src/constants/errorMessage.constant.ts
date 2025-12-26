@@ -1,7 +1,7 @@
 const ERROR_MESSAGE = {
   // Auth
-  DRIVER_REQUIRED: '기사 로그인이 필요합니다.',
-  USER_REQUIRED: '유저 로그인이 필요합니다.',
+  DRIVER_REQUIRED: '기사 ID가 필요합니다.',
+  USER_REQUIRED: '유저 ID가 필요합니다.',
 
   // Estimate
   ALREADY_SUBMITTED: '이미 해당 요청에 견적을 제출했습니다.',
