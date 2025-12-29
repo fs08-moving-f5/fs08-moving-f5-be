@@ -17,7 +17,7 @@ import HTTP_STATUS from '@/constants/http.constant';
 import type { User, UserType } from '@/generated/client';
 
 // User를 UserResponse로 변환하는 헬퍼 함수
-const toUserResponse = (user: User): UserResponse => {
+const toUserResponse = (user: User & { userProfile?: any; driverProfile?: any }): UserResponse => {
   return {
     id: user.id,
     email: user.email,
@@ -27,6 +27,7 @@ const toUserResponse = (user: User): UserResponse => {
     provider: user.provider,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    hasProfile: user.type === 'USER' ? !!user.userProfile : user.type === 'DRIVER' ? !!user.driverProfile : false,
   };
 };
 

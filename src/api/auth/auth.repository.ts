@@ -10,9 +10,13 @@ export const findUserByEmailRepository = async (email: string): Promise<User | n
 };
 
 // ID로 유저 찾기
-export const findUserByIdRepository = async (id: string): Promise<User | null> => {
+export const findUserByIdRepository = async (id: string) => {
   return prisma.user.findUnique({
     where: { id },
+    include: {
+      userProfile: true,
+      driverProfile: true,
+    },
   });
 };
 

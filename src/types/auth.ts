@@ -25,6 +25,7 @@ export interface UserResponse {
   provider: string;
   createdAt: Date;
   updatedAt: Date;
+  hasProfile?: boolean;
 }
 
 // 로그인 응답
