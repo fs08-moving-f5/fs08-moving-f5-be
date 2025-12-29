@@ -27,7 +27,12 @@ const toUserResponse = (user: User & { userProfile?: any; driverProfile?: any })
     provider: user.provider,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
-    hasProfile: user.type === 'USER' ? !!user.userProfile : user.type === 'DRIVER' ? !!user.driverProfile : false,
+    hasProfile:
+      user.type === 'USER'
+        ? !!user.userProfile
+        : user.type === 'DRIVER'
+          ? !!user.driverProfile
+          : false,
   };
 };
 
