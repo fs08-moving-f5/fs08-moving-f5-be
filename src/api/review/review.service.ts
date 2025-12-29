@@ -23,12 +23,15 @@ export async function getReviewWrittenService(
     const { from, to } = splitAddresses(review.estimate.estimateRequest.addresses);
 
     return {
+      id: review.id,
       rating: review.rating,
       content: review.content,
       createdAt: review.createdAt,
       driver: {
+        id: review.estimate.driver.id,
         name: review.estimate.driver.name,
         shortIntro: review.estimate.driver.driverProfile?.shortIntro ?? null,
+        imageUrl: review.estimate.driver.driverProfile?.imageUrl ?? null,
       },
       movingType: review.estimate.estimateRequest.movingType,
       movingDate: review.estimate.estimateRequest.movingDate,
@@ -55,8 +58,10 @@ export async function getReviewWritableService(
       price: estimate.price,
       createdAt: estimate.createdAt,
       driver: {
+        id: estimate.driver.id,
         name: estimate.driver.name,
         shortIntro: estimate.driver.driverProfile?.shortIntro ?? null,
+        imageUrl: estimate.driver.driverProfile?.imageUrl ?? null,
       },
       movingType: estimate.estimateRequest.movingType,
       movingDate: estimate.estimateRequest.movingDate,
