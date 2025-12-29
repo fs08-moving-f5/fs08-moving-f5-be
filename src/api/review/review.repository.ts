@@ -36,6 +36,7 @@ export async function getReviewWrittenRepository({
   const reviews = await prisma.review.findMany({
     where,
     select: {
+      id: true,
       rating: true,
       content: true,
       createdAt: true,
@@ -43,8 +44,9 @@ export async function getReviewWrittenRepository({
         select: {
           driver: {
             select: {
+              id: true,
               name: true,
-              driverProfile: { select: { shortIntro: true } },
+              driverProfile: { select: { imageUrl: true, shortIntro: true } },
             },
           },
           estimateRequest: {
@@ -114,8 +116,9 @@ export async function getReviewWritableRepository({
       createdAt: true,
       driver: {
         select: {
+          id: true,
           name: true,
-          driverProfile: { select: { shortIntro: true } },
+          driverProfile: { select: { imageUrl: true, shortIntro: true } },
         },
       },
       estimateRequest: {
@@ -134,8 +137,8 @@ export async function getReviewWritableRepository({
       },
     },
     orderBy,
-    skip: parsedOffset,
-    take: parsedLimit,
+    skip: finalOffset,
+    take: finalLimit,
   });
 
   const total = await prisma.estimate.count({ where });
