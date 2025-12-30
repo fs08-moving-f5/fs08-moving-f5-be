@@ -254,7 +254,7 @@
  *             $ref: '#/components/schemas/PendingEstimateItem'
  *           description: 해당 견적 요청에 대한 견적 목록 (빈 배열일 수 있음)
  *
- *     ReceivedEstimate:
+ *     ReceivedEstimateItem:
  *       type: object
  *       properties:
  *         id:
@@ -271,40 +271,12 @@
  *           type: string
  *           enum: [PENDING, CONFIRMED, REJECTED, CANCELLED]
  *           description: 견적 상태
- *           example: "PENDING"
+ *           example: "CONFIRMED"
  *         createdAt:
  *           type: string
  *           format: date-time
  *           description: 생성 일시
  *           example: "2024-01-15T10:30:00Z"
- *         estimateRequest:
- *           type: object
- *           properties:
- *             id:
- *               type: string
- *               format: uuid
- *               description: 견적 요청 ID
- *             movingType:
- *               type: string
- *               enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
- *               description: 이사 유형
- *             movingDate:
- *               type: string
- *               format: date-time
- *               description: 이사 예정일
- *             isDesignated:
- *               type: boolean
- *               description: 지정 기사 여부
- *             status:
- *               type: string
- *               enum: [PENDING, CONFIRMED, REJECTED, CANCELLED]
- *               description: 견적 요청 상태
- *             addresses:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/AddressInfo'
- *               description: 주소 정보 목록
- *           description: 견적 요청 정보
  *         driver:
  *           type: object
  *           properties:
@@ -316,20 +288,50 @@
  *               type: string
  *               description: 드라이버 이름
  *               example: "홍길동"
- *             isFavorite:
- *               type: boolean
- *               description: 찜하기 여부
- *               example: true
- *             favoriteDriverCount:
- *               type: integer
- *               description: 해당 드라이버를 찜한 사용자 수
- *               example: 45
  *             driverProfile:
  *               oneOf:
  *                 - $ref: '#/components/schemas/DriverProfile'
  *                 - type: 'null'
  *               description: 드라이버 프로필 정보
  *           description: 드라이버 정보
+ *
+ *     ReceivedEstimate:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           description: 견적 요청 ID
+ *           example: "123e4567-e89b-12d3-a456-426614174001"
+ *         movingType:
+ *           type: string
+ *           enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
+ *           description: 이사 유형
+ *           example: "HOME_MOVING"
+ *         movingDate:
+ *           type: string
+ *           format: date-time
+ *           description: 이사 예정일
+ *           example: "2024-02-01T09:00:00Z"
+ *         isDesignated:
+ *           type: boolean
+ *           description: 지정 기사 여부
+ *           example: false
+ *         status:
+ *           type: string
+ *           enum: [CONFIRMED, REJECTED, CANCELLED]
+ *           description: 견적 요청 상태 (PENDING 제외)
+ *           example: "CONFIRMED"
+ *         addresses:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/AddressInfo'
+ *           description: 주소 정보 목록
+ *         estimates:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/ReceivedEstimateItem'
+ *           description: 해당 견적 요청에 대한 견적 목록 (status 필터가 적용된 경우 해당 상태의 견적만 포함)
  *
  *     EstimateDetail:
  *       type: object
@@ -518,8 +520,8 @@
  *           type: string
  *           format: uuid
  *           nullable: true
- *           description: 다음 페이지 조회를 위한 커서 (hasNext가 false이면 null)
- *           example: "123e4567-e89b-12d3-a456-426614174000"
+ *           description: 다음 페이지 조회를 위한 커서 (estimateRequest의 ID, hasNext가 false이면 null)
+ *           example: "123e4567-e89b-12d3-a456-426614174001"
  *
  *   parameters:
  *     estimateId:
@@ -550,7 +552,7 @@
  *         type: integer
  *         minimum: 1
  *         default: 15
- *       description: "한 페이지에 조회할 견적 수 (기본값: 15)"
+ *       description: "한 페이지에 조회할 견적 요청 수 (기본값: 15)"
  *       example: 15
  *
  *     cursorQuery:
@@ -560,8 +562,8 @@
  *       schema:
  *         type: string
  *         format: uuid
- *       description: 페이지네이션 커서 (다음 페이지 조회 시 사용)
- *       example: "123e4567-e89b-12d3-a456-426614174000"
+ *       description: 페이지네이션 커서 (다음 페이지 조회 시 사용, estimateRequest의 ID)
+ *       example: "123e4567-e89b-12d3-a456-426614174001"
  *
  *   securitySchemes:
  *     bearerAuth:
@@ -714,10 +716,12 @@
  *     summary: 받은 견적 목록 조회
  *     description: |
  *       현재 사용자가 받은 견적 목록을 조회합니다.
+ *       견적 요청(estimateRequest)별로 그룹화되어 반환되며, 각 견적 요청에는 해당하는 견적(estimate) 배열이 포함됩니다.
  *       status 쿼리 파라미터를 통해 특정 상태의 견적만 필터링할 수 있습니다.
  *       가능한 상태 값: PENDING, CONFIRMED, REJECTED, CANCELLED (대소문자 구분 없음)
- *       각 견적에는 드라이버 정보, 견적 요청 정보, 드라이버의 확정된 견적 수, 찜하기 수, 리뷰 평균 점수가 포함됩니다.
+ *       각 견적에는 드라이버 정보, 드라이버의 확정된 견적 수, 찜하기 수, 리뷰 평균 점수가 포함됩니다.
  *       페이지네이션을 지원하며, limit과 cursor 파라미터를 사용하여 페이지 단위로 조회할 수 있습니다.
+ *       cursor는 estimateRequest의 ID를 사용하며, PENDING 상태가 아닌 견적 요청만 조회됩니다.
  *     operationId: getReceivedEstimates
  *     security:
  *       - bearerAuth: []
@@ -753,72 +757,88 @@
  *                 value:
  *                   success: true
  *                   data:
- *                     - id: "123e4567-e89b-12d3-a456-426614174000"
- *                       price: 500000
- *                       status: "PENDING"
- *                       createdAt: "2024-01-15T10:30:00Z"
- *                       estimateRequest:
- *                         id: "123e4567-e89b-12d3-a456-426614174001"
- *                         movingType: "HOME_MOVING"
- *                         movingDate: "2024-02-01T09:00:00Z"
- *                         isDesignated: false
- *                         status: "PENDING"
- *                         addresses:
- *                           - id: "123e4567-e89b-12d3-a456-426614174002"
- *                             addressType: "FROM"
- *                             address: "서울특별시 강남구 테헤란로 123"
- *                             sido: "서울특별시"
- *                             sigungu: "강남구"
- *                       driver:
- *                         id: "123e4567-e89b-12d3-a456-426614174005"
- *                         name: "홍길동"
- *                         isFavorite: true
- *                         favoriteDriverCount: 45
- *                         driverProfile:
- *                           id: "123e4567-e89b-12d3-a456-426614174003"
- *                           imageUrl: "https://example.com/image.jpg"
- *                           career: "5년차 전문 이사 기사"
- *                           shortIntro: "안전하고 신속한 이사를 약속드립니다"
- *                           confirmedEstimateCount: 150
- *                           favoriteDriverCount: 45
- *                           averageRating: 4.5
+ *                     - id: "123e4567-e89b-12d3-a456-426614174001"
+ *                       movingType: "HOME_MOVING"
+ *                       movingDate: "2024-02-01T09:00:00Z"
+ *                       isDesignated: false
+ *                       status: "CONFIRMED"
+ *                       addresses:
+ *                         - id: "123e4567-e89b-12d3-a456-426614174002"
+ *                           addressType: "FROM"
+ *                           address: "서울특별시 강남구 테헤란로 123"
+ *                           sido: "서울특별시"
+ *                           sigungu: "강남구"
+ *                         - id: "123e4567-e89b-12d3-a456-426614174003"
+ *                           addressType: "TO"
+ *                           address: "서울특별시 송파구 올림픽로 456"
+ *                           sido: "서울특별시"
+ *                           sigungu: "송파구"
+ *                       estimates:
+ *                         - id: "123e4567-e89b-12d3-a456-426614174000"
+ *                           price: 500000
+ *                           status: "CONFIRMED"
+ *                           createdAt: "2024-01-15T10:30:00Z"
+ *                           driver:
+ *                             id: "123e4567-e89b-12d3-a456-426614174005"
+ *                             name: "홍길동"
+ *                             driverProfile:
+ *                               id: "123e4567-e89b-12d3-a456-426614174003"
+ *                               imageUrl: "https://example.com/image.jpg"
+ *                               career: "5년차 전문 이사 기사"
+ *                               shortIntro: "안전하고 신속한 이사를 약속드립니다"
+ *                               confirmedEstimateCount: 150
+ *                               favoriteDriverCount: 45
+ *                               averageRating: 4.5
+ *                         - id: "123e4567-e89b-12d3-a456-426614174010"
+ *                           price: 450000
+ *                           status: "REJECTED"
+ *                           createdAt: "2024-01-15T11:00:00Z"
+ *                           driver:
+ *                             id: "123e4567-e89b-12d3-a456-426614174007"
+ *                             name: "김철수"
+ *                             driverProfile:
+ *                               id: "123e4567-e89b-12d3-a456-426614174008"
+ *                               imageUrl: "https://example.com/image2.jpg"
+ *                               career: "10년차 전문 이사 기사"
+ *                               shortIntro: "경험 많은 전문가가 책임지고 진행합니다"
+ *                               confirmedEstimateCount: 200
+ *                               favoriteDriverCount: 60
+ *                               averageRating: 4.8
  *                   pagination:
  *                     hasNext: true
- *                     nextCursor: "123e4567-e89b-12d3-a456-426614174000"
+ *                     nextCursor: "123e4567-e89b-12d3-a456-426614174001"
  *               filteredEstimates:
- *                 summary: 특정 상태 견적 조회 (status=PENDING)
+ *                 summary: 특정 상태 견적 조회 (status=CONFIRMED)
  *                 value:
  *                   success: true
  *                   data:
- *                     - id: "123e4567-e89b-12d3-a456-426614174000"
- *                       price: 500000
- *                       status: "PENDING"
- *                       createdAt: "2024-01-15T10:30:00Z"
- *                       estimateRequest:
- *                         id: "123e4567-e89b-12d3-a456-426614174001"
- *                         movingType: "HOME_MOVING"
- *                         movingDate: "2024-02-01T09:00:00Z"
- *                         isDesignated: false
- *                         status: "PENDING"
- *                         addresses:
- *                           - id: "123e4567-e89b-12d3-a456-426614174002"
- *                             addressType: "FROM"
- *                             address: "서울특별시 강남구 테헤란로 123"
- *                             sido: "서울특별시"
- *                             sigungu: "강남구"
- *                       driver:
- *                         id: "123e4567-e89b-12d3-a456-426614174005"
- *                         name: "홍길동"
- *                         isFavorite: true
- *                         favoriteDriverCount: 45
- *                         driverProfile:
- *                           id: "123e4567-e89b-12d3-a456-426614174003"
- *                           imageUrl: "https://example.com/image.jpg"
- *                           career: "5년차 전문 이사 기사"
- *                           shortIntro: "안전하고 신속한 이사를 약속드립니다"
- *                           confirmedEstimateCount: 150
- *                           favoriteDriverCount: 45
- *                           averageRating: 4.5
+ *                     - id: "123e4567-e89b-12d3-a456-426614174001"
+ *                       movingType: "HOME_MOVING"
+ *                       movingDate: "2024-02-01T09:00:00Z"
+ *                       isDesignated: false
+ *                       status: "CONFIRMED"
+ *                       addresses:
+ *                         - id: "123e4567-e89b-12d3-a456-426614174002"
+ *                           addressType: "FROM"
+ *                           address: "서울특별시 강남구 테헤란로 123"
+ *                           sido: "서울특별시"
+ *                           sigungu: "강남구"
+ *                       estimates:
+ *                         - id: "123e4567-e89b-12d3-a456-426614174000"
+ *                           price: 500000
+ *                           status: "CONFIRMED"
+ *                           createdAt: "2024-01-15T10:30:00Z"
+ *                           driver:
+ *                             id: "123e4567-e89b-12d3-a456-426614174005"
+ *                             name: "홍길동"
+ *                             driverProfile:
+ *                               id: "123e4567-e89b-12d3-a456-426614174003"
+ *                               imageUrl: "https://example.com/image.jpg"
+ *                               career: "5년차 전문 이사 기사"
+ *                               shortIntro: "안전하고 신속한 이사를 약속드립니다"
+ *                               confirmedEstimateCount: 150
+ *                               favoriteDriverCount: 45
+ *                               averageRating: 4.5
  *                   pagination:
  *                     hasNext: false
  *                     nextCursor: null

@@ -372,14 +372,52 @@ export const getEstimateDetailRepository = async ({ estimateId }: { estimateId: 
   });
 };
 
-export const getReceivedEstimatesRepository = async ({
+export const getNotPendingEstimateRequestInfoRepository = async ({
   userId,
+  tx,
+}: {
+  userId: string;
+  tx?: Prisma.TransactionClient;
+}) => {
+  return await (tx ?? prisma).estimateRequest.findMany({
+    where: {
+      userId,
+      isDelete: false,
+      status: {
+        not: EstimateStatus.PENDING,
+      },
+    },
+    select: {
+      id: true,
+      movingType: true,
+      movingDate: true,
+      isDesignated: true,
+      status: true,
+      createdAt: true,
+      addresses: {
+        select: {
+          id: true,
+          addressType: true,
+          address: true,
+          sido: true,
+          sigungu: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+};
+
+export const getReceivedEstimatesRepository = async ({
+  estimateRequestIds,
   status,
   cursorId,
   limit = 15,
   tx,
 }: {
-  userId: string;
+  estimateRequestIds: string[];
   status?: EstimateStatus;
   cursorId?: string;
   limit?: number;
@@ -389,7 +427,9 @@ export const getReceivedEstimatesRepository = async ({
     where: {
       isDelete: false,
       estimateRequest: {
-        userId,
+        id: {
+          in: estimateRequestIds,
+        },
         isDelete: false,
       },
       ...(status && { status }),
@@ -435,7 +475,7 @@ export const getReceivedEstimatesRepository = async ({
     orderBy: {
       createdAt: 'desc',
     },
-    take: limit + 1,
+    ...(limit !== undefined && { take: limit + 1 }),
     ...(cursorId
       ? {
           cursor: { id: cursorId },
