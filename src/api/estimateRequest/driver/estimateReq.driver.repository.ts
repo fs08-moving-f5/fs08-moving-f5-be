@@ -123,8 +123,9 @@ export async function createEstimateRepository({
   price,
   comment,
   driverId,
+  tx,
 }: CreateEstimateParams) {
-  return await prisma.estimate.create({
+  return await (tx ?? prisma).estimate.create({
     data: {
       estimateRequestId,
       driverId,
@@ -144,8 +145,9 @@ export async function createEstimateRejectRepository({
   estimateRequestId,
   rejectReason,
   driverId,
+  tx,
 }: CreateEstimateRejectParams) {
-  return await prisma.estimate.create({
+  return await (tx ?? prisma).estimate.create({
     data: {
       estimateRequestId,
       driverId,
@@ -163,11 +165,13 @@ export async function createEstimateRejectRepository({
 export const createReviewRepository = async ({
   estimateId,
   userId,
+  tx,
 }: {
   estimateId: string;
   userId: string;
+  tx?: Prisma.TransactionClient;
 }) => {
-  return await prisma.review.create({
+  return await (tx ?? prisma).review.create({
     data: {
       estimateId,
       userId,
@@ -181,12 +185,14 @@ export const createReviewRepository = async ({
 export const createHistoryRepository = async ({
   userId,
   entityId,
+  tx,
 }: {
   userId: string;
   entityId: string;
   actionType: string;
+  tx?: Prisma.TransactionClient;
 }) => {
-  return await prisma.history.create({
+  return await (tx ?? prisma).history.create({
     data: {
       userId,
       entityType: HistoryEntityType.ESTIMATE_RESPONSE,

@@ -17,22 +17,21 @@ import { createNotificationAndPushUnreadService } from '../notification/notifica
 export async function getReviewWrittenService(
   params: GetReviewParams,
 ): Promise<WrittenReviewListResult> {
-  if (!params.userId) {
-    throw new AppError(ERROR_MESSAGE.USER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
-  }
-
   const { reviews, total } = await repo.getReviewWrittenRepository(params);
 
   const mapped = reviews.map((review) => {
     const { from, to } = splitAddresses(review.estimate.estimateRequest.addresses);
 
     return {
+      id: review.id,
       rating: review.rating,
       content: review.content,
       createdAt: review.createdAt,
       driver: {
+        id: review.estimate.driver.id,
         name: review.estimate.driver.name,
         shortIntro: review.estimate.driver.driverProfile?.shortIntro ?? null,
+        imageUrl: review.estimate.driver.driverProfile?.imageUrl ?? null,
       },
       movingType: review.estimate.estimateRequest.movingType,
       movingDate: review.estimate.estimateRequest.movingDate,
@@ -49,10 +48,6 @@ export async function getReviewWrittenService(
 export async function getReviewWritableService(
   params: GetReviewParams,
 ): Promise<WritableReviewListResult> {
-  if (!params.userId) {
-    throw new AppError(ERROR_MESSAGE.USER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
-  }
-
   const { estimates, total } = await repo.getReviewWritableRepository(params);
 
   const mapped = estimates.map((estimate) => {
@@ -63,8 +58,10 @@ export async function getReviewWritableService(
       price: estimate.price,
       createdAt: estimate.createdAt,
       driver: {
+        id: estimate.driver.id,
         name: estimate.driver.name,
         shortIntro: estimate.driver.driverProfile?.shortIntro ?? null,
+        imageUrl: estimate.driver.driverProfile?.imageUrl ?? null,
       },
       movingType: estimate.estimateRequest.movingType,
       movingDate: estimate.estimateRequest.movingDate,
@@ -80,10 +77,6 @@ export async function getReviewWritableService(
 // 리뷰 작성 (일반 유저)
 export async function createReviewService(params: CreateReviewParams) {
   const { estimateId, userId, rating, content } = params;
-
-  if (!userId) {
-    throw new AppError(ERROR_MESSAGE.USER_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
-  }
 
   if (!estimateId || rating == null || content == null) {
     throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
@@ -102,25 +95,28 @@ export async function createReviewService(params: CreateReviewParams) {
     throw new AppError(ERROR_MESSAGE.ALREADY_WRITTEN, HTTP_STATUS.BAD_REQUEST);
   }
 
-  const result = await prisma.$transaction(async () => {
+  const result = await prisma.$transaction(async (tx) => {
     const updated = await repo.updateReviewRepository({
       reviewId: review.id,
       rating,
       content,
+      tx,
     });
 
     await repo.createReviewHistoryRepository({
       userId,
       entityId: review.id,
+      tx,
+    });
+
+    await createNotificationAndPushUnreadService({
+      userId: review.estimate.driverId,
+      type: NotificationType.NEW_REVIEW,
+      message: '새로운 리뷰가 등록되었습니다.',
+      tx,
     });
 
     return updated;
-  });
-
-  await createNotificationAndPushUnreadService({
-    userId: review.estimate.driverId,
-    type: NotificationType.NEW_REVIEW,
-    message: '새로운 리뷰가 등록되었습니다.',
   });
 
   return result;
