@@ -17,7 +17,7 @@ type RequestWithFullUser = Request & { user: Omit<User, 'password'> };
  */
 export const getMyPageController = asyncHandler(async (req: Request, res: Response) => {
   const user = req.user as Omit<User, 'password'>;
-  
+
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
@@ -40,7 +40,7 @@ export const getMyPageController = asyncHandler(async (req: Request, res: Respon
  */
 export const getMyPageReviewsController = asyncHandler(async (req: Request, res: Response) => {
   const user = req.user as Omit<User, 'password'>;
-  
+
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }

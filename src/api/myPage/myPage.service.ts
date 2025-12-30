@@ -65,7 +65,7 @@ const RATING_DECIMAL_PLACES = 10;
 export const getMyPageDataService = async (driverId: string): Promise<MyPageData> => {
   // 1. 드라이버 기본 정보 및 프로필 조회
   const driverWithProfile = await findDriverWithProfileRepository(driverId);
-  
+
   if (!driverWithProfile) {
     throw new AppError('드라이버를 찾을 수 없습니다', HTTP_STATUS.NOT_FOUND);
   }
@@ -79,9 +79,10 @@ export const getMyPageDataService = async (driverId: string): Promise<MyPageData
 
   // 3. 평균 평점 계산 (서비스 레이어에서 처리)
   const totalReviews = reviewRatings.length;
-  const averageRating = totalReviews > 0
-    ? reviewRatings.reduce((sum, review) => sum + (review.rating || 0), 0) / totalReviews
-    : 0;
+  const averageRating =
+    totalReviews > 0
+      ? reviewRatings.reduce((sum, review) => sum + (review.rating || 0), 0) / totalReviews
+      : 0;
 
   // 4. 데이터 조합
   const profile = driverWithProfile.driverProfile;
