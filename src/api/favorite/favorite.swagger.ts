@@ -59,14 +59,23 @@
  *           nullable: true
  *           description: 상세 설명
  *           example: "10년 이상의 경력을 가진 전문 이사 기사입니다."
- *         tasksCount:
+ *         confirmedEstimateCount:
  *           type: integer
- *           description: 확정된 견적 수
+ *           description: 확정된 견적 수 (작업 진행 건수)
  *           example: 150
- *         favoriteCount:
+ *         favoriteDriverCount:
  *           type: integer
  *           description: 찜하기 수
  *           example: 45
+ *         averageRating:
+ *           type: number
+ *           nullable: true
+ *           description: 리뷰 평점 평균 (소수점 첫째 자리까지)
+ *           example: 4.5
+ *         reviewCount:
+ *           type: integer
+ *           description: 리뷰 총 개수
+ *           example: 120
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -245,7 +254,7 @@
  *     summary: 찜한 기사 목록 조회
  *     description: |
  *       현재 사용자가 찜한 기사 목록을 조회합니다.
- *       커서 기반 페이지네이션을 지원하며, 각 기사 정보에는 드라이버 프로필, 리뷰, 확정된 견적 수, 찜하기 수가 포함됩니다.
+ *       커서 기반 페이지네이션을 지원하며, 각 기사 정보에는 드라이버 프로필, 리뷰, 확정된 견적 수, 찜하기 수, 리뷰 평점 평균, 리뷰 총 개수가 포함됩니다.
  *
  *       **쿼리 파라미터:**
  *       - `cursor` (선택): 다음 페이지 조회를 위한 커서 값. 이전 응답의 `pagination.nextCursor` 값을 사용합니다.
@@ -294,8 +303,10 @@
  *                           career: "5년차 전문 이사 기사"
  *                           shortIntro: "안전하고 신속한 이사를 약속드립니다"
  *                           description: "10년 이상의 경력을 가진 전문 이사 기사입니다."
- *                           tasksCount: 150
- *                           favoriteCount: 45
+ *                           confirmedEstimateCount: 150
+ *                           favoriteDriverCount: 45
+ *                           averageRating: 4.5
+ *                           reviewCount: 120
  *                           createdAt: "2024-01-10T09:00:00Z"
  *                           updatedAt: "2024-01-15T10:00:00Z"
  *                         reviews:
