@@ -13,6 +13,7 @@ import {
   confirmEstimateRequestRepository,
   getEstimateRequestDetailRepository,
   getEstimateManyDriversRepository,
+  getNotPendingEstimateRequestInfoRepository,
 } from './estimate.repository';
 import { EstimateStatus, NotificationType } from '../../generated/client';
 import { createNotificationAndPushUnreadService } from '../notification/notification.service';
@@ -183,15 +184,9 @@ export const getReceivedEstimatesService = async ({
   limit?: number;
 }) => {
   return await prisma.$transaction(async (tx) => {
-    const receivedEstimates = await getReceivedEstimatesRepository({
-      userId,
-      status,
-      cursorId,
-      limit,
-      tx,
-    });
+    const estimateRequests = await getNotPendingEstimateRequestInfoRepository({ userId, tx });
 
-    if (receivedEstimates.length === 0) {
+    if (estimateRequests.length === 0) {
       return {
         data: [],
         pagination: {
@@ -201,16 +196,41 @@ export const getReceivedEstimatesService = async ({
       };
     }
 
-    const hasNext = receivedEstimates.length > limit;
-    const data = hasNext ? receivedEstimates.slice(0, limit) : receivedEstimates;
-    const nextCursor = hasNext ? data[data.length - 1].id : null;
+    let filteredEstimateRequests = estimateRequests;
+    if (cursorId) {
+      const cursorIndex = estimateRequests.findIndex((er) => er.id === cursorId);
+      if (cursorIndex !== -1) {
+        filteredEstimateRequests = estimateRequests.slice(cursorIndex + 1);
+      } else {
+        return {
+          data: [],
+          pagination: {
+            hasNext: false,
+            nextCursor: null,
+          },
+        };
+      }
+    }
 
-    const driverIds = data.map((estimate) => estimate.driver.id);
+    const estimateRequestIds = filteredEstimateRequests.map(
+      (estimateRequest) => estimateRequest.id,
+    );
+
+    const receivedEstimates = await getReceivedEstimatesRepository({
+      estimateRequestIds,
+      status,
+      cursorId: undefined,
+      limit: undefined,
+      tx,
+    });
+
+    const allDriverIds = receivedEstimates.map((estimate) => estimate.driver.id);
+    const uniqueDriverIds = [...new Set(allDriverIds)];
 
     const [confirmedCounts, favoriteCounts, reviewAverages] = await Promise.all([
-      getConfirmedEstimateCountRepository({ driverIds, tx }),
-      getFavoriteDriverCountRepository({ driverIds, tx }),
-      getDriverReviewAverageRepository({ driverIds, tx }),
+      getConfirmedEstimateCountRepository({ driverIds: uniqueDriverIds, tx }),
+      getFavoriteDriverCountRepository({ driverIds: uniqueDriverIds, tx }),
+      getDriverReviewAverageRepository({ driverIds: uniqueDriverIds, tx }),
     ]);
 
     const confirmedCountMap = confirmedCounts.reduce<Record<string, number>>((acc, item) => {
@@ -228,8 +248,11 @@ export const getReceivedEstimatesService = async ({
       return acc;
     }, {});
 
-    const result = data.map((estimate) => ({
-      ...estimate,
+    const estimatesWithStats = receivedEstimates.map((estimate) => ({
+      id: estimate.id,
+      price: estimate.price,
+      status: estimate.status,
+      createdAt: estimate.createdAt,
       driver: {
         ...estimate.driver,
         driverProfile: estimate.driver.driverProfile
@@ -243,8 +266,66 @@ export const getReceivedEstimatesService = async ({
       },
     }));
 
+    const estimateRequestMap = new Map<
+      string,
+      {
+        id: string;
+        movingType: string;
+        movingDate: Date;
+        isDesignated: boolean;
+        status: EstimateStatus;
+        addresses: Array<{
+          id: string;
+          addressType: string;
+          address: string;
+          sido: string;
+          sigungu: string;
+        }>;
+        estimates: typeof estimatesWithStats;
+      }
+    >();
+
+    estimatesWithStats.forEach((estimate, index) => {
+      const estimateRequest = receivedEstimates[index].estimateRequest;
+      const estimateRequestId = estimateRequest.id;
+
+      if (!estimateRequestMap.has(estimateRequestId)) {
+        estimateRequestMap.set(estimateRequestId, {
+          id: estimateRequest.id,
+          movingType: estimateRequest.movingType,
+          movingDate: estimateRequest.movingDate,
+          isDesignated: estimateRequest.isDesignated,
+          status: estimateRequest.status,
+          addresses: estimateRequest.addresses,
+          estimates: [],
+        });
+      }
+
+      const groupedEstimateRequest = estimateRequestMap.get(estimateRequestId);
+      if (groupedEstimateRequest) {
+        groupedEstimateRequest.estimates.push(estimate);
+      }
+    });
+
+    const result = Array.from(estimateRequestMap.values())
+      .map((er) => {
+        const originalEstimateRequest = filteredEstimateRequests.find((orig) => orig.id === er.id);
+        return {
+          ...er,
+          _createdAt: originalEstimateRequest?.createdAt || new Date(0),
+        };
+      })
+      .sort((a, b) => {
+        return b._createdAt.getTime() - a._createdAt.getTime();
+      })
+      .map(({ _createdAt, ...rest }) => rest);
+
+    const hasNext = result.length > limit;
+    const data = hasNext ? result.slice(0, limit) : result;
+    const nextCursor = hasNext ? data[data.length - 1].id : null;
+
     return {
-      data: result,
+      data,
       pagination: {
         hasNext,
         nextCursor,
