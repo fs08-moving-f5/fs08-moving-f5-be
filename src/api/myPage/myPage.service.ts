@@ -5,6 +5,7 @@ import {
   findDriverReviewsRepository,
   countDriverReviewsRepository,
   getDriverReviewDistributionRepository,
+  countFavoritedDriverRepository,
 } from './myPage.repository';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
@@ -23,6 +24,7 @@ interface MyPageData {
     description: string | null;
     services: ServiceEnum[];
     regions: RegionEnum[];
+    favoritedCount: number;
   };
   activity: {
     completedCount: number;
@@ -71,10 +73,11 @@ export const getMyPageDataService = async (driverId: string): Promise<MyPageData
   }
 
   // 2. 활동 현황 데이터 병렬 조회
-  const [completedCount, reviewRatings, reviewDistribution] = await Promise.all([
+  const [completedCount, reviewRatings, reviewDistribution, favoritedCount] = await Promise.all([
     countConfirmedEstimatesRepository(driverId),
     findDriverReviewRatingsRepository(driverId),
     getDriverReviewDistributionRepository(driverId),
+    countFavoritedDriverRepository(driverId),
   ]);
 
   // 3. 평균 평점 계산 (서비스 레이어에서 처리)
@@ -97,6 +100,7 @@ export const getMyPageDataService = async (driverId: string): Promise<MyPageData
       description: profile?.description || null,
       services: profile?.services || [],
       regions: profile?.regions || [],
+      favoritedCount: favoritedCount,
     },
     activity: {
       completedCount,

@@ -137,3 +137,12 @@ export const getDriverReviewDistributionRepository = async (
 
   return distribution;
 };
+
+// 특정 기사님의 찜해진 갯수 조회
+export const countFavoritedDriverRepository = async (driverId: string): Promise<number> => {
+  return prisma.favoriteDriver.count({
+    where: {
+      driverId,
+    },
+  });
+};
