@@ -59,6 +59,13 @@
  *           nullable: true
  *           description: 상세 설명
  *           example: "10년 이상의 경력을 가진 전문 이사 기사입니다."
+ *         services:
+ *           type: array
+ *           items:
+ *             type: string
+ *             enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
+ *           description: 제공 서비스 목록
+ *           example: ["HOME_MOVING", "OFFICE_MOVING"]
  *         confirmedEstimateCount:
  *           type: integer
  *           description: 확정된 견적 수 (작업 진행 건수)
@@ -133,6 +140,10 @@
  *               format: uuid
  *               description: 드라이버 ID
  *               example: "123e4567-e89b-12d3-a456-426614174002"
+ *             name:
+ *               type: string
+ *               description: 드라이버 이름
+ *               example: "홍길동"
  *             driverProfile:
  *               oneOf:
  *                 - $ref: '#/components/schemas/DriverProfileInfo'
@@ -297,12 +308,14 @@
  *                       createdAt: "2024-01-15T10:30:00Z"
  *                       driver:
  *                         id: "123e4567-e89b-12d3-a456-426614174002"
+ *                         name: "홍길동"
  *                         driverProfile:
  *                           id: "123e4567-e89b-12d3-a456-426614174003"
  *                           imageUrl: "https://example.com/image.jpg"
  *                           career: "5년차 전문 이사 기사"
  *                           shortIntro: "안전하고 신속한 이사를 약속드립니다"
  *                           description: "10년 이상의 경력을 가진 전문 이사 기사입니다."
+ *                           services: ["HOME_MOVING", "OFFICE_MOVING"]
  *                           confirmedEstimateCount: 150
  *                           favoriteDriverCount: 45
  *                           averageRating: 4.5
