@@ -80,6 +80,7 @@ export const getFavoriteDriversRepository = async ({
       createdAt: true,
       driver: {
         select: {
+          id: true,
           reviews: {
             select: {
               id: true,
