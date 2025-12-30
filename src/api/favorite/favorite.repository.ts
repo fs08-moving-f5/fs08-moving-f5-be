@@ -81,6 +81,7 @@ export const getFavoriteDriversRepository = async ({
       driver: {
         select: {
           id: true,
+          name: true,
           reviews: {
             select: {
               id: true,
@@ -94,6 +95,7 @@ export const getFavoriteDriversRepository = async ({
               career: true,
               shortIntro: true,
               description: true,
+              services: true,
               createdAt: true,
               updatedAt: true,
             },
