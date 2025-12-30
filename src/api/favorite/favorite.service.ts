@@ -11,6 +11,7 @@ import { Prisma } from '../../generated/client';
 import {
   getConfirmedEstimateCountRepository,
   getFavoriteDriverCountRepository,
+  getDriverReviewAverageRepository,
 } from '../estimate/estimate.repository';
 
 export const addFavoriteDriverService = async ({
@@ -72,9 +73,10 @@ export const getFavoriteDriversService = async ({
 
   const driverIds = favoriteDrivers.map((driver) => driver.driverId);
 
-  const [tasksCounts, favoriteCounts] = await Promise.all([
+  const [tasksCounts, favoriteCounts, reviewAverages] = await Promise.all([
     getConfirmedEstimateCountRepository({ driverIds }),
     getFavoriteDriverCountRepository({ driverIds }),
+    getDriverReviewAverageRepository({ driverIds }),
   ]);
 
   const tasksCountMap = tasksCounts.reduce<Record<string, number>>((acc, item) => {
@@ -87,12 +89,24 @@ export const getFavoriteDriversService = async ({
     return acc;
   }, {});
 
+  const reviewAverageMap = reviewAverages.reduce<Record<string, number | null>>((acc, item) => {
+    acc[item.driverId] = item.averageRating ? Number(item.averageRating.toFixed(1)) : null;
+    return acc;
+  }, {});
+
+  const reviewCountMap = reviewAverages.reduce<Record<string, number>>((acc, item) => {
+    acc[item.driverId] = item.reviewCount;
+    return acc;
+  }, {});
+
   const hasNext = favoriteDrivers.length > limit;
   const slicedDrivers = hasNext ? favoriteDrivers.slice(0, limit) : favoriteDrivers;
 
   const data = slicedDrivers.map((favoriteDriver) => {
     const tasksCount = tasksCountMap[favoriteDriver.driverId] || 0;
     const favoriteCount = favoriteCountMap[favoriteDriver.driverId] || 0;
+    const averageRating = reviewAverageMap[favoriteDriver.driverId] ?? null;
+    const reviewCount = reviewCountMap[favoriteDriver.driverId] || 0;
 
     return {
       ...favoriteDriver,
@@ -101,8 +115,10 @@ export const getFavoriteDriversService = async ({
         driverProfile: favoriteDriver.driver.driverProfile
           ? {
               ...favoriteDriver.driver.driverProfile,
-              tasksCount,
-              favoriteCount,
+              confirmedEstimateCount: tasksCount,
+              favoriteDriverCount: favoriteCount,
+              averageRating,
+              reviewCount,
             }
           : null,
       },
