@@ -227,11 +227,14 @@ export const getReceivedEstimatesService = async ({
     const allDriverIds = receivedEstimates.map((estimate) => estimate.driver.id);
     const uniqueDriverIds = [...new Set(allDriverIds)];
 
-    const [confirmedCounts, favoriteCounts, reviewAverages] = await Promise.all([
+    const [favoriteDrivers, confirmedCounts, favoriteCounts, reviewAverages] = await Promise.all([
+      getUserFavoriteDriversRepository({ userId, driverIds: uniqueDriverIds, tx }),
       getConfirmedEstimateCountRepository({ driverIds: uniqueDriverIds, tx }),
       getFavoriteDriverCountRepository({ driverIds: uniqueDriverIds, tx }),
       getDriverReviewAverageRepository({ driverIds: uniqueDriverIds, tx }),
     ]);
+
+    const favoriteDriverIds = new Set(favoriteDrivers.map((driver) => driver.driverId));
 
     const confirmedCountMap = confirmedCounts.reduce<Record<string, number>>((acc, item) => {
       acc[item.driverId] = item._count.id;
@@ -248,6 +251,11 @@ export const getReceivedEstimatesService = async ({
       return acc;
     }, {});
 
+    const reviewCountMap = reviewAverages.reduce<Record<string, number>>((acc, item) => {
+      acc[item.driverId] = item.reviewCount;
+      return acc;
+    }, {});
+
     const estimatesWithStats = receivedEstimates.map((estimate) => ({
       id: estimate.id,
       price: estimate.price,
@@ -255,12 +263,14 @@ export const getReceivedEstimatesService = async ({
       createdAt: estimate.createdAt,
       driver: {
         ...estimate.driver,
+        isFavorite: favoriteDriverIds.has(estimate.driver.id),
         driverProfile: estimate.driver.driverProfile
           ? {
               ...estimate.driver.driverProfile,
               confirmedEstimateCount: confirmedCountMap[estimate.driver.id] || 0,
               favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
               averageRating: reviewAverageMap[estimate.driver.id] ?? null,
+              reviewCount: reviewCountMap[estimate.driver.id] || 0,
             }
           : null,
       },

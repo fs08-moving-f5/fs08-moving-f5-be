@@ -130,6 +130,10 @@
  *           nullable: true
  *           description: 리뷰 평균 점수 (소수점 첫째 자리까지)
  *           example: 4.5
+ *         reviewCount:
+ *           type: integer
+ *           description: 총 리뷰 개수
+ *           example: 120
  *
  *     ReviewInfo:
  *       type: object
@@ -288,6 +292,10 @@
  *               type: string
  *               description: 드라이버 이름
  *               example: "홍길동"
+ *             isFavorite:
+ *               type: boolean
+ *               description: 현재 사용자가 해당 드라이버를 찜했는지 여부
+ *               example: true
  *             driverProfile:
  *               oneOf:
  *                 - $ref: '#/components/schemas/DriverProfile'
@@ -787,6 +795,7 @@
  *                           driver:
  *                             id: "123e4567-e89b-12d3-a456-426614174005"
  *                             name: "홍길동"
+ *                             isFavorite: true
  *                             driverProfile:
  *                               id: "123e4567-e89b-12d3-a456-426614174003"
  *                               imageUrl: "https://example.com/image.jpg"
@@ -795,6 +804,7 @@
  *                               confirmedEstimateCount: 150
  *                               favoriteDriverCount: 45
  *                               averageRating: 4.5
+ *                               reviewCount: 120
  *                         - id: "123e4567-e89b-12d3-a456-426614174010"
  *                           price: 450000
  *                           status: "REJECTED"
@@ -802,6 +812,7 @@
  *                           driver:
  *                             id: "123e4567-e89b-12d3-a456-426614174007"
  *                             name: "김철수"
+ *                             isFavorite: false
  *                             driverProfile:
  *                               id: "123e4567-e89b-12d3-a456-426614174008"
  *                               imageUrl: "https://example.com/image2.jpg"
@@ -810,6 +821,7 @@
  *                               confirmedEstimateCount: 200
  *                               favoriteDriverCount: 60
  *                               averageRating: 4.8
+ *                               reviewCount: 180
  *                   pagination:
  *                     hasNext: true
  *                     nextCursor: "123e4567-e89b-12d3-a456-426614174001"
@@ -838,6 +850,7 @@
  *                           driver:
  *                             id: "123e4567-e89b-12d3-a456-426614174005"
  *                             name: "홍길동"
+ *                             isFavorite: true
  *                             driverProfile:
  *                               id: "123e4567-e89b-12d3-a456-426614174003"
  *                               imageUrl: "https://example.com/image.jpg"
@@ -846,6 +859,7 @@
  *                               confirmedEstimateCount: 150
  *                               favoriteDriverCount: 45
  *                               averageRating: 4.5
+ *                               reviewCount: 120
  *                   pagination:
  *                     hasNext: false
  *                     nextCursor: null
