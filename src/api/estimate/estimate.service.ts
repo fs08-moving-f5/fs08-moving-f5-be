@@ -274,6 +274,7 @@ export const getReceivedEstimatesService = async ({
         movingDate: Date;
         isDesignated: boolean;
         status: EstimateStatus;
+        createdAt: Date;
         addresses: Array<{
           id: string;
           addressType: string;
@@ -290,12 +291,16 @@ export const getReceivedEstimatesService = async ({
       const estimateRequestId = estimateRequest.id;
 
       if (!estimateRequestMap.has(estimateRequestId)) {
+        const originalEstimateRequest = filteredEstimateRequests.find(
+          (orig) => orig.id === estimateRequest.id,
+        );
         estimateRequestMap.set(estimateRequestId, {
           id: estimateRequest.id,
           movingType: estimateRequest.movingType,
           movingDate: estimateRequest.movingDate,
           isDesignated: estimateRequest.isDesignated,
           status: estimateRequest.status,
+          createdAt: originalEstimateRequest?.createdAt || new Date(0),
           addresses: estimateRequest.addresses,
           estimates: [],
         });
@@ -307,18 +312,9 @@ export const getReceivedEstimatesService = async ({
       }
     });
 
-    const result = Array.from(estimateRequestMap.values())
-      .map((er) => {
-        const originalEstimateRequest = filteredEstimateRequests.find((orig) => orig.id === er.id);
-        return {
-          ...er,
-          _createdAt: originalEstimateRequest?.createdAt || new Date(0),
-        };
-      })
-      .sort((a, b) => {
-        return b._createdAt.getTime() - a._createdAt.getTime();
-      })
-      .map(({ _createdAt, ...rest }) => rest);
+    const result = Array.from(estimateRequestMap.values()).sort((a, b) => {
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
 
     const hasNext = result.length > limit;
     const data = hasNext ? result.slice(0, limit) : result;

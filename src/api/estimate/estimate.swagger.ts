@@ -322,6 +322,11 @@
  *           enum: [CONFIRMED, REJECTED, CANCELLED]
  *           description: 견적 요청 상태 (PENDING 제외)
  *           example: "CONFIRMED"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: 생성 일시
+ *           example: "2024-01-15T10:00:00Z"
  *         addresses:
  *           type: array
  *           items:
@@ -762,6 +767,7 @@
  *                       movingDate: "2024-02-01T09:00:00Z"
  *                       isDesignated: false
  *                       status: "CONFIRMED"
+ *                       createdAt: "2024-01-15T10:00:00Z"
  *                       addresses:
  *                         - id: "123e4567-e89b-12d3-a456-426614174002"
  *                           addressType: "FROM"
@@ -817,6 +823,7 @@
  *                       movingDate: "2024-02-01T09:00:00Z"
  *                       isDesignated: false
  *                       status: "CONFIRMED"
+ *                       createdAt: "2024-01-15T10:00:00Z"
  *                       addresses:
  *                         - id: "123e4567-e89b-12d3-a456-426614174002"
  *                           addressType: "FROM"
