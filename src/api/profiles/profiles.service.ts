@@ -155,16 +155,53 @@ export const updateDriverProfileService = async (
     throw new AppError('프로필을 찾을 수 없습니다', HTTP_STATUS.NOT_FOUND);
   }
 
-  // 업데이트할 데이터 준비
-  const updateData: any = {};
-  if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
-  if (data.career !== undefined) updateData.career = data.career;
-  if (data.shortIntro !== undefined) updateData.shortIntro = data.shortIntro;
-  if (data.description !== undefined) updateData.description = data.description;
-  if (data.regions !== undefined) updateData.regions = data.regions;
-  if (data.services !== undefined) updateData.services = data.services;
+  // 비밀번호 변경 처리
+  if (data.newPassword) {
+    if (!data.currentPassword) {
+      throw new AppError('현재 비밀번호를 입력해주세요', HTTP_STATUS.BAD_REQUEST);
+    }
 
-  const profile = await updateDriverProfileRepository(driverId, updateData);
+    // 현재 사용자 정보 조회 (비밀번호 확인용)
+    const user = await findUserByIdRepository(driverId);
+    if (!user || !user.password) {
+      throw new AppError(
+        '소셜 로그인 계정은 비밀번호를 변경할 수 없습니다',
+        HTTP_STATUS.BAD_REQUEST,
+      );
+    }
+
+    // 현재 비밀번호 확인
+    const isPasswordValid = await verifyPassword(user.password, data.currentPassword);
+    if (!isPasswordValid) {
+      throw new AppError('현재 비밀번호가 올바르지 않습니다', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    // 새 비밀번호 해싱
+    const hashedPassword = await hashPassword(data.newPassword);
+    await updateUserRepository(driverId, { password: hashedPassword });
+  }
+
+  // 사용자(User)와 프로필(DriverProfile) 업데이트 데이터 분리
+  const userUpdateData: any = {};
+  const profileUpdateData: any = {};
+
+  if (data.name !== undefined) userUpdateData.name = data.name;
+  if (data.email !== undefined) userUpdateData.email = data.email;
+  if (data.phone !== undefined) userUpdateData.phone = data.phone;
+
+  if (data.imageUrl !== undefined) profileUpdateData.imageUrl = data.imageUrl;
+  if (data.career !== undefined) profileUpdateData.career = data.career;
+  if (data.shortIntro !== undefined) profileUpdateData.shortIntro = data.shortIntro;
+  if (data.description !== undefined) profileUpdateData.description = data.description;
+  if (data.regions !== undefined) profileUpdateData.regions = data.regions;
+  if (data.services !== undefined) profileUpdateData.services = data.services;
+
+  // User 업데이트는 별도 레포지토리 호출로 처리
+  if (Object.keys(userUpdateData).length > 0) {
+    await updateUserRepository(driverId, userUpdateData);
+  }
+
+  const profile = await updateDriverProfileRepository(driverId, profileUpdateData);
 
   return profile;
 };
