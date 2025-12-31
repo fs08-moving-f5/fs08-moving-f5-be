@@ -3,9 +3,13 @@ import prisma from '@/config/prisma';
 import type { User, UserType, Prisma } from '@/generated/client';
 
 // 이메일로 유저 찾기
-export const findUserByEmailRepository = async (email: string): Promise<User | null> => {
+export const findUserByEmailRepository = async (email: string) => {
   return prisma.user.findUnique({
     where: { email },
+    include: {
+      userProfile: true,
+      driverProfile: true,
+    },
   });
 };
 
