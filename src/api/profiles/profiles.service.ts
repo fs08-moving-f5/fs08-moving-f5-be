@@ -71,7 +71,10 @@ export const updateUserProfileService = async (
     // 현재 사용자 정보 조회 (비밀번호 확인용)
     const user = await findUserByIdRepository(userId);
     if (!user || !user.password) {
-      throw new AppError('소셜 로그인 계정은 비밀번호를 변경할 수 없습니다', HTTP_STATUS.BAD_REQUEST);
+      throw new AppError(
+        '소셜 로그인 계정은 비밀번호를 변경할 수 없습니다',
+        HTTP_STATUS.BAD_REQUEST,
+      );
     }
 
     // 현재 비밀번호 확인

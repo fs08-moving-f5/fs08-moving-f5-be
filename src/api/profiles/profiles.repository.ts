@@ -22,7 +22,6 @@ export const updateUserRepository = async (
   });
 };
 
-
 // ID로 유저 프로필 찾기
 export const findUserProfileByIdRepository = async (id: string): Promise<UserProfile | null> => {
   return prisma.userProfile.findUnique({
