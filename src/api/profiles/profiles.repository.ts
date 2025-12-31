@@ -1,8 +1,26 @@
 import prisma from '@/config/prisma';
 
-import type { UserProfile, DriverProfile, Prisma } from '@/generated/client';
+import type { User, UserProfile, DriverProfile, Prisma } from '@/generated/client';
 
 // ========== UserProfile Repository ==========
+
+// ========== User Repository ==========
+
+// ID로 User 찾기
+export const findUserByIdRepository = async (id: string): Promise<User | null> => {
+  return prisma.user.findUnique({ where: { id } });
+};
+
+// User 업데이트
+export const updateUserRepository = async (
+  id: string,
+  data: Prisma.UserUpdateInput,
+): Promise<User> => {
+  return prisma.user.update({
+    where: { id },
+    data,
+  });
+};
 
 // ID로 유저 프로필 찾기
 export const findUserProfileByIdRepository = async (id: string): Promise<UserProfile | null> => {
