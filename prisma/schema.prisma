@@ -294,6 +294,7 @@ model DriverStatusView {
   driverId               String @id @map("driverId")
   career                 Int?
   reviewCount            Int    @map("review_count")
+  averageRating          Float  @map("average_rating")
   confirmedEstimateCount Int    @map("confirmed_estimate_count")
 
   @@map("DriverStatusView")

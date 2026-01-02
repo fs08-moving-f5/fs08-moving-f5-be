@@ -233,7 +233,7 @@ DROP TABLE IF EXISTS "DriverStatusMV";
 DROP MATERIALIZED VIEW IF EXISTS "DriverStatusMV";
 DROP VIEW IF EXISTS "DriverStatusMV";
 
-CREATE VIEW "DriverStatusView" AS
+CREATE OR REPLACE VIEW "DriverStatusView" AS
 SELECT
   u.id AS "driverId",
   dp.career AS career,
@@ -244,16 +244,22 @@ FROM "User" u
 LEFT JOIN "DriverProfile" dp
   ON dp."driverId" = u.id
 LEFT JOIN (
-  SELECT 
-    "userId", 
-    COUNT(*) AS review_count, ROUND(AVG(rating), 1) AS average_rating
-  FROM "Review"
-  GROUP BY "userId"
-) r ON r."userId" = u.id
+  SELECT
+    e."driverId",
+    COUNT(*) AS review_count,
+    ROUND(AVG(r.rating), 1) AS average_rating
+  FROM "Review" r
+  JOIN "Estimate" e ON e.id = r."estimateId"
+  GROUP BY e."driverId"
+) r ON r."driverId" = u.id
 LEFT JOIN (
-  SELECT "driverId", COUNT(*) AS confirmed_estimate_count
+  SELECT
+    "driverId",
+    COUNT(*) AS confirmed_estimate_count
   FROM "Estimate"
-  WHERE "status" = 'CONFIRMED' AND "isDelete" = false
+  WHERE "status" = 'CONFIRMED'
+    AND "isDelete" = false
   GROUP BY "driverId"
 ) e ON e."driverId" = u.id
-WHERE u."type" = 'DRIVER' AND u."isDelete" = false;
+WHERE u."type" = 'DRIVER'
+  AND u."isDelete" = false;
