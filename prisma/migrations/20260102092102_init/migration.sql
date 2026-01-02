@@ -238,12 +238,15 @@ SELECT
   u.id AS "driverId",
   dp.career AS career,
   COALESCE(r.review_count, 0) AS review_count,
+  COALESCE(r.average_rating, 0) AS average_rating,
   COALESCE(e.confirmed_estimate_count, 0) AS confirmed_estimate_count
 FROM "User" u
 LEFT JOIN "DriverProfile" dp
   ON dp."driverId" = u.id
 LEFT JOIN (
-  SELECT "userId", COUNT(*) AS review_count
+  SELECT 
+    "userId", 
+    COUNT(*) AS review_count, ROUND(AVG(rating), 1) AS average_rating
   FROM "Review"
   GROUP BY "userId"
 ) r ON r."userId" = u.id
