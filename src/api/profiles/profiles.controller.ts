@@ -41,9 +41,16 @@ export const getMyProfileController = asyncHandler(async (req: Request, res: Res
     return;
   }
 
+  const profileAll = {
+    ...profile,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+  } as any;
+
   res.json({
     success: true,
-    data: profile,
+    data: profileAll,
   });
 });
 
@@ -71,9 +78,17 @@ export const getUserProfileController = asyncHandler(async (req: Request, res: R
     return;
   }
 
+  // user 필드 병합
+  const merged = {
+    ...profile,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+  } as any;
+
   res.json({
     success: true,
-    data: profile,
+    data: merged,
   });
 });
 
@@ -145,9 +160,17 @@ export const getDriverProfileController = asyncHandler(async (req: Request, res:
     return;
   }
 
+  // driver(User) 정보도 병합해서 반환
+  const merged = {
+    ...profile,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+  } as any;
+
   res.json({
     success: true,
-    data: profile,
+    data: merged,
   });
 });
 
