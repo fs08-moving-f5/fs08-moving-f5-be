@@ -107,10 +107,10 @@
  *           description: 프로필 이미지 URL
  *           example: "https://example.com/image.jpg"
  *         career:
- *           type: string
+ *           type: integer
  *           nullable: true
- *           description: 경력 정보
- *           example: "5년차 전문 이사 기사"
+ *           description: 경력 (년)
+ *           example: 5
  *         shortIntro:
  *           type: string
  *           nullable: true
@@ -661,7 +661,7 @@
  *                             driverProfile:
  *                               id: "123e4567-e89b-12d3-a456-426614174003"
  *                               imageUrl: "https://example.com/image.jpg"
- *                               career: "5년차 전문 이사 기사"
+ *                               career: 5
  *                               shortIntro: "안전하고 신속한 이사를 약속드립니다"
  *                               confirmedEstimateCount: 150
  *                               favoriteDriverCount: 45
@@ -680,7 +680,7 @@
  *                             driverProfile:
  *                               id: "123e4567-e89b-12d3-a456-426614174008"
  *                               imageUrl: "https://example.com/image2.jpg"
- *                               career: "10년차 전문 이사 기사"
+ *                               career: 10
  *                               shortIntro: "경험 많은 전문가가 책임지고 진행합니다"
  *                               confirmedEstimateCount: 200
  *                               favoriteDriverCount: 60
@@ -799,7 +799,7 @@
  *                             driverProfile:
  *                               id: "123e4567-e89b-12d3-a456-426614174003"
  *                               imageUrl: "https://example.com/image.jpg"
- *                               career: "5년차 전문 이사 기사"
+ *                               career: 5
  *                               shortIntro: "안전하고 신속한 이사를 약속드립니다"
  *                               confirmedEstimateCount: 150
  *                               favoriteDriverCount: 45
@@ -816,7 +816,7 @@
  *                             driverProfile:
  *                               id: "123e4567-e89b-12d3-a456-426614174008"
  *                               imageUrl: "https://example.com/image2.jpg"
- *                               career: "10년차 전문 이사 기사"
+ *                               career: 10
  *                               shortIntro: "경험 많은 전문가가 책임지고 진행합니다"
  *                               confirmedEstimateCount: 200
  *                               favoriteDriverCount: 60
@@ -854,7 +854,7 @@
  *                             driverProfile:
  *                               id: "123e4567-e89b-12d3-a456-426614174003"
  *                               imageUrl: "https://example.com/image.jpg"
- *                               career: "5년차 전문 이사 기사"
+ *                               career: 5
  *                               shortIntro: "안전하고 신속한 이사를 약속드립니다"
  *                               confirmedEstimateCount: 150
  *                               favoriteDriverCount: 45
@@ -949,7 +949,7 @@
  *                       driverProfile:
  *                         id: "123e4567-e89b-12d3-a456-426614174003"
  *                         imageUrl: "https://example.com/image.jpg"
- *                         career: "5년차 전문 이사 기사"
+ *                         career: 5
  *                         shortIntro: "안전하고 신속한 이사를 약속드립니다"
  *                         confirmedEstimateCount: 150
  *                         favoriteDriverCount: 45

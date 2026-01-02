@@ -66,11 +66,12 @@
  *           description: 프로필 이미지 URL
  *           example: "https://example.com/driver.jpg"
  *         career:
- *           type: string
+ *           type: integer
  *           nullable: true
- *           description: 경력
- *           maxLength: 500
- *           example: "10년 이상 이사 경력"
+ *           description: 경력 (년)
+ *           minimum: 0
+ *           maximum: 100
+ *           example: 10
  *         shortIntro:
  *           type: string
  *           nullable: true
@@ -178,10 +179,11 @@
  *           description: 프로필 이미지 URL
  *           example: "https://example.com/driver.jpg"
  *         career:
- *           type: string
- *           maxLength: 500
- *           description: 경력
- *           example: "10년 이상 이사 경력"
+ *           type: integer
+ *           description: 경력 (년)
+ *           minimum: 0
+ *           maximum: 100
+ *           example: 10
  *         shortIntro:
  *           type: string
  *           maxLength: 100
@@ -221,11 +223,12 @@
  *           description: 프로필 이미지 URL
  *           example: "https://example.com/driver.jpg"
  *         career:
- *           type: string
+ *           type: integer
  *           nullable: true
- *           maxLength: 500
- *           description: 경력
- *           example: "10년 이상 이사 경력"
+ *           description: 경력 (년)
+ *           minimum: 0
+ *           maximum: 100
+ *           example: 10
  *         shortIntro:
  *           type: string
  *           nullable: true

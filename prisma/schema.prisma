@@ -66,7 +66,7 @@ model DriverProfile {
   driver   User   @relation(fields: [driverId], references: [id], onDelete: Cascade)
 
   imageUrl    String?
-  career      String?
+  career      Int?
   shortIntro  String?
   description String?
   regions     RegionEnum[]
