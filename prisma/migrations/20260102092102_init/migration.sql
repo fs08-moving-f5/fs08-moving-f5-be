@@ -31,7 +31,7 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT,
-    "phone" INTEGER NOT NULL,
+    "phone" TEXT NOT NULL,
     "refreshTokens" TEXT,
     "isDelete" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -58,7 +58,7 @@ CREATE TABLE "DriverProfile" (
     "id" TEXT NOT NULL,
     "driverId" TEXT NOT NULL,
     "imageUrl" TEXT,
-    "career" TEXT,
+    "career" INTEGER,
     "shortIntro" TEXT,
     "description" TEXT,
     "regions" "RegionEnum"[],
@@ -123,8 +123,8 @@ CREATE TABLE "Review" (
     "id" TEXT NOT NULL,
     "estimateId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "rating" INTEGER NOT NULL,
-    "content" TEXT NOT NULL,
+    "rating" INTEGER,
+    "content" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -228,3 +228,29 @@ ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "History" ADD CONSTRAINT "History_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+DROP TABLE IF EXISTS "DriverStatusMV";
+DROP MATERIALIZED VIEW IF EXISTS "DriverStatusMV";
+DROP VIEW IF EXISTS "DriverStatusMV";
+
+CREATE VIEW "DriverStatusView" AS
+SELECT
+  u.id AS "driverId",
+  dp.career AS career,
+  COALESCE(r.review_count, 0) AS review_count,
+  COALESCE(e.confirmed_estimate_count, 0) AS confirmed_estimate_count
+FROM "User" u
+LEFT JOIN "DriverProfile" dp
+  ON dp."driverId" = u.id
+LEFT JOIN (
+  SELECT "userId", COUNT(*) AS review_count
+  FROM "Review"
+  GROUP BY "userId"
+) r ON r."userId" = u.id
+LEFT JOIN (
+  SELECT "driverId", COUNT(*) AS confirmed_estimate_count
+  FROM "Estimate"
+  WHERE "status" = 'CONFIRMED' AND "isDelete" = false
+  GROUP BY "driverId"
+) e ON e."driverId" = u.id
+WHERE u."type" = 'DRIVER' AND u."isDelete" = false;

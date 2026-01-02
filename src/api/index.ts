@@ -9,6 +9,7 @@ import notificationRouter from './notification/index';
 import profileRouter from './profiles/index';
 import reviewRouter from './review/index';
 import myPageRouter from './myPage/myPage.routes';
+import driversRouter from './drivers/index';
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.use('/notifications', notificationRouter);
 router.use('/profile', profileRouter);
 router.use('/review', reviewRouter);
 router.use('/my-page', myPageRouter);
+router.use('/drivers', driversRouter);
 
 export default router;

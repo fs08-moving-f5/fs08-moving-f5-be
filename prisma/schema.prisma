@@ -289,3 +289,12 @@ enum HistoryEntityType {
   NOTIFICATION
   HISTORY
 }
+
+model DriverStatusView {
+  driverId               String @id @map("driverId")
+  career                 Int?
+  reviewCount            Int    @map("review_count")
+  confirmedEstimateCount Int    @map("confirmed_estimate_count")
+
+  @@map("DriverStatusView")
+}
