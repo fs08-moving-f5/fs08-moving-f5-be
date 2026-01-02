@@ -45,10 +45,10 @@
  *           description: 프로필 이미지 URL
  *           example: "https://example.com/image.jpg"
  *         career:
- *           type: string
+ *           type: integer
  *           nullable: true
- *           description: 경력 정보
- *           example: "5년차 전문 이사 기사"
+ *           description: 경력 (년)
+ *           example: 5
  *         shortIntro:
  *           type: string
  *           nullable: true
@@ -312,7 +312,7 @@
  *                         driverProfile:
  *                           id: "123e4567-e89b-12d3-a456-426614174003"
  *                           imageUrl: "https://example.com/image.jpg"
- *                           career: "5년차 전문 이사 기사"
+ *                           career: 5
  *                           shortIntro: "안전하고 신속한 이사를 약속드립니다"
  *                           description: "10년 이상의 경력을 가진 전문 이사 기사입니다."
  *                           services: ["HOME_MOVING", "OFFICE_MOVING"]

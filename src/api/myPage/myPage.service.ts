@@ -19,7 +19,7 @@ interface MyPageData {
     id: string;
     name: string;
     imageUrl: string | null;
-    career: string | null;
+    career: number | null;
     shortIntro: string | null;
     description: string | null;
     services: ServiceEnum[];
@@ -29,7 +29,7 @@ interface MyPageData {
   activity: {
     completedCount: number;
     averageRating: number;
-    career: string | null;
+    career: number | null;
   };
   reviewDistribution: {
     [key: number]: number;
@@ -95,7 +95,7 @@ export const getMyPageDataService = async (driverId: string): Promise<MyPageData
       id: driverWithProfile.id,
       name: driverWithProfile.name,
       imageUrl: profile?.imageUrl || null,
-      career: profile?.career || null,
+      career: (profile?.career as number | null) || null,
       shortIntro: profile?.shortIntro || null,
       description: profile?.description || null,
       services: profile?.services || [],
@@ -105,7 +105,7 @@ export const getMyPageDataService = async (driverId: string): Promise<MyPageData
     activity: {
       completedCount,
       averageRating: Math.round(averageRating * RATING_DECIMAL_PLACES) / RATING_DECIMAL_PLACES,
-      career: profile?.career || null,
+      career: (profile?.career as number | null) || null,
     },
     reviewDistribution,
   };
