@@ -1,6 +1,7 @@
 import {
   findUserProfileByUserIdRepository,
   findDriverProfileByDriverIdRepository,
+  findDriverWithProfileByDriverIdRepository,
   createUserProfileRepository,
   createDriverProfileRepository,
   updateUserProfileRepository,
@@ -116,6 +117,13 @@ export const updateUserProfileService = async (
 export const getDriverProfileService = async (driverId: string): Promise<DriverProfile | null> => {
   const profile = await findDriverProfileByDriverIdRepository(driverId);
   return profile;
+};
+
+// 기사 프로필 (공개용) 조회: 기사 ID로 기사 이름 + driverProfile 반환
+export const getDriverPublicProfileService = async (
+  driverId: string,
+): Promise<{ id: string; name: string; driverProfile: DriverProfile | null } | null> => {
+  return await findDriverWithProfileByDriverIdRepository(driverId);
 };
 
 // 기사 프로필 생성
