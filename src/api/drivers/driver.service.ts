@@ -3,10 +3,7 @@ import {
   getDriverStatusesRepository,
   getFilteredDriverIdsRepository,
 } from './driver.repository';
-import {
-  getUserFavoriteDriversRepository,
-  getFavoriteDriverCountRepository,
-} from '../estimate/estimate.repository';
+import { getUserFavoriteDriversRepository } from '../estimate/estimate.repository';
 import prisma from '@/config/prisma';
 import { GetDriversServiceParams, regionMap } from './types';
 import { Prisma, RegionEnum, ServiceEnum, UserType } from '@/generated/client';
@@ -101,25 +98,15 @@ export const getDriversService = async ({
       tx,
     });
 
-    const [favoriteDrivers, favoriteCounts] = await Promise.all([
-      userId
-        ? getUserFavoriteDriversRepository({
-            userId,
-            driverIds: uniqueDriverIds,
-            tx,
-          })
-        : Promise.resolve([]),
-      getFavoriteDriverCountRepository({
-        driverIds: uniqueDriverIds,
-        tx,
-      }),
-    ]);
+    const favoriteDrivers = userId
+      ? await getUserFavoriteDriversRepository({
+          userId,
+          driverIds: uniqueDriverIds,
+          tx,
+        })
+      : [];
 
     const favoriteDriverIds = new Set(favoriteDrivers.map((driver) => driver.driverId));
-    const favoriteCountMap = favoriteCounts.reduce<Record<string, number>>((acc, item) => {
-      acc[item.driverId] = item._count.id;
-      return acc;
-    }, {});
 
     const driverInfoMap = new Map(driverInfo.map((driver) => [driver.id, driver]));
 
@@ -143,7 +130,8 @@ export const getDriversService = async ({
                 services: driver.driverProfile.services,
               }
             : null,
-          favoriteDriverCount: favoriteCountMap[driverStatus.driverId] || 0,
+          career: driverStatus.career,
+          favoriteDriverCount: driverStatus.favoriteDriverCount,
           confirmedEstimateCount: driverStatus.confirmedEstimateCount,
           averageRating: driverStatus.averageRating,
           reviewCount: driverStatus.reviewCount,
