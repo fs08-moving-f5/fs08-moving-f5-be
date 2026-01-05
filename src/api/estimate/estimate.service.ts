@@ -25,7 +25,7 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
       return null;
     }
 
-    const { estimate, ...restEstimateRequest } = estimateRequest;
+    const estimate = estimateRequest.estimate;
 
     const driverIds: string[] = [];
     estimate.forEach((estimate) => {
@@ -38,7 +38,7 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
 
     const estimates = await getEstimateManyDriversRepository({
       driverIds: uniqueDriverIds,
-      estimateRequestId: restEstimateRequest.id,
+      estimateRequestId: estimateRequest.id,
       tx,
     });
 
@@ -96,8 +96,8 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
     });
 
     return {
-      ...restEstimateRequest,
-      estimates: estimate.length > 0 ? estimateResult : [],
+      ...estimateRequest,
+      estimates: estimateResult,
     };
   });
 };

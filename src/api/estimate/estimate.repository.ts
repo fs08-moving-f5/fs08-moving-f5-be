@@ -381,6 +381,10 @@ export const getEstimateRequestDetailRepository = async ({
         },
       },
       estimate: {
+        where: {
+          status: EstimateStatus.PENDING,
+          isDelete: false,
+        },
         select: {
           id: true,
           driverId: true,
