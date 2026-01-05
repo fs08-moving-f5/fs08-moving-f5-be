@@ -96,7 +96,12 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
     });
 
     return {
-      ...estimateRequest,
+      id: estimateRequest.id,
+      movingType: estimateRequest.movingType,
+      movingDate: estimateRequest.movingDate,
+      isDesignated: estimateRequest.isDesignated,
+      createdAt: estimateRequest.createdAt,
+      addresses: estimateRequest.addresses,
       estimates: estimateResult,
     };
   });
