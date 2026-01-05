@@ -5,8 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated"
+  provider        = "prisma-client"
+  output          = "../src/generated"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -290,8 +291,8 @@ enum HistoryEntityType {
   HISTORY
 }
 
-model DriverStatusView {
-  driverId               String @id @map("driverId")
+view DriverStatusView {
+  driverId               String @map("driverId")
   career                 Int?
   reviewCount            Int    @map("review_count")
   averageRating          Float  @map("average_rating")
