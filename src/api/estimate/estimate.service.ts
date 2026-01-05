@@ -1,19 +1,15 @@
 import {
   getUserFavoriteDriversRepository,
-  getConfirmedEstimateCountRepository,
-  getFavoriteDriverCountRepository,
-  getDriverReviewAverageRepository,
   confirmEstimateRepository,
   getEstimateDetailRepository,
-  getFavoriteDriverCountByDriverIdRepository,
-  getConfirmedEstimateCountByDriverIdRepository,
-  getDriverReviewAverageByDriverIdRepository,
   getReceivedEstimatesRepository,
   getIsMyFavoriteDriverRepository,
   confirmEstimateRequestRepository,
   getEstimateRequestDetailRepository,
   getEstimateManyDriversRepository,
   getNotPendingEstimateRequestInfoRepository,
+  getDriverStatusesByDriverIdsRepository,
+  getDriverStatusByDriverIdRepository,
 } from './estimate.repository';
 import { EstimateStatus, NotificationType } from '../../generated/client';
 import { createNotificationAndPushUnreadService } from '../notification/notification.service';
@@ -29,7 +25,7 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
       return null;
     }
 
-    const { estimate, ...restEstimateRequest } = estimateRequest;
+    const estimate = estimateRequest.estimate;
 
     const driverIds: string[] = [];
     estimate.forEach((estimate) => {
@@ -42,36 +38,45 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
 
     const estimates = await getEstimateManyDriversRepository({
       driverIds: uniqueDriverIds,
-      estimateRequestId: restEstimateRequest.id,
+      estimateRequestId: estimateRequest.id,
       tx,
     });
 
-    const [favoriteDrivers, tasksCounts, favoriteCounts, reviewAverages] = await Promise.all([
+    const [favoriteDrivers, driverStatuses] = await Promise.all([
       getUserFavoriteDriversRepository({ userId, driverIds: uniqueDriverIds, tx }),
-      getConfirmedEstimateCountRepository({ driverIds: uniqueDriverIds, tx }),
-      getFavoriteDriverCountRepository({ driverIds: uniqueDriverIds, tx }),
-      getDriverReviewAverageRepository({ driverIds: uniqueDriverIds, tx }),
+      getDriverStatusesByDriverIdsRepository({ driverIds: uniqueDriverIds, tx }),
     ]);
 
     const favoriteDriverIds = new Set(favoriteDrivers.map((driver) => driver.driverId));
 
-    const tasksCountMap = tasksCounts.reduce<Record<string, number>>((acc, item) => {
-      acc[item.driverId] = item._count.id;
-      return acc;
-    }, {});
-
-    const favoriteCountMap = favoriteCounts.reduce<Record<string, number>>((acc, item) => {
-      acc[item.driverId] = item._count.id;
-      return acc;
-    }, {});
-
-    const reviewAverageMap = reviewAverages.reduce<Record<string, number | null>>((acc, item) => {
-      acc[item.driverId] = item.averageRating ? Number(item.averageRating.toFixed(1)) : null;
+    const driverStatusMap = driverStatuses.reduce<
+      Record<
+        string,
+        {
+          confirmedEstimateCount: number;
+          favoriteDriverCount: number;
+          averageRating: number | null;
+          reviewCount: number;
+        }
+      >
+    >((acc, item) => {
+      acc[item.driverId] = {
+        confirmedEstimateCount: item.confirmedEstimateCount,
+        favoriteDriverCount: item.favoriteDriverCount,
+        averageRating: item.averageRating || null,
+        reviewCount: item.reviewCount,
+      };
       return acc;
     }, {});
 
     const estimateResult = estimates.map((estimate) => {
       const { estimateRequest, ...restEstimate } = estimate;
+      const driverStatus = driverStatusMap[estimate.driver.id] || {
+        confirmedEstimateCount: 0,
+        favoriteDriverCount: 0,
+        averageRating: null,
+        reviewCount: 0,
+      };
 
       return {
         ...restEstimate,
@@ -81,17 +86,23 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
           isFavorite: favoriteDriverIds.has(estimate.driver.id),
           driverProfile: {
             ...estimate.driver.driverProfile,
-            favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
-            confirmedEstimateCount: tasksCountMap[estimate.driver.id] || 0,
-            averageRating: reviewAverageMap[estimate.driver.id] ?? null,
+            favoriteDriverCount: driverStatus.favoriteDriverCount,
+            confirmedEstimateCount: driverStatus.confirmedEstimateCount,
+            averageRating: driverStatus.averageRating,
+            reviewCount: driverStatus.reviewCount,
           },
         },
       };
     });
 
     return {
-      ...restEstimateRequest,
-      estimates: estimate.length > 0 ? estimateResult : [],
+      id: estimateRequest.id,
+      movingType: estimateRequest.movingType,
+      movingDate: estimateRequest.movingDate,
+      isDesignated: estimateRequest.isDesignated,
+      createdAt: estimateRequest.createdAt,
+      addresses: estimateRequest.addresses,
+      estimates: estimateResult,
     };
   });
 };
@@ -143,15 +154,15 @@ export const getEstimateDetailService = async ({
     throw new AppError('기사 ID가 필요합니다.', HTTP_STATUS.BAD_REQUEST);
   }
 
-  const isMyFavoriteDriver = await getIsMyFavoriteDriverRepository({ userId, driverId });
-
-  const [confirmedEstimateCount, favoriteDriverCount, averageRatingRaw] = await Promise.all([
-    getConfirmedEstimateCountByDriverIdRepository({ driverId: estimate.driver?.id || '' }),
-    getFavoriteDriverCountByDriverIdRepository({ driverId: estimate.driver?.id || '' }),
-    getDriverReviewAverageByDriverIdRepository({ driverId: estimate.driver?.id || '' }),
+  const [isMyFavoriteDriver, driverStatus] = await Promise.all([
+    getIsMyFavoriteDriverRepository({ userId, driverId }),
+    getDriverStatusByDriverIdRepository({ driverId }),
   ]);
 
-  const averageRating = averageRatingRaw ? Number(averageRatingRaw.toFixed(1)) : null;
+  const confirmedEstimateCount = driverStatus?.confirmedEstimateCount || 0;
+  const favoriteDriverCount = driverStatus?.favoriteDriverCount || 0;
+  const averageRating = driverStatus?.averageRating || null;
+  const reviewCount = driverStatus?.reviewCount || 0;
 
   return {
     ...estimate,
@@ -165,6 +176,7 @@ export const getEstimateDetailService = async ({
                 confirmedEstimateCount,
                 favoriteDriverCount,
                 averageRating,
+                reviewCount,
               }
             : null,
         }
@@ -227,54 +239,61 @@ export const getReceivedEstimatesService = async ({
     const allDriverIds = receivedEstimates.map((estimate) => estimate.driver.id);
     const uniqueDriverIds = [...new Set(allDriverIds)];
 
-    const [favoriteDrivers, confirmedCounts, favoriteCounts, reviewAverages] = await Promise.all([
+    const [favoriteDrivers, driverStatuses] = await Promise.all([
       getUserFavoriteDriversRepository({ userId, driverIds: uniqueDriverIds, tx }),
-      getConfirmedEstimateCountRepository({ driverIds: uniqueDriverIds, tx }),
-      getFavoriteDriverCountRepository({ driverIds: uniqueDriverIds, tx }),
-      getDriverReviewAverageRepository({ driverIds: uniqueDriverIds, tx }),
+      getDriverStatusesByDriverIdsRepository({ driverIds: uniqueDriverIds, tx }),
     ]);
 
     const favoriteDriverIds = new Set(favoriteDrivers.map((driver) => driver.driverId));
 
-    const confirmedCountMap = confirmedCounts.reduce<Record<string, number>>((acc, item) => {
-      acc[item.driverId] = item._count.id;
+    const driverStatusMap = driverStatuses.reduce<
+      Record<
+        string,
+        {
+          confirmedEstimateCount: number;
+          favoriteDriverCount: number;
+          averageRating: number | null;
+          reviewCount: number;
+        }
+      >
+    >((acc, item) => {
+      acc[item.driverId] = {
+        confirmedEstimateCount: item.confirmedEstimateCount,
+        favoriteDriverCount: item.favoriteDriverCount,
+        averageRating: item.averageRating || null,
+        reviewCount: item.reviewCount,
+      };
       return acc;
     }, {});
 
-    const favoriteCountMap = favoriteCounts.reduce<Record<string, number>>((acc, item) => {
-      acc[item.driverId] = item._count.id;
-      return acc;
-    }, {});
+    const estimatesWithStats = receivedEstimates.map((estimate) => {
+      const driverStatus = driverStatusMap[estimate.driver.id] || {
+        confirmedEstimateCount: 0,
+        favoriteDriverCount: 0,
+        averageRating: null,
+        reviewCount: 0,
+      };
 
-    const reviewAverageMap = reviewAverages.reduce<Record<string, number | null>>((acc, item) => {
-      acc[item.driverId] = item.averageRating ? Number(item.averageRating.toFixed(1)) : null;
-      return acc;
-    }, {});
-
-    const reviewCountMap = reviewAverages.reduce<Record<string, number>>((acc, item) => {
-      acc[item.driverId] = item.reviewCount;
-      return acc;
-    }, {});
-
-    const estimatesWithStats = receivedEstimates.map((estimate) => ({
-      id: estimate.id,
-      price: estimate.price,
-      status: estimate.status,
-      createdAt: estimate.createdAt,
-      driver: {
-        ...estimate.driver,
-        isFavorite: favoriteDriverIds.has(estimate.driver.id),
-        driverProfile: estimate.driver.driverProfile
-          ? {
-              ...estimate.driver.driverProfile,
-              confirmedEstimateCount: confirmedCountMap[estimate.driver.id] || 0,
-              favoriteDriverCount: favoriteCountMap[estimate.driver.id] || 0,
-              averageRating: reviewAverageMap[estimate.driver.id] ?? null,
-              reviewCount: reviewCountMap[estimate.driver.id] || 0,
-            }
-          : null,
-      },
-    }));
+      return {
+        id: estimate.id,
+        price: estimate.price,
+        status: estimate.status,
+        createdAt: estimate.createdAt,
+        driver: {
+          ...estimate.driver,
+          isFavorite: favoriteDriverIds.has(estimate.driver.id),
+          driverProfile: estimate.driver.driverProfile
+            ? {
+                ...estimate.driver.driverProfile,
+                confirmedEstimateCount: driverStatus.confirmedEstimateCount,
+                favoriteDriverCount: driverStatus.favoriteDriverCount,
+                averageRating: driverStatus.averageRating,
+                reviewCount: driverStatus.reviewCount,
+              }
+            : null,
+        },
+      };
+    });
 
     const estimateRequestMap = new Map<
       string,

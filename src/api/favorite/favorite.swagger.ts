@@ -45,10 +45,10 @@
  *           description: 프로필 이미지 URL
  *           example: "https://example.com/image.jpg"
  *         career:
- *           type: string
+ *           type: integer
  *           nullable: true
- *           description: 경력 정보
- *           example: "5년차 전문 이사 기사"
+ *           description: 경력 (년)
+ *           example: 5
  *         shortIntro:
  *           type: string
  *           nullable: true
@@ -286,16 +286,22 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/FavoriteDriverWithDetails'
- *                     pagination:
- *                       $ref: '#/components/schemas/PaginationInfo'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/FavoriteDriverWithDetails'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationInfo'
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
@@ -312,7 +318,7 @@
  *                         driverProfile:
  *                           id: "123e4567-e89b-12d3-a456-426614174003"
  *                           imageUrl: "https://example.com/image.jpg"
- *                           career: "5년차 전문 이사 기사"
+ *                           career: 5
  *                           shortIntro: "안전하고 신속한 이사를 약속드립니다"
  *                           description: "10년 이상의 경력을 가진 전문 이사 기사입니다."
  *                           services: ["HOME_MOVING", "OFFICE_MOVING"]
@@ -392,12 +398,20 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/DeleteResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/DeleteResponse'
+ *                 pagination:
+ *                   description: 페이지네이션 정보
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
@@ -455,12 +469,20 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/FavoriteDriver'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/FavoriteDriver'
+ *                 pagination:
+ *                   description: 페이지네이션 정보
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
@@ -529,12 +551,20 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/DeleteResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/DeleteResponse'
+ *                 pagination:
+ *                   description: 페이지네이션 정보
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시

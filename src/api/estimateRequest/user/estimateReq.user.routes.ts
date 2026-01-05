@@ -3,6 +3,7 @@ import { authenticate } from '@/middlewares/authMiddleware';
 import {
   getEstimateRequestsInProgress,
   createEstimateRequest,
+  createDesignatedEstimateRequest,
 } from './estimateReq.user.controller';
 
 const router = Router();
@@ -11,5 +12,8 @@ const router = Router();
 router.get('/pending', authenticate, getEstimateRequestsInProgress);
 // 견적 요청 (유저)
 router.post('/request', authenticate, createEstimateRequest);
+
+// 지정 견적 요청 (유저)
+router.post('/request/designated', authenticate, createDesignatedEstimateRequest);
 
 export default router;

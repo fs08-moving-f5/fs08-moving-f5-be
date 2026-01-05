@@ -24,10 +24,10 @@
  *               description: 프로필 이미지 URL
  *               example: "https://example.com/profile.jpg"
  *             career:
- *               type: string
+ *               type: integer
  *               nullable: true
- *               description: 경력
- *               example: "7건"
+ *               description: 경력 (년)
+ *               example: 7
  *             shortIntro:
  *               type: string
  *               nullable: true
@@ -65,10 +65,10 @@
  *               description: 평균 별점
  *               example: 5.0
  *             career:
- *               type: string
+ *               type: integer
  *               nullable: true
- *               description: 경력
- *               example: "7건"
+ *               description: 경력 (년)
+ *               example: 7
  *         reviewDistribution:
  *           type: object
  *           properties:

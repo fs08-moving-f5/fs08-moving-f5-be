@@ -30,15 +30,16 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userProfile     UserProfile?
-  driverProfile   DriverProfile?
-  estimateRequest EstimateRequest[]
-  estimates       Estimate[]
-  notifications   Notification[]
-  histories       History[]
-  favoriteDrivers FavoriteDriver[]  @relation("DriverFavorites")
-  favoritedBy     FavoriteDriver[]  @relation("UserFavorites")
-  reviews         Review[]
+  userProfile                UserProfile?
+  driverProfile              DriverProfile?
+  estimateRequest            EstimateRequest[]
+  estimates                  Estimate[]
+  notifications              Notification[]
+  histories                  History[]
+  favoriteDrivers            FavoriteDriver[]  @relation("DriverFavorites")
+  favoritedBy                FavoriteDriver[]  @relation("UserFavorites")
+  reviews                    Review[]
+  designatedEstimateRequests EstimateRequest[] @relation("DesignatedEstimateRequests")
 }
 
 enum UserType {
@@ -66,7 +67,7 @@ model DriverProfile {
   driver   User   @relation(fields: [driverId], references: [id], onDelete: Cascade)
 
   imageUrl    String?
-  career      String?
+  career      Int?
   shortIntro  String?
   description String?
   regions     RegionEnum[]
@@ -107,10 +108,13 @@ model EstimateRequest {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  movingType   ServiceEnum
-  movingDate   DateTime
-  status       EstimateStatus @default(PENDING)
-  isDesignated Boolean        @default(false)
+  movingType ServiceEnum
+  movingDate DateTime
+  status     EstimateStatus @default(PENDING)
+
+  isDesignated       Boolean @default(false)
+  designatedDriverId String?
+  designatedDriver   User?   @relation("DesignatedEstimateRequests", fields: [designatedDriverId], references: [id], onDelete: SetNull)
 
   isDelete  Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -288,4 +292,15 @@ enum HistoryEntityType {
   FAVORITE_DRIVER
   NOTIFICATION
   HISTORY
+}
+
+model DriverStatusView {
+  driverId               String @id @map("driverId")
+  career                 Int?
+  reviewCount            Int    @map("review_count")
+  averageRating          Float  @map("average_rating")
+  confirmedEstimateCount Int    @map("confirmed_estimate_count")
+  favoriteDriverCount    Int    @map("favorite_driver_count")
+
+  @@map("DriverStatusView")
 }

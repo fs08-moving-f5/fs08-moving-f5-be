@@ -503,7 +503,7 @@ async function main() {
     provider: 'local',
     type: 'USER',
     name: '마스터 유저',
-    email: 'master@example.com',
+    email: 'user@master.com',
     password: masterPassword,
     phone: '1000000000',
     refreshTokens: null,
@@ -532,6 +532,22 @@ async function main() {
       isDelete: false,
     });
   }
+
+  // 마스터 테스트 드라이버 생성 (드라이버 기능 테스트용)
+  const masterDriverId = uuidv4();
+  driverIds.push(masterDriverId);
+  users.push({
+    id: masterDriverId,
+    providerId: null,
+    provider: 'local',
+    type: 'DRIVER',
+    name: '마스터 드라이버',
+    email: 'driver@master.com',
+    password: masterPassword,
+    phone: '1000000001',
+    refreshTokens: null,
+    isDelete: false,
+  });
 
   // 기사님 2250명 생성 (30배)
   for (let i = 0; i < 2250; i++) {
@@ -624,25 +640,37 @@ async function main() {
   await prisma.userProfile.createMany({ data: userProfiles, skipDuplicates: true });
   console.log(`✅ Created ${userProfiles.length} user profiles\n`);
 
-  // DriverProfile 생성 (기사님 2250명 전부 프로필 생성 + new-driver)
+  // DriverProfile 생성 (기사님 2250명 전부 프로필 생성 + 마스터 드라이버 + new-driver)
   console.log('🚗 Creating driver profiles...');
-  const driverProfiles: Prisma.DriverProfileCreateManyInput[] = driverIds.map(
-    (driverId, index) => ({
+  const driverProfiles: Prisma.DriverProfileCreateManyInput[] = driverIds.map((driverId, index) => {
+    // 마스터 드라이버는 특별한 프로필 설정
+    if (driverId === masterDriverId) {
+      return {
+        driverId,
+        imageUrl: randomItem(driverImageUrls),
+        career: 10,
+        shortIntro: '마스터 드라이버입니다. 모든 기능을 테스트할 수 있습니다.',
+        description: '드라이버 기능 테스트를 위한 마스터 계정입니다.',
+        regions: ['서울', '경기', '인천'],
+        services: ['SMALL_MOVING', 'HOME_MOVING', 'OFFICE_MOVING'],
+      };
+    }
+    return {
       driverId,
       imageUrl: randomItem(driverImageUrls),
-      career: `${randomInt(1, 30)}년`,
+      career: randomInt(1, 30),
       shortIntro: randomItem(shortIntros),
       description: randomItem(descriptions),
       regions: randomItems(regions, randomInt(1, 8)),
       services: randomItems(services, randomInt(1, 3)),
-    }),
-  );
+    };
+  });
 
   // new-driver 프로필 추가 (프로필 정보는 모두 있지만 아직 활동 없음)
   driverProfiles.push({
     driverId: newDriverId,
     imageUrl: randomItem(driverImageUrls),
-    career: `${randomInt(5, 25)}년`,
+    career: randomInt(5, 25),
     shortIntro: randomItem(shortIntros),
     description: randomItem(descriptions),
     regions: randomItems(regions, randomInt(2, 5)),
@@ -1360,7 +1388,8 @@ async function main() {
   console.log('   - Weighted notification and history types');
   console.log('   - Expanded address pool (60+ locations)');
   console.log('   - User profile images: random from 2 URLs');
-  console.log('   - Master user (master@example.com) with 50+ diverse requests');
+  console.log('   - Master user (user@master.com) with 50+ diverse requests');
+  console.log('   - Master driver (driver@master.com) for driver feature testing');
 }
 
 main()

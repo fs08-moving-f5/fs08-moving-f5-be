@@ -111,3 +111,21 @@ export const deleteDriverProfileRepository = async (driverId: string): Promise<D
     where: { driverId },
   });
 };
+
+// 기사 ID로 (기사 정보 + 프로필) 조회
+export const findDriverWithProfileByDriverIdRepository = async (
+  driverId: string,
+): Promise<{ id: string; name: string; driverProfile: DriverProfile | null } | null> => {
+  return prisma.user.findFirst({
+    where: {
+      id: driverId,
+      type: 'DRIVER',
+      isDelete: false,
+    },
+    select: {
+      id: true,
+      name: true,
+      driverProfile: true,
+    },
+  });
+};

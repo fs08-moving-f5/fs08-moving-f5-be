@@ -67,9 +67,10 @@ export const updateUserProfileSchema = z
 export const createDriverProfileSchema = z.object({
   imageUrl: imageUrlSchema,
   career: z
-    .string()
-    .regex(/^[0-9]*$/, '숫자만 입력해주세요.')
-    .max(500, '경력은 최대 500자까지 입력 가능합니다')
+    .number()
+    .int('정수만 입력해주세요.')
+    .min(0, '경력은 0 이상이어야 합니다')
+    .max(100, '경력은 최대 100년까지 입력 가능합니다')
     .optional(),
   shortIntro: z
     .string()
@@ -102,9 +103,10 @@ export const updateDriverProfileSchema = z
       .optional(),
     imageUrl: imageUrlSchema.or(z.literal(null)), // null 허용
     career: z
-      .string()
-      .regex(/^[0-9]*$/, '숫자만 입력해주세요.')
-      .max(500, '경력은 최대 500자까지 입력 가능합니다')
+      .number()
+      .int('정수만 입력해주세요.')
+      .min(0, '경력은 0 이상이어야 합니다')
+      .max(100, '경력은 최대 100년까지 입력 가능합니다')
       .optional()
       .or(z.literal(null)),
     shortIntro: z
