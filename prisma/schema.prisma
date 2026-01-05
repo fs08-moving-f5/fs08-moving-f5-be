@@ -296,6 +296,7 @@ model DriverStatusView {
   reviewCount            Int    @map("review_count")
   averageRating          Float  @map("average_rating")
   confirmedEstimateCount Int    @map("confirmed_estimate_count")
+  favoriteDriverCount    Int    @map("favorite_driver_count")
 
   @@map("DriverStatusView")
 }
