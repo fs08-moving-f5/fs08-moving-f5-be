@@ -30,7 +30,8 @@
  *                         example: 홍길동
  *                       movingType:
  *                         type: string
- *                         example: HOME
+ *                         enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
+ *                         example: HOME_MOVING
  *                       movingDate:
  *                         type: string
  *                         format: date-time
@@ -70,7 +71,7 @@
  *     tags: [EstimateReq]
  *     description:
  *       유저가 새로운 견적 요청을 생성합니다.
- *       - form, to는 카카오 우편번호 API의 Address 타입 마이너 버전입니다.
+ *       - from, to는 카카오 우편번호 API의 Address 타입 마이너 버전입니다.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -87,6 +88,8 @@
  *             properties:
  *               movingType:
  *                 type: string
+ *                 enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
+ *                 example: HOME_MOVING
  *               movingDate:
  *                 type: string
  *                 format: date-time
@@ -176,7 +179,8 @@
  *                       example: 홍길동
  *                     movingType:
  *                       type: string
- *                       example: HOME
+ *                       enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
+ *                       example: HOME_MOVING
  *                     movingDate:
  *                       type: string
  *                       format: date-time
