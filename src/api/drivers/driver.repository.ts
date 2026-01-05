@@ -40,7 +40,7 @@ export const getDriverStatusesRepository = async ({
       confirmedEstimateCount: true,
     },
     orderBy: [{ ...orderBy }, { driverId: 'asc' }],
-    cursor: cursor ? { driverId: cursor } : undefined,
+    ...(cursor && { cursor: { driverId: cursor } }),
     take: (limit || 15) + 1,
     skip: cursor ? 1 : 0,
   });
