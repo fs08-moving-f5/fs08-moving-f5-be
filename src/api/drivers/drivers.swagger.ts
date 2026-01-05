@@ -253,16 +253,22 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/DriverListItem'
- *                     pagination:
- *                       $ref: '#/components/schemas/PaginationInfo'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/DriverListItem'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationInfo'
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시 (로그인한 사용자)

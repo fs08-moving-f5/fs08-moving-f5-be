@@ -286,16 +286,22 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/FavoriteDriverWithDetails'
- *                     pagination:
- *                       $ref: '#/components/schemas/PaginationInfo'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/FavoriteDriverWithDetails'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationInfo'
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
@@ -392,12 +398,20 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/DeleteResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/DeleteResponse'
+ *                 pagination:
+ *                   description: 페이지네이션 정보
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
@@ -455,12 +469,20 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/FavoriteDriver'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/FavoriteDriver'
+ *                 pagination:
+ *                   description: 페이지네이션 정보
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
@@ -529,12 +551,20 @@
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/DeleteResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/DeleteResponse'
+ *                 pagination:
+ *                   description: 페이지네이션 정보
+ *                 message:
+ *                   type: string
+ *                   nullable: true
+ *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시

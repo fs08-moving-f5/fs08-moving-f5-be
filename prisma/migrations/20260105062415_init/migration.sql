@@ -77,6 +77,7 @@ CREATE TABLE "EstimateRequest" (
     "movingDate" TIMESTAMP(3) NOT NULL,
     "status" "EstimateStatus" NOT NULL DEFAULT 'PENDING',
     "isDesignated" BOOLEAN NOT NULL DEFAULT false,
+    "designatedDriverId" TEXT,
     "isDelete" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -172,6 +173,47 @@ CREATE TABLE "History" (
     CONSTRAINT "History_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateView
+DROP TABLE IF EXISTS "DriverStatusView";
+
+CREATE OR REPLACE VIEW "DriverStatusView" AS
+SELECT
+  u.id AS "driverId",
+  dp.career AS career,
+  COALESCE(r.review_count, 0) AS review_count,
+  COALESCE(r.average_rating, 0) AS average_rating,
+  COALESCE(e.confirmed_estimate_count, 0) AS confirmed_estimate_count, 
+  COALESCE(f.favorite_driver_count, 0) AS favorite_driver_count
+FROM "User" u
+LEFT JOIN "DriverProfile" dp
+  ON dp."driverId" = u.id
+LEFT JOIN (
+  SELECT
+    e."driverId",
+    COUNT(*) AS review_count,
+    ROUND(AVG(r.rating), 1) AS average_rating
+  FROM "Review" r
+  JOIN "Estimate" e ON e.id = r."estimateId"
+  GROUP BY e."driverId"
+) r ON r."driverId" = u.id
+LEFT JOIN (
+  SELECT
+    "driverId",
+    COUNT(*) AS confirmed_estimate_count
+  FROM "Estimate"
+  WHERE "status" = 'CONFIRMED'
+    AND "isDelete" = false
+  GROUP BY "driverId"
+) e ON e."driverId" = u.id
+LEFT JOIN (
+  SELECT
+    "driverId", COUNT(*) AS favorite_driver_count
+  FROM "FavoriteDriver"
+  GROUP BY "driverId"
+) f ON f."driverId" = u.id
+WHERE u."type" = 'DRIVER'
+  AND u."isDelete" = false;
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -201,6 +243,9 @@ ALTER TABLE "DriverProfile" ADD CONSTRAINT "DriverProfile_driverId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "EstimateRequest" ADD CONSTRAINT "EstimateRequest_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "EstimateRequest" ADD CONSTRAINT "EstimateRequest_designatedDriverId_fkey" FOREIGN KEY ("designatedDriverId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Estimate" ADD CONSTRAINT "Estimate_estimateRequestId_fkey" FOREIGN KEY ("estimateRequestId") REFERENCES "EstimateRequest"("id") ON DELETE CASCADE ON UPDATE CASCADE;

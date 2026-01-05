@@ -5,6 +5,7 @@ import {
   createUserProfileController,
   updateUserProfileController,
   getDriverProfileController,
+  getDriverPublicProfileController,
   createDriverProfileController,
   updateDriverProfileController,
 } from './profiles.controller';
@@ -22,6 +23,7 @@ router.post('/user', authenticate, loadUser, createUserProfileController);
 router.patch('/user', authenticate, loadUser, updateUserProfileController);
 
 // 기사 프로필 라우트
+router.get('/driver/:driverId', getDriverPublicProfileController);
 router.get('/driver', authenticate, loadUser, getDriverProfileController);
 router.post('/driver', authenticate, loadUser, createDriverProfileController);
 router.patch('/driver', authenticate, loadUser, updateDriverProfileController);
