@@ -14,8 +14,7 @@
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
     "prepare": "husky",
-    "type-check": "tsc --noEmit",
-    "db:views": "tsx scripts/db/applyViews.ts"
+    "type-check": "tsc --noEmit"
   },
   "prisma": {
     "schema": "prisma/schema.prisma",
@@ -51,7 +50,6 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
-    "pg": "^8.16.3",
     "prisma": "^7.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
@@ -65,7 +63,6 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/pg": "^8.16.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "cross-env": "^10.1.0",
