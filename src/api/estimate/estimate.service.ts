@@ -56,6 +56,7 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
           confirmedEstimateCount: number;
           favoriteDriverCount: number;
           averageRating: number | null;
+          reviewCount: number;
         }
       >
     >((acc, item) => {
@@ -63,6 +64,7 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
         confirmedEstimateCount: item.confirmedEstimateCount,
         favoriteDriverCount: item.favoriteDriverCount,
         averageRating: item.averageRating || null,
+        reviewCount: item.reviewCount,
       };
       return acc;
     }, {});
@@ -73,6 +75,7 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
         confirmedEstimateCount: 0,
         favoriteDriverCount: 0,
         averageRating: null,
+        reviewCount: 0,
       };
 
       return {
@@ -86,6 +89,7 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
             favoriteDriverCount: driverStatus.favoriteDriverCount,
             confirmedEstimateCount: driverStatus.confirmedEstimateCount,
             averageRating: driverStatus.averageRating,
+            reviewCount: driverStatus.reviewCount,
           },
         },
       };
@@ -153,6 +157,7 @@ export const getEstimateDetailService = async ({
   const confirmedEstimateCount = driverStatus?.confirmedEstimateCount || 0;
   const favoriteDriverCount = driverStatus?.favoriteDriverCount || 0;
   const averageRating = driverStatus?.averageRating || null;
+  const reviewCount = driverStatus?.reviewCount || 0;
 
   return {
     ...estimate,
@@ -166,6 +171,7 @@ export const getEstimateDetailService = async ({
                 confirmedEstimateCount,
                 favoriteDriverCount,
                 averageRating,
+                reviewCount,
               }
             : null,
         }
