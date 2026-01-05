@@ -77,6 +77,7 @@ CREATE TABLE "EstimateRequest" (
     "movingDate" TIMESTAMP(3) NOT NULL,
     "status" "EstimateStatus" NOT NULL DEFAULT 'PENDING',
     "isDesignated" BOOLEAN NOT NULL DEFAULT false,
+    "designatedDriverId" TEXT,
     "isDelete" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -172,6 +173,18 @@ CREATE TABLE "History" (
     CONSTRAINT "History_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "DriverStatusView" (
+    "driverId" TEXT NOT NULL,
+    "career" INTEGER,
+    "review_count" INTEGER NOT NULL,
+    "average_rating" DOUBLE PRECISION NOT NULL,
+    "confirmed_estimate_count" INTEGER NOT NULL,
+    "favorite_driver_count" INTEGER NOT NULL,
+
+    CONSTRAINT "DriverStatusView_pkey" PRIMARY KEY ("driverId")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -201,6 +214,9 @@ ALTER TABLE "DriverProfile" ADD CONSTRAINT "DriverProfile_driverId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "EstimateRequest" ADD CONSTRAINT "EstimateRequest_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "EstimateRequest" ADD CONSTRAINT "EstimateRequest_designatedDriverId_fkey" FOREIGN KEY ("designatedDriverId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Estimate" ADD CONSTRAINT "Estimate_estimateRequestId_fkey" FOREIGN KEY ("estimateRequestId") REFERENCES "EstimateRequest"("id") ON DELETE CASCADE ON UPDATE CASCADE;
