@@ -220,25 +220,27 @@ export const updateDriverProfileController = asyncHandler(async (req: Request, r
 });
 
 // 공개 기사 프로필 조회
-export const getDriverPublicProfileController = asyncHandler(async (req: Request, res: Response) => {
-  const { driverId } = req.params as { driverId?: string };
+export const getDriverPublicProfileController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { driverId } = req.params as { driverId?: string };
 
-  if (!driverId) {
-    throw new AppError('driverId가 필요합니다', HTTP_STATUS.BAD_REQUEST);
-  }
+    if (!driverId) {
+      throw new AppError('driverId가 필요합니다', HTTP_STATUS.BAD_REQUEST);
+    }
 
-  const data = await getDriverPublicProfileService(driverId);
+    const data = await getDriverPublicProfileService(driverId);
 
-  if (!data) {
-    res.status(HTTP_STATUS.NOT_FOUND).json({
-      success: false,
-      message: '프로필을 찾을 수 없습니다',
+    if (!data) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        message: '프로필을 찾을 수 없습니다',
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data,
     });
-    return;
-  }
-
-  res.json({
-    success: true,
-    data,
-  });
-});
+  },
+);
