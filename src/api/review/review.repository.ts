@@ -1,6 +1,6 @@
 import prisma from '../../config/prisma';
 import { Prisma } from '../../generated/client';
-import { EstimateStatus, HistoryEntityType, HistoryActionType } from '../../generated/enums';
+import { EstimateStatus } from '../../generated/enums';
 import { GetReviewParams } from '../../types/review';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
@@ -194,8 +194,8 @@ export async function createReviewHistoryRepository({
     data: {
       userId,
       entityId,
-      entityType: HistoryEntityType.REVIEW,
-      actionType: HistoryActionType.CREATE_REVIEW,
+      entityType: 'Review',
+      actionType: 'CREATE_Review',
       actionDesc: '리뷰 작성',
     },
   });

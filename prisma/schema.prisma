@@ -243,55 +243,16 @@ model History {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  actionType HistoryActionType
+  actionType String?
   actionDesc String?
 
-  entityType HistoryEntityType?
+  entityType String?
   entityId   String?
 
   previousData Json?
   newData      Json?
 
   createdAt DateTime @default(now())
-}
-
-enum HistoryActionType {
-  CREATE_REQUEST // 견적 요청 생성(일반 유저)
-  UPDATE_REQUEST // 견적 요청 수정(일반 유저)
-  DELETE_REQUEST // 견적 요청 삭제(일반 유저)
-
-  CONFIRMED_ESTIMATE // 견적 확정(일반 유저)
-  REJECTED_ESTIMATE // 견적 거절(일반 유저)
-
-  CREATE_ESTIMATE // 견적서 생성(기사)
-  UPDATE_ESTIMATE // 견적서 수정(기사)
-  DELETE_ESTIMATE // 견적서 삭제(기사)
-
-  EXPIRED_ESTIMATE // 견적서 만료(시스템)
-
-  CREATE_FAVORITE // 찜하기
-  DELETE_FAVORITE // 찜하기 취소
-
-  CREATE_REVIEW // 리뷰 작성
-  UPDATE_REVIEW // 리뷰 수정
-  DELETE_REVIEW // 리뷰 삭제
-
-  UPDATE_PROFILE // 프로필 수정
-
-  UPDATE_ADDRESS //  주소 수정
-}
-
-enum HistoryEntityType {
-  USER
-  USER_PROFILE
-  DRIVER_PROFILE
-  ESTIMATE_REQUEST
-  ESTIMATE_RESPONSE
-  ADDRESS
-  REVIEW
-  FAVORITE_DRIVER
-  NOTIFICATION
-  HISTORY
 }
 
 model DriverStatusView {

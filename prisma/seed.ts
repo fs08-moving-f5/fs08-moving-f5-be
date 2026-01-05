@@ -7,8 +7,6 @@ import type {
   ServiceEnum,
   EstimateStatus,
   NotificationType,
-  HistoryActionType,
-  HistoryEntityType,
 } from '../src/generated/enums';
 
 // 유틸리티 함수들
@@ -1248,70 +1246,77 @@ async function main() {
 
   // History 생성 (7500개 - 30배 규모, 더 다양한 액션 타입 분포)
   console.log('📜 Creating histories...');
-  const historyActionTypes: HistoryActionType[] = [
-    'CREATE_REQUEST',
-    'UPDATE_REQUEST',
-    'DELETE_REQUEST',
-    'CONFIRMED_ESTIMATE',
-    'REJECTED_ESTIMATE',
-    'CREATE_ESTIMATE',
-    'UPDATE_ESTIMATE',
-    'DELETE_ESTIMATE',
-    'EXPIRED_ESTIMATE',
-    'CREATE_FAVORITE',
-    'DELETE_FAVORITE',
-    'CREATE_REVIEW',
-    'UPDATE_REVIEW',
-    'DELETE_REVIEW',
-    'UPDATE_PROFILE',
-    'UPDATE_ADDRESS',
+  const historyActionTypes: string[] = [
+    'CREATE_User',
+    'UPDATE_User',
+    'DELETE_User',
+    'CREATE_UserProfile',
+    'UPDATE_UserProfile',
+    'DELETE_UserProfile',
+    'CREATE_DriverProfile',
+    'UPDATE_DriverProfile',
+    'DELETE_DriverProfile',
+    'CREATE_Address',
+    'UPDATE_Address',
+    'DELETE_Address',
+    'CREATE_EstimateRequest',
+    'UPDATE_EstimateRequest',
+    'DELETE_EstimateRequest',
+    'CREATE_Estimate',
+    'UPDATE_Estimate',
+    'DELETE_Estimate',
+    'CREATE_FavoriteDriver',
+    'DELETE_FavoriteDriver',
+    'CREATE_Review',
+    'UPDATE_Review',
+    'DELETE_Review',
   ];
 
-  const historyEntityTypes: HistoryEntityType[] = [
-    'USER',
-    'USER_PROFILE',
-    'DRIVER_PROFILE',
-    'ESTIMATE_REQUEST',
-    'ESTIMATE_RESPONSE',
-    'ADDRESS',
-    'REVIEW',
-    'FAVORITE_DRIVER',
+  const historyEntityTypes: string[] = [
+    'User',
+    'UserProfile',
+    'DriverProfile',
+    'EstimateRequest',
+    'Estimate',
+    'Address',
+    'Review',
+    'FavoriteDriver',
   ];
 
   const histories: Prisma.HistoryCreateManyInput[] = [];
 
   // 액션 타입별 가중치 (더 현실적인 분포)
-  const getWeightedActionType = (): HistoryActionType => {
+  const getWeightedActionType = (): string => {
     const rand = Math.random();
     if (rand < 0.25)
-      return 'CREATE_REQUEST'; // 25%
+      return 'CREATE_EstimateRequest'; // 25%
     else if (rand < 0.4)
-      return 'CREATE_ESTIMATE'; // 15%
+      return 'CREATE_Estimate'; // 15%
     else if (rand < 0.5)
-      return 'CONFIRMED_ESTIMATE'; // 10%
+      return 'UPDATE_DriverProfile'; // 10%
     else if (rand < 0.58)
-      return 'CREATE_REVIEW'; // 8%
+      return 'CREATE_Review'; // 8%
     else if (rand < 0.65)
-      return 'CREATE_FAVORITE'; // 7%
+      return 'CREATE_FavoriteDriver'; // 7%
     else if (rand < 0.72)
-      return 'UPDATE_PROFILE'; // 7%
+      return 'CREATE_UserProfile'; // 7%
     else if (rand < 0.78)
-      return 'REJECTED_ESTIMATE'; // 6%
+      return 'UPDATE_UserProfile'; // 6%
     else if (rand < 0.83)
-      return 'UPDATE_REQUEST'; // 5%
+      return 'UPDATE_EstimateRequest'; // 5%
     else if (rand < 0.87)
-      return 'UPDATE_ESTIMATE'; // 4%
+      return 'UPDATE_Estimate'; // 4%
     else if (rand < 0.9)
-      return 'UPDATE_REVIEW'; // 3%
+      return 'Update_Review'; // 3%
     else if (rand < 0.93)
-      return 'DELETE_FAVORITE'; // 3%
+      return 'DELETE_FavoriteDriver'; // 3%
     else if (rand < 0.96)
-      return 'EXPIRED_ESTIMATE'; // 3%
+      return 'CREATE_DriverProfile'; // 3%
     else if (rand < 0.98)
-      return 'DELETE_REQUEST'; // 2%
+      return 'DELETE_EstimateRequest'; // 2%
     else if (rand < 0.99)
-      return 'DELETE_ESTIMATE'; // 1%
-    else return 'DELETE_REVIEW'; // 1%
+      return 'DELETE_Estimate'; // 1%
+    else return 'DELETE_Review'; // 1%
   };
 
   for (let i = 0; i < 7500; i++) {

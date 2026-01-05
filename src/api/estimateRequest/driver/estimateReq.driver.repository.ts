@@ -1,6 +1,6 @@
 import prisma from '@/config/prisma';
 import { Prisma } from '@/generated/client';
-import { EstimateStatus, HistoryActionType, HistoryEntityType } from '@/generated/enums';
+import { EstimateStatus } from '@/generated/enums';
 import {
   GetEstimateRequestsParams,
   CreateEstimateParams,
@@ -195,9 +195,9 @@ export const createHistoryRepository = async ({
   return await (tx ?? prisma).history.create({
     data: {
       userId,
-      entityType: HistoryEntityType.ESTIMATE_RESPONSE,
+      entityType: 'Estimate',
       entityId,
-      actionType: HistoryActionType.CREATE_ESTIMATE,
+      actionType: 'CREATE_Estimate',
     },
   });
 };
