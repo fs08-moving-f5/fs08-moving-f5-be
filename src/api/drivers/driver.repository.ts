@@ -38,6 +38,7 @@ export const getDriverStatusesRepository = async ({
       reviewCount: true,
       averageRating: true,
       confirmedEstimateCount: true,
+      favoriteDriverCount: true,
     },
     orderBy: [{ ...orderBy }, { driverId: 'asc' }],
     ...(cursor && { cursor: { driverId: cursor } }),

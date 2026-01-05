@@ -58,6 +58,11 @@
  *             - $ref: '#/components/schemas/DriverProfileInfo'
  *             - type: "null"
  *           description: 드라이버 프로필 정보 (프로필이 없는 경우 null)
+ *         career:
+ *           type: integer
+ *           nullable: true
+ *           description: 드라이버 경력 (년)
+ *           example: 10
  *         favoriteDriverCount:
  *           type: integer
  *           description: 해당 드라이버를 찜한 사용자 수
@@ -217,7 +222,7 @@
  *     description: |
  *       등록된 드라이버(기사) 목록을 조회합니다.
  *       지역, 서비스 유형으로 필터링하고, 리뷰 수, 평균 평점, 경력, 확정된 견적 수로 정렬할 수 있습니다.
- *       커서 기반 페이지네이션을 지원하며, 각 드라이버 정보에는 프로필, 찜하기 수, 확정된 견적 수, 리뷰 평균 평점, 리뷰 총 개수가 포함됩니다.
+ *       커서 기반 페이지네이션을 지원하며, 각 드라이버 정보에는 프로필, 경력, 찜하기 수, 확정된 견적 수, 리뷰 평균 평점, 리뷰 총 개수가 포함됩니다.
  *
  *       **쿼리 파라미터:**
  *       - `region` (선택): 지역 필터. 소문자로 입력 (예: seoul, gyeonggi)
@@ -284,6 +289,7 @@
  *                         description: "10년 이상의 경력을 가진 전문 이사 기사입니다."
  *                         regions: ["서울", "경기", "인천"]
  *                         services: ["HOME_MOVING", "OFFICE_MOVING"]
+ *                       career: 10
  *                       favoriteDriverCount: 45
  *                       confirmedEstimateCount: 150
  *                       averageRating: 4.5
@@ -298,6 +304,7 @@
  *                         description: "15년 경력의 베테랑 이사 기사입니다."
  *                         regions: ["서울", "경기"]
  *                         services: ["HOME_MOVING"]
+ *                       career: 15
  *                       favoriteDriverCount: 60
  *                       confirmedEstimateCount: 200
  *                       averageRating: 4.8
@@ -322,6 +329,7 @@
  *                     - id: "123e4567-e89b-12d3-a456-426614174001"
  *                       name: "홍길동"
  *                       driverProfile: null
+ *                       career: null
  *                       favoriteDriverCount: 0
  *                       confirmedEstimateCount: 0
  *                       averageRating: null
@@ -344,6 +352,7 @@
  *                         description: "10년 이상의 경력을 가진 전문 이사 기사입니다."
  *                         regions: ["서울", "경기"]
  *                         services: ["HOME_MOVING"]
+ *                       career: 10
  *                       favoriteDriverCount: 45
  *                       confirmedEstimateCount: 150
  *                       averageRating: 4.5
