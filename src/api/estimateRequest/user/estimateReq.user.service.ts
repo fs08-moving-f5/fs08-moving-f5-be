@@ -34,15 +34,15 @@ export const createEstimateRequestService = async (data: createEstimateRequestPa
 
 // 지정 견적 요청 (유저)
 export const createDesignatedEstimateRequestService = async (data: {
-	userId: string;
-	designatedDriverId: string;
+  userId: string;
+  designatedDriverId: string;
 }) => {
-	if (!data.userId) {
-		throw new AppError('유저 로그인이 필요합니다.', 401);
-	}
-	if (!data.designatedDriverId) {
-		throw new AppError('지정 기사 정보가 누락되었습니다.', 400);
-	}
+  if (!data.userId) {
+    throw new AppError('유저 로그인이 필요합니다.', 401);
+  }
+  if (!data.designatedDriverId) {
+    throw new AppError('지정 기사 정보가 누락되었습니다.', 400);
+  }
 
   const designatedDriver = await findDesignatedDriverRepository({
     designatedDriverId: data.designatedDriverId,
