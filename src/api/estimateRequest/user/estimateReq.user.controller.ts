@@ -3,6 +3,7 @@ import asyncHandler from '@/middlewares/asyncHandler';
 
 import {
   createEstimateRequestService,
+	createDesignatedEstimateRequestService,
   getEstimateRequestsInProgressService,
 } from './estimateReq.user.service';
 import { createEstimateRequestParams } from '@/types/userEstimate';
@@ -27,4 +28,14 @@ export const createEstimateRequest = asyncHandler(async (req: Request, res: Resp
 
   const estimateReq = await createEstimateRequestService(data);
   res.status(200).json({ message: '견적 요청 성공', data: estimateReq });
+});
+
+// 지정 견적 요청 (유저)
+export const createDesignatedEstimateRequest = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const estimateReq = await createDesignatedEstimateRequestService({
+		userId,
+		designatedDriverId: req.body.designatedDriverId,
+	});
+  res.status(200).json({ message: '지정 견적 요청 성공', data: estimateReq });
 });

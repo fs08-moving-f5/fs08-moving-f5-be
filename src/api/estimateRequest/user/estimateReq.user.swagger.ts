@@ -211,3 +211,52 @@
  *       409:
  *         description: 이미 진행 중인 견적 요청 존재
  */
+
+/**
+ * @swagger
+ * /api/estimate-request/user/request/designated:
+ *   post:
+ *     summary: 지정 견적 요청 (유저)
+ *     tags: [EstimateReq]
+ *     description:
+ *       유저가 특정 기사에게 지정 견적 요청을 생성합니다.
+ *       - designatedDriverId: 지정할 기사(User) id
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - movingType
+ *               - movingDate
+ *               - from
+ *               - to
+ *               - designatedDriverId
+ *             properties:
+ *               movingType:
+ *                 type: string
+ *               movingDate:
+ *                 type: string
+ *                 format: date-time
+ *               designatedDriverId:
+ *                 type: string
+ *                 example: "uuid-driver-user-id"
+ *               from:
+ *                 type: object
+ *               to:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: 지정 견적 요청 성공
+ *       400:
+ *         description: 필수 데이터 누락
+ *       401:
+ *         description: 유저 인증 실패
+ *       404:
+ *         description: 지정 기사 정보 없음
+ *       409:
+ *         description: 이미 진행 중인 견적 요청 존재
+ */
