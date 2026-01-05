@@ -131,7 +131,7 @@ export async function createEstimateRepository({
       driverId,
       price,
       comment,
-      status: EstimateStatus.CONFIRMED,
+      status: EstimateStatus.PENDING,
     },
     include: {
       estimateRequest: true,
