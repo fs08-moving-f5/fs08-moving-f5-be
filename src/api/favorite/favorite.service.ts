@@ -8,11 +8,7 @@ import {
   isFavoriteDriverRepository,
 } from './favorite.repository';
 import { Prisma } from '../../generated/client';
-import {
-  getConfirmedEstimateCountRepository,
-  getFavoriteDriverCountRepository,
-  getDriverReviewAverageRepository,
-} from '../estimate/estimate.repository';
+import { getDriverStatusesByDriverIdsRepository } from '../estimate/estimate.repository';
 
 export const addFavoriteDriverService = async ({
   userId,
@@ -73,29 +69,25 @@ export const getFavoriteDriversService = async ({
 
   const driverIds = favoriteDrivers.map((driver) => driver.driverId);
 
-  const [tasksCounts, favoriteCounts, reviewAverages] = await Promise.all([
-    getConfirmedEstimateCountRepository({ driverIds }),
-    getFavoriteDriverCountRepository({ driverIds }),
-    getDriverReviewAverageRepository({ driverIds }),
-  ]);
+  const driverStatuses = await getDriverStatusesByDriverIdsRepository({ driverIds });
 
-  const tasksCountMap = tasksCounts.reduce<Record<string, number>>((acc, item) => {
-    acc[item.driverId] = item._count.id;
-    return acc;
-  }, {});
-
-  const favoriteCountMap = favoriteCounts.reduce<Record<string, number>>((acc, item) => {
-    acc[item.driverId] = item._count.id;
-    return acc;
-  }, {});
-
-  const reviewAverageMap = reviewAverages.reduce<Record<string, number | null>>((acc, item) => {
-    acc[item.driverId] = item.averageRating ? Number(item.averageRating.toFixed(1)) : null;
-    return acc;
-  }, {});
-
-  const reviewCountMap = reviewAverages.reduce<Record<string, number>>((acc, item) => {
-    acc[item.driverId] = item.reviewCount;
+  const driverStatusMap = driverStatuses.reduce<
+    Record<
+      string,
+      {
+        confirmedEstimateCount: number;
+        favoriteDriverCount: number;
+        averageRating: number | null;
+        reviewCount: number;
+      }
+    >
+  >((acc, item) => {
+    acc[item.driverId] = {
+      confirmedEstimateCount: item.confirmedEstimateCount,
+      favoriteDriverCount: item.favoriteDriverCount,
+      averageRating: item.averageRating || null,
+      reviewCount: item.reviewCount,
+    };
     return acc;
   }, {});
 
@@ -103,10 +95,12 @@ export const getFavoriteDriversService = async ({
   const slicedDrivers = hasNext ? favoriteDrivers.slice(0, limit) : favoriteDrivers;
 
   const data = slicedDrivers.map((favoriteDriver) => {
-    const tasksCount = tasksCountMap[favoriteDriver.driverId] || 0;
-    const favoriteCount = favoriteCountMap[favoriteDriver.driverId] || 0;
-    const averageRating = reviewAverageMap[favoriteDriver.driverId] ?? null;
-    const reviewCount = reviewCountMap[favoriteDriver.driverId] || 0;
+    const driverStatus = driverStatusMap[favoriteDriver.driverId] || {
+      confirmedEstimateCount: 0,
+      favoriteDriverCount: 0,
+      averageRating: null,
+      reviewCount: 0,
+    };
 
     return {
       ...favoriteDriver,
@@ -115,10 +109,10 @@ export const getFavoriteDriversService = async ({
         driverProfile: favoriteDriver.driver.driverProfile
           ? {
               ...favoriteDriver.driver.driverProfile,
-              confirmedEstimateCount: tasksCount,
-              favoriteDriverCount: favoriteCount,
-              averageRating,
-              reviewCount,
+              confirmedEstimateCount: driverStatus.confirmedEstimateCount,
+              favoriteDriverCount: driverStatus.favoriteDriverCount,
+              averageRating: driverStatus.averageRating,
+              reviewCount: driverStatus.reviewCount,
             }
           : null,
       },

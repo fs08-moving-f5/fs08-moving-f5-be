@@ -115,35 +115,6 @@ export const getIsMyFavoriteDriverRepository = async ({
 
 // ========== Driver 통계 조회 (여러 driverIds) ==========
 
-export const getConfirmedEstimateCountRepository = async ({
-  driverIds,
-  tx,
-}: {
-  driverIds: string[];
-  tx?: Prisma.TransactionClient;
-}) => {
-  if (driverIds.length === 0) {
-    return [];
-  }
-
-  return await (tx ?? prisma).estimate.groupBy({
-    by: ['driverId'],
-    where: {
-      driverId: {
-        in: driverIds,
-      },
-      isDelete: false,
-      estimateRequest: {
-        status: EstimateStatus.CONFIRMED,
-        isDelete: false,
-      },
-    },
-    _count: {
-      id: true,
-    },
-  });
-};
-
 export const getFavoriteDriverCountRepository = async ({
   driverIds,
   tx,
@@ -169,109 +140,6 @@ export const getFavoriteDriverCountRepository = async ({
       id: true,
     },
   });
-};
-
-export const getDriverReviewAverageRepository = async ({
-  driverIds,
-  tx,
-}: {
-  driverIds: string[];
-  tx?: Prisma.TransactionClient;
-}) => {
-  if (driverIds.length === 0) {
-    return [];
-  }
-
-  // 각 driver별로 리뷰 평균 계산 (원시 데이터 반환)
-  const reviewAverages = await Promise.all(
-    driverIds.map(async (driverId) => {
-      const result = await (tx ?? prisma).review.aggregate({
-        where: {
-          estimate: {
-            driverId,
-            status: EstimateStatus.CONFIRMED,
-            isDelete: false,
-          },
-          rating: {
-            not: null,
-          },
-        },
-        _avg: {
-          rating: true,
-        },
-        _count: {
-          id: true,
-        },
-      });
-
-      return {
-        driverId,
-        averageRating: result._avg.rating, // 원시 데이터 (null 또는 number)
-        reviewCount: result._count.id,
-      };
-    }),
-  );
-
-  return reviewAverages;
-};
-
-// ========== Driver 통계 조회 (단일 driverId) ==========
-
-export const getConfirmedEstimateCountByDriverIdRepository = async ({
-  driverId,
-}: {
-  driverId: string;
-}) => {
-  return await prisma.estimate.count({
-    where: {
-      driverId,
-      isDelete: false,
-      estimateRequest: {
-        status: EstimateStatus.CONFIRMED,
-        isDelete: false,
-      },
-    },
-  });
-};
-
-export const getFavoriteDriverCountByDriverIdRepository = async ({
-  driverId,
-}: {
-  driverId: string;
-}) => {
-  return await prisma.favoriteDriver.count({
-    where: {
-      driverId,
-      user: {
-        isDelete: false,
-      },
-    },
-  });
-};
-
-export const getDriverReviewAverageByDriverIdRepository = async ({
-  driverId,
-}: {
-  driverId: string;
-}) => {
-  const result = await prisma.review.aggregate({
-    where: {
-      estimate: {
-        driverId,
-        status: EstimateStatus.CONFIRMED,
-        isDelete: false,
-      },
-      rating: {
-        not: null,
-      },
-    },
-    _avg: {
-      rating: true,
-    },
-  });
-
-  // Repository는 원시 데이터만 반환 (데이터 변환은 Service 레이어에서)
-  return result._avg.rating;
 };
 
 export const confirmEstimateRepository = async ({
@@ -568,6 +436,52 @@ export const getEstimateManyDriversRepository = async ({
     },
     orderBy: {
       createdAt: 'desc',
+    },
+  });
+};
+
+// ========== DriverStatusView를 사용한 통계 조회 ==========
+
+export const getDriverStatusesByDriverIdsRepository = async ({
+  driverIds,
+  tx,
+}: {
+  driverIds: string[];
+  tx?: Prisma.TransactionClient;
+}) => {
+  if (driverIds.length === 0) {
+    return [];
+  }
+
+  return await (tx ?? prisma).driverStatusView.findMany({
+    where: {
+      driverId: {
+        in: driverIds,
+      },
+    },
+    select: {
+      driverId: true,
+      career: true,
+      reviewCount: true,
+      averageRating: true,
+      confirmedEstimateCount: true,
+      favoriteDriverCount: true,
+    },
+  });
+};
+
+export const getDriverStatusByDriverIdRepository = async ({ driverId }: { driverId: string }) => {
+  return await prisma.driverStatusView.findUnique({
+    where: {
+      driverId,
+    },
+    select: {
+      driverId: true,
+      career: true,
+      reviewCount: true,
+      averageRating: true,
+      confirmedEstimateCount: true,
+      favoriteDriverCount: true,
     },
   });
 };
