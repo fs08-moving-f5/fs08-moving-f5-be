@@ -666,6 +666,7 @@
  *                               confirmedEstimateCount: 150
  *                               favoriteDriverCount: 45
  *                               averageRating: 4.5
+ *                               reviewCount: 120
  *                         - id: "123e4567-e89b-12d3-a456-426614174006"
  *                           price: 450000
  *                           status: "PENDING"
@@ -685,6 +686,7 @@
  *                               confirmedEstimateCount: 200
  *                               favoriteDriverCount: 60
  *                               averageRating: 4.8
+ *                               reviewCount: 180
  *               emptyEstimates:
  *                 summary: 견적이 없는 경우 (estimates가 빈 배열)
  *                 value:
@@ -954,6 +956,7 @@
  *                         confirmedEstimateCount: 150
  *                         favoriteDriverCount: 45
  *                         averageRating: 4.5
+ *                         reviewCount: 120
  *               notFound:
  *                 summary: 견적을 찾을 수 없는 경우
  *                 value:
