@@ -137,9 +137,22 @@
  *       required: true
  *       content:
  *         application/json:
- *           example:
- *             price: 300000
- *             comment: "합리적인 가격으로 진행 가능합니다."
+ *           schema:
+ *             type: object
+ *             required:
+ *               - estimateRequestId
+ *               - price
+ *               - comment
+ *             properties:
+ *               estimateRequestId:
+ *                 type: string
+ *                 example: "req_1"
+ *               price:
+ *                 type: number
+ *                 example: 300000
+ *               comment:
+ *                 type: string
+ *                 example: "합리적인 가격으로 진행 가능합니다."
  *     responses:
  *       200:
  *         description: 견적 생성 성공
@@ -216,8 +229,18 @@
  *       required: true
  *       content:
  *         application/json:
- *           example:
- *             rejectReason: "일정이 맞지 않습니다."
+ *           schema:
+ *             type: object
+ *             required:
+ *               - estimateRequestId
+ *               - rejectReason
+ *             properties:
+ *               estimateRequestId:
+ *                 type: string
+ *                 example: "req_1"
+ *               rejectReason:
+ *                 type: string
+ *                 example: "일정이 맞지 않습니다."
  *     responses:
  *       200:
  *         description: 견적 반려 성공
