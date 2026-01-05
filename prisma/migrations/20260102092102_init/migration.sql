@@ -229,10 +229,6 @@ ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY
 -- AddForeignKey
 ALTER TABLE "History" ADD CONSTRAINT "History_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
-DROP TABLE IF EXISTS "DriverStatusMV";
-DROP MATERIALIZED VIEW IF EXISTS "DriverStatusMV";
-DROP VIEW IF EXISTS "DriverStatusMV";
-
 CREATE OR REPLACE VIEW "DriverStatusView" AS
 SELECT
   u.id AS "driverId",
@@ -240,6 +236,7 @@ SELECT
   COALESCE(r.review_count, 0) AS review_count,
   COALESCE(r.average_rating, 0) AS average_rating,
   COALESCE(e.confirmed_estimate_count, 0) AS confirmed_estimate_count
+  COALESCE(f.favorite_driver_count, 0) AS favorite_driver_count
 FROM "User" u
 LEFT JOIN "DriverProfile" dp
   ON dp."driverId" = u.id
@@ -261,5 +258,11 @@ LEFT JOIN (
     AND "isDelete" = false
   GROUP BY "driverId"
 ) e ON e."driverId" = u.id
+LEFT JOIN (
+  SELECT
+    "driverId", COUNT(*) AS favorite_driver_count
+  FROM "FavoriteDriver"
+  GROUP BY "driverId"
+) f ON f."driverId" = u.id
 WHERE u."type" = 'DRIVER'
   AND u."isDelete" = false;
