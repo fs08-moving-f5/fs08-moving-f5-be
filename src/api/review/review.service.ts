@@ -104,7 +104,6 @@ export async function createReviewService(params: CreateReviewParams) {
     });
 
     await repo.createReviewHistoryRepository({
-      userId,
       entityId: review.id,
       tx,
     });

@@ -61,7 +61,6 @@ export async function createEstimateService(data: CreateEstimateParams) {
     });
 
     await repo.createHistoryRepository({
-      userId: driverId,
       entityId: created.id,
       actionType: 'CREATE_ESTIMATE',
       tx,
@@ -101,7 +100,6 @@ export async function createEstimateRejectService(data: CreateEstimateRejectPara
     const created = await repo.createEstimateRejectRepository({ ...data, tx });
 
     await repo.createHistoryRepository({
-      userId: driverId,
       entityId: created.id,
       actionType: 'REJECTED_ESTIMATE',
       tx,

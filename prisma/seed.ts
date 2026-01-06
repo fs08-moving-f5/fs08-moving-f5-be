@@ -1353,7 +1353,6 @@ async function main() {
     actionDesc = `${actionType} 작업이 수행되었습니다.`;
 
     histories.push({
-      userId,
       actionType,
       actionDesc,
       entityType,

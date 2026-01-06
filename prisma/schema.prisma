@@ -35,7 +35,6 @@ model User {
   estimateRequest            EstimateRequest[]
   estimates                  Estimate[]
   notifications              Notification[]
-  histories                  History[]
   favoriteDrivers            FavoriteDriver[]  @relation("DriverFavorites")
   favoritedBy                FavoriteDriver[]  @relation("UserFavorites")
   reviews                    Review[]
@@ -239,9 +238,7 @@ enum NotificationType {
 }
 
 model History {
-  id     String @id @default(uuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id String @id @default(uuid())
 
   actionType String?
   actionDesc String?

@@ -182,17 +182,14 @@ export async function updateReviewRepository({
 
 // 히스토리 생성
 export async function createReviewHistoryRepository({
-  userId,
   entityId,
   tx,
 }: {
-  userId: string;
   entityId: string;
   tx?: Prisma.TransactionClient;
 }) {
   return await (tx ?? prisma).history.create({
     data: {
-      userId,
       entityId,
       entityType: 'Review',
       actionType: 'CREATE_Review',

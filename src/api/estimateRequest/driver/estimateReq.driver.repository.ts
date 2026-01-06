@@ -183,18 +183,15 @@ export const createReviewRepository = async ({
 
 // 히스토리 생성
 export const createHistoryRepository = async ({
-  userId,
   entityId,
   tx,
 }: {
-  userId: string;
   entityId: string;
   actionType: string;
   tx?: Prisma.TransactionClient;
 }) => {
   return await (tx ?? prisma).history.create({
     data: {
-      userId,
       entityType: 'Estimate',
       entityId,
       actionType: 'CREATE_Estimate',
