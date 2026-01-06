@@ -60,12 +60,6 @@ export async function createEstimateService(data: CreateEstimateParams) {
       tx,
     });
 
-    await repo.createHistoryRepository({
-      entityId: created.id,
-      actionType: 'CREATE_ESTIMATE',
-      tx,
-    });
-
     await createNotificationAndPushUnreadService({
       userId: created.estimateRequest.userId,
       type: NotificationType.ESTIMATE_RECEIVED,
@@ -98,12 +92,6 @@ export async function createEstimateRejectService(data: CreateEstimateRejectPara
 
   const estimate = await prisma.$transaction(async (tx) => {
     const created = await repo.createEstimateRejectRepository({ ...data, tx });
-
-    await repo.createHistoryRepository({
-      entityId: created.id,
-      actionType: 'REJECTED_ESTIMATE',
-      tx,
-    });
 
     await createNotificationAndPushUnreadService({
       userId: created.estimateRequest.userId,

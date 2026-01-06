@@ -1307,7 +1307,7 @@ async function main() {
     else if (rand < 0.87)
       return 'UPDATE_Estimate'; // 4%
     else if (rand < 0.9)
-      return 'Update_Review'; // 3%
+      return 'UPDATE_Review'; // 3%
     else if (rand < 0.93)
       return 'DELETE_FavoriteDriver'; // 3%
     else if (rand < 0.96)

@@ -181,24 +181,6 @@ export const createReviewRepository = async ({
   });
 };
 
-// 히스토리 생성
-export const createHistoryRepository = async ({
-  entityId,
-  tx,
-}: {
-  entityId: string;
-  actionType: string;
-  tx?: Prisma.TransactionClient;
-}) => {
-  return await (tx ?? prisma).history.create({
-    data: {
-      entityType: 'Estimate',
-      entityId,
-      actionType: 'CREATE_Estimate',
-    },
-  });
-};
-
 // 확정 견적 목록 조회
 export async function getEstimateConfirmRepository({
   driverId,

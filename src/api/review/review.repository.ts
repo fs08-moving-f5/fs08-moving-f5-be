@@ -179,21 +179,3 @@ export async function updateReviewRepository({
     data: { rating, content },
   });
 }
-
-// 히스토리 생성
-export async function createReviewHistoryRepository({
-  entityId,
-  tx,
-}: {
-  entityId: string;
-  tx?: Prisma.TransactionClient;
-}) {
-  return await (tx ?? prisma).history.create({
-    data: {
-      entityId,
-      entityType: 'Review',
-      actionType: 'CREATE_Review',
-      actionDesc: '리뷰 작성',
-    },
-  });
-}
