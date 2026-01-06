@@ -17,14 +17,14 @@ export const getEstimateRequests = asyncHandler(async (req: Request, res: Respon
 
   const params: GetEstimateRequestsParams = {
     driverId,
-    movingType: req.query.movingType as ServiceEnum,
+    movingTypes: req.query.movingTypes as ServiceEnum[],
     movingDate: req.query.movingDate ? new Date(String(req.query.movingDate)) : undefined,
     isDesignated: req.query.isDesignated === 'true',
     status: req.query.status as EstimateStatus,
     serviceRegionFilter: req.query.serviceRegionFilter === 'true',
     search: req.query.search ? String(req.query.search) : undefined,
     sort: req.query.sort as EstimateSort,
-    cursor: req.query.cursor ? String(req.query.cursor) : null,
+    cursor: req.query.cursor ? String(req.query.cursor) : undefined,
     take: req.query.take ? Number(req.query.take) : undefined,
   };
 
