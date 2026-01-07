@@ -15,6 +15,7 @@ export const getDriversService = async ({
   sort,
   cursor,
   limit = 15,
+  search,
 }: GetDriversServiceParams) => {
   return await prisma.$transaction(async (tx) => {
     let orderBy = {};
@@ -36,12 +37,20 @@ export const getDriversService = async ({
     const regionValue = region ? (regionMap[region] as RegionEnum) : undefined;
     const serviceValue = service ? (service as ServiceEnum) : undefined;
 
-    const hasFilter = regionValue !== undefined || serviceValue !== undefined;
+    const hasFilter =
+      regionValue !== undefined || serviceValue !== undefined || search !== undefined;
+
     const filteredDriverIds = hasFilter
       ? await getFilteredDriverIdsRepository({
           where: {
             type: UserType.DRIVER,
             isDelete: false,
+            ...(search && {
+              name: {
+                contains: search,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            }),
             driverProfile: {
               ...(regionValue && {
                 regions: {

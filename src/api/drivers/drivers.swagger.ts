@@ -200,6 +200,17 @@
  *         최소값은 1이며, 생략 시 기본값 15가 적용됩니다.
  *       example: 15
  *
+ *     searchQuery:
+ *       in: query
+ *       name: search
+ *       required: false
+ *       schema:
+ *         type: string
+ *       description: |
+ *         기사님 이름 검색
+ *         기사님 이름에 포함된 문자열로 검색합니다. 대소문자 구분 없이 검색됩니다.
+ *       example: "홍길동"
+ *
  *   securitySchemes:
  *     bearerAuth:
  *       type: http
@@ -221,13 +232,14 @@
  *     summary: 드라이버(기사) 목록 조회
  *     description: |
  *       등록된 드라이버(기사) 목록을 조회합니다.
- *       지역, 서비스 유형으로 필터링하고, 리뷰 수, 평균 평점, 경력, 확정된 견적 수로 정렬할 수 있습니다.
+ *       지역, 서비스 유형으로 필터링하고, 기사님 이름으로 검색할 수 있으며, 리뷰 수, 평균 평점, 경력, 확정된 견적 수로 정렬할 수 있습니다.
  *       커서 기반 페이지네이션을 지원하며, 각 드라이버 정보에는 프로필, 경력, 찜하기 수, 확정된 견적 수, 리뷰 평균 평점, 리뷰 총 개수가 포함됩니다.
  *
  *       **쿼리 파라미터:**
  *       - `region` (선택): 지역 필터. 소문자로 입력 (예: seoul, gyeonggi)
  *       - `service` (선택): 서비스 필터 (SMALL_MOVING, HOME_MOVING, OFFICE_MOVING)
  *       - `sort` (선택): 정렬 기준 (review, rating, career, confirmed-estimate)
+ *       - `search` (선택): 기사님 이름 검색. 이름에 포함된 문자열로 검색합니다.
  *       - `cursor` (선택): 다음 페이지 조회를 위한 커서 값. 이전 응답의 `pagination.nextCursor` 값을 사용합니다.
  *       - `limit` (선택): 조회할 항목 수. 기본값은 15입니다.
  *
@@ -236,7 +248,9 @@
  *       - 서울 지역 필터: `GET /api/drivers?region=seoul&limit=15`
  *       - 가정 이사 서비스 필터: `GET /api/drivers?service=HOME_MOVING&limit=15`
  *       - 평균 평점 정렬: `GET /api/drivers?sort=rating&limit=15`
+ *       - 이름 검색: `GET /api/drivers?search=홍길동&limit=15`
  *       - 복합 필터 및 정렬: `GET /api/drivers?region=seoul&service=HOME_MOVING&sort=rating&limit=15`
+ *       - 검색과 필터 조합: `GET /api/drivers?region=seoul&search=홍길동&limit=15`
  *       - 다음 페이지: `GET /api/drivers?cursor=123e4567-e89b-12d3-a456-426614174000&limit=15`
  *
  *       **참고사항:**
@@ -250,6 +264,7 @@
  *       - $ref: '#/components/parameters/regionQuery'
  *       - $ref: '#/components/parameters/serviceQuery'
  *       - $ref: '#/components/parameters/sortQuery'
+ *       - $ref: '#/components/parameters/searchQuery'
  *       - $ref: '#/components/parameters/cursorQuery'
  *       - $ref: '#/components/parameters/limitQuery'
  *     responses:
