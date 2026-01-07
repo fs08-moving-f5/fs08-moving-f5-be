@@ -1,3 +1,6 @@
-// 예시 파일입니다. 자유롭게 사용하세요.
 import router from './auth.routes';
+import { configurePassport } from './strategies/passport';
+
+configurePassport();
+
 export default router;

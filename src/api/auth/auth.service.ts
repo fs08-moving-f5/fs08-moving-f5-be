@@ -2,6 +2,8 @@ import {
   findUserByEmailRepository,
   findUserByIdRepository,
   createUserRepository,
+  findUserByProviderIdRepository,
+  updateUserRepository,
   updateRefreshTokenRepository,
 } from './auth.repository';
 import {
@@ -15,6 +17,7 @@ import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 
 import type { User, UserType } from '@/generated/client';
+import type { OAuthProfile, OAuthUserType } from './strategies/passport';
 
 // User를 UserResponse로 변환하는 헬퍼 함수
 const toUserResponse = (user: User & { userProfile?: any; driverProfile?: any }): UserResponse => {
@@ -33,6 +36,59 @@ const toUserResponse = (user: User & { userProfile?: any; driverProfile?: any })
         : user.type === 'DRIVER'
           ? !!user.driverProfile
           : false,
+  };
+};
+
+export const oauthLoginService = async (data: {
+  profile: OAuthProfile;
+  type: OAuthUserType;
+}): Promise<LoginResponse> => {
+  const { profile, type } = data;
+
+  if (!profile.providerId) {
+    throw new AppError('소셜 로그인 정보가 올바르지 않습니다', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  let user = await findUserByProviderIdRepository(profile.providerId, profile.provider);
+
+  if (!user && profile.email) {
+    const emailUser = await findUserByEmailRepository(profile.email);
+
+    if (emailUser) {
+      user = await updateUserRepository(emailUser.id, {
+        provider: profile.provider,
+        providerId: profile.providerId,
+      });
+    }
+  }
+
+  if (!user) {
+    if (!profile.email) {
+      throw new AppError(
+        '소셜 계정에서 이메일 정보를 가져올 수 없습니다. 이메일 제공에 동의했는지 확인해주세요.',
+        HTTP_STATUS.BAD_REQUEST,
+      );
+    }
+
+    user = await createUserRepository({
+      email: profile.email,
+      password: undefined,
+      name: profile.name ?? '사용자',
+      phone: null,
+      type: type as UserType,
+      provider: profile.provider,
+      providerId: profile.providerId,
+    });
+  }
+
+  const fullUser = (await findUserByIdRepository(user.id)) ?? user;
+
+  const tokens = generateTokens(fullUser.id, fullUser.email, fullUser.type);
+  await updateRefreshTokenRepository(fullUser.id, tokens.refreshToken);
+
+  return {
+    user: toUserResponse(fullUser as any),
+    tokens,
   };
 };
 

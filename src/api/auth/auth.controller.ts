@@ -1,9 +1,14 @@
 import { signupService, loginService, logoutService, refreshTokenService } from './auth.service';
+import { oauthLoginService } from './auth.service';
 import { signupSchema, loginSchema } from './validators/auth.validators';
 import AppError from '@/utils/AppError';
 import asyncHandler from '@/middlewares/asyncHandler';
 import HTTP_STATUS from '@/constants/http.constant';
 import { getRefreshTokenCookieOptions, getClearCookieOptions } from '@/utils/cookieOptions';
+import passport from 'passport';
+import { env } from '@/config/env';
+import type { OAuthProfile, OAuthProvider, OAuthUserType } from './strategies/passport';
+import { decodeOAuthState, encodeOAuthState } from './utils/oauth.utils';
 
 import type { Request, Response } from 'express';
 
@@ -97,4 +102,67 @@ export const getMeController = asyncHandler(async (req: Request, res: Response) 
     success: true,
     data: req.user,
   });
+});
+
+const getPassportOptions = (provider: OAuthProvider, state: string) => {
+  if (provider === 'google') {
+    return { scope: ['profile', 'email'], state };
+  }
+  if (provider === 'kakao') {
+    return { scope: ['account_email', 'profile_nickname'], state };
+  }
+
+  return { scope: ['email'], state };
+};
+
+export const oauthStartController = asyncHandler(async (req: Request, res: Response) => {
+  const provider = req.params.provider as OAuthProvider;
+  const type = (req.query.type as OAuthUserType) ?? 'USER';
+
+  if (provider !== 'google' && provider !== 'kakao' && provider !== 'naver') {
+    throw new AppError('지원하지 않는 소셜 로그인 제공자입니다', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  if (type !== 'USER' && type !== 'DRIVER') {
+    throw new AppError('유저 타입이 올바르지 않습니다', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const state = encodeOAuthState({ type });
+  const options = getPassportOptions(provider, state);
+
+  return passport.authenticate(provider, options)(req, res);
+});
+
+export const oauthCallbackController = asyncHandler(async (req: Request, res: Response) => {
+  const provider = req.params.provider as OAuthProvider;
+
+  if (provider !== 'google' && provider !== 'kakao' && provider !== 'naver') {
+    throw new AppError('지원하지 않는 소셜 로그인 제공자입니다', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const stateData = decodeOAuthState(req.query.state);
+  const type = stateData?.type ?? 'USER';
+
+  return passport.authenticate(
+    provider,
+    { session: false },
+    async (err: unknown, profile: OAuthProfile | undefined) => {
+      if (err) {
+        throw new AppError('소셜 로그인에 실패했습니다', HTTP_STATUS.UNAUTHORIZED);
+      }
+
+      if (!profile) {
+        throw new AppError('소셜 로그인 정보가 없습니다', HTTP_STATUS.UNAUTHORIZED);
+      }
+
+      const result = await oauthLoginService({ profile, type });
+
+      res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
+
+      const redirectUrl = new URL('/oauth/callback', env.CORS_ORIGIN);
+      redirectUrl.searchParams.set('accessToken', result.tokens.accessToken);
+
+      res.redirect(redirectUrl.toString());
+    },
+  )(req, res);
 });
