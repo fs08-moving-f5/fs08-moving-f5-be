@@ -20,7 +20,7 @@ export interface UserResponse {
   id: string;
   email: string;
   name: string;
-  phone: string;
+  phone: string | null;
   type: UserType;
   provider: string;
   createdAt: Date;
