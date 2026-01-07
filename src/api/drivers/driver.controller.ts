@@ -4,7 +4,7 @@ import HTTP_STATUS from '@/constants/http.constant';
 import { isRegionKey } from './types';
 
 export const getDriversController = async (req: Request, res: Response) => {
-  const { region, service, sort, cursor, limit } = req.query;
+  const { region, service, sort, cursor, limit, search } = req.query;
   const userId = req.user?.id;
 
   const regionValue = region ? String(region) : undefined;
@@ -17,6 +17,7 @@ export const getDriversController = async (req: Request, res: Response) => {
     sort: sort ? String(sort) : undefined,
     cursor: cursor ? String(cursor) : undefined,
     limit: limit ? Number(limit) : undefined,
+    search: search ? String(search) : undefined,
   });
 
   res.status(HTTP_STATUS.OK).json({

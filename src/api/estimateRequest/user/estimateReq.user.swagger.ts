@@ -222,7 +222,7 @@
  *   post:
  *     summary: 지정 견적 요청 (유저)
  *     tags: [EstimateReq]
- *     description:
+ *     description: |
  *       유저가 특정 기사에게 지정 견적 요청을 생성합니다.
  *       - designatedDriverId: 지정할 기사(User) id
  *     security:
