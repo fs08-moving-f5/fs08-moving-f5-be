@@ -20,7 +20,7 @@ export const getReviewWritten = asyncHandler(async (req: Request, res: Response)
   res.status(HTTP_STATUS.OK).json({ success: true, data: reviews });
 });
 
-// 작성 가능한 리뷰 목록 조회 (일반 유저)
+// 리뷰 작성 가능한 견적 목록 조회 (일반 유저)
 export const getReviewWritable = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user.id;
 

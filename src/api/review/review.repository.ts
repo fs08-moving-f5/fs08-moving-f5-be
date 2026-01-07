@@ -29,7 +29,7 @@ export async function getReviewWrittenRepository({
   switch (sort) {
     case 'latest':
     default:
-      orderBy = { createdAt: 'desc' };
+      orderBy = { updatedAt: 'desc' };
       break;
   }
 
@@ -39,7 +39,7 @@ export async function getReviewWrittenRepository({
       id: true,
       rating: true,
       content: true,
-      createdAt: true,
+      updatedAt: true,
       estimate: {
         select: {
           driver: {
@@ -76,7 +76,7 @@ export async function getReviewWrittenRepository({
   return { reviews, total };
 }
 
-// 작성 가능한 리뷰 목록 조회 (일반 유저)
+// 리뷰 작성 가능한 견적 목록 조회 (일반 유저)
 export async function getReviewWritableRepository({
   userId,
   sort = 'latest',
@@ -96,7 +96,10 @@ export async function getReviewWritableRepository({
       isDelete: false,
     },
     status: EstimateStatus.CONFIRMED,
-    review: null,
+    review: {
+      rating: null,
+      content: null,
+    },
     isDelete: false,
   };
 
@@ -146,7 +149,7 @@ export async function getReviewWritableRepository({
   return { estimates, total };
 }
 
-// 리뷰 존재 여부 조회
+// 리뷰 테이블 존재 여부 조회
 export async function findReviewForWriteRepository({
   estimateId,
   userId,
