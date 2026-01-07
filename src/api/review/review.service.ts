@@ -103,12 +103,6 @@ export async function createReviewService(params: CreateReviewParams) {
       tx,
     });
 
-    await repo.createReviewHistoryRepository({
-      userId,
-      entityId: review.id,
-      tx,
-    });
-
     await createNotificationAndPushUnreadService({
       userId: review.estimate.driverId,
       type: NotificationType.NEW_REVIEW,
