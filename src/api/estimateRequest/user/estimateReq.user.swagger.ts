@@ -69,7 +69,7 @@
  *   post:
  *     summary: 견적 요청 (유저)
  *     tags: [EstimateReq]
- *     description:
+ *     description: |
  *       유저가 새로운 견적 요청을 생성합니다.
  *       - from, to는 카카오 우편번호 API의 Address 타입 마이너 버전입니다.
  *     security:

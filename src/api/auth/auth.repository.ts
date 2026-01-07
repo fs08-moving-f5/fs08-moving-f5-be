@@ -42,7 +42,7 @@ export const createUserRepository = async (data: {
   email: string;
   password?: string;
   name: string;
-  phone: string;
+  phone: string | null;
   type: UserType;
   provider?: string;
   providerId?: string;
