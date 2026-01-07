@@ -41,8 +41,13 @@ app.use(errorHandler);
 // 6. 서버 실행
 const port = env.PORT || 4000;
 
-app.listen(port, () => {
-  logger.info(`Server listening on http://localhost:${port}`);
-});
+try {
+  app.listen(port, () => {
+    logger.info(`Server listening on http://localhost:${port}`);
+  });
+} catch (error) {
+  logger.error('Failed to start server:', error);
+  process.exit(1);
+}
 
 export default app;
