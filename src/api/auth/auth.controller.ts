@@ -105,8 +105,7 @@ export const getMeController = asyncHandler(async (req: Request, res: Response) 
 
   const user = req.user;
   const hasProfile = Boolean(
-    (user.type === 'USER' && user.userProfile) ||
-    (user.type === 'DRIVER' && user.driverProfile)
+    (user.type === 'USER' && user.userProfile) || (user.type === 'DRIVER' && user.driverProfile),
   );
 
   res.json({
