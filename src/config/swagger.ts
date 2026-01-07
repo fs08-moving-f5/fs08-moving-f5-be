@@ -17,4 +17,13 @@ const options = {
   apis: ['./src/api/**/*.routes.ts', './src/api/**/*.docs.ts', './src/api/**/*.swagger.ts'],
 };
 
-export const swaggerSpec = swaggerJSDoc(options);
+let swaggerSpec: any;
+
+try {
+  swaggerSpec = swaggerJSDoc(options);
+} catch (error) {
+  console.error('❌ Failed to generate Swagger spec:', error);
+  throw error;
+}
+
+export { swaggerSpec };
