@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS "DriverStatusView";
+
 CREATE OR REPLACE VIEW "DriverStatusView" AS
 SELECT
   u.id AS "driverId",
