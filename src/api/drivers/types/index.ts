@@ -33,6 +33,7 @@ export interface GetDriversServiceParams {
   sort?: string;
   cursor?: string;
   limit?: number;
+  search?: string;
 }
 
 export interface GetDriverStatusesRepositoryParams {
