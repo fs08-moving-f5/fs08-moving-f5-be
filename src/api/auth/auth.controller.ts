@@ -137,19 +137,19 @@ const getPassportOptions = (provider: OAuthProvider, state: string) => {
 
 export const oauthStartController = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-  const provider = req.params.provider as OAuthProvider;
-  const type = (req.query.type as OAuthUserType) ?? 'USER';
+    const provider = req.params.provider as OAuthProvider;
+    const type = (req.query.type as OAuthUserType) ?? 'USER';
 
-  if (provider !== 'google' && provider !== 'kakao' && provider !== 'naver') {
-    throw new AppError('지원하지 않는 소셜 로그인 제공자입니다', HTTP_STATUS.BAD_REQUEST);
-  }
+    if (provider !== 'google' && provider !== 'kakao' && provider !== 'naver') {
+      throw new AppError('지원하지 않는 소셜 로그인 제공자입니다', HTTP_STATUS.BAD_REQUEST);
+    }
 
-  if (type !== 'USER' && type !== 'DRIVER') {
-    throw new AppError('유저 타입이 올바르지 않습니다', HTTP_STATUS.BAD_REQUEST);
-  }
+    if (type !== 'USER' && type !== 'DRIVER') {
+      throw new AppError('유저 타입이 올바르지 않습니다', HTTP_STATUS.BAD_REQUEST);
+    }
 
-  const state = encodeOAuthState({ type });
-  const options = getPassportOptions(provider, state);
+    const state = encodeOAuthState({ type });
+    const options = getPassportOptions(provider, state);
 
     return passport.authenticate(provider, options)(req, res, next);
   },
@@ -157,40 +157,40 @@ export const oauthStartController = asyncHandler(
 
 export const oauthCallbackController = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-  const provider = req.params.provider as OAuthProvider;
+    const provider = req.params.provider as OAuthProvider;
 
-  if (provider !== 'google' && provider !== 'kakao' && provider !== 'naver') {
-    throw new AppError('지원하지 않는 소셜 로그인 제공자입니다', HTTP_STATUS.BAD_REQUEST);
-  }
+    if (provider !== 'google' && provider !== 'kakao' && provider !== 'naver') {
+      throw new AppError('지원하지 않는 소셜 로그인 제공자입니다', HTTP_STATUS.BAD_REQUEST);
+    }
 
-  const stateData = decodeOAuthState(req.query.state);
-  const type = stateData?.type ?? 'USER';
+    const stateData = decodeOAuthState(req.query.state);
+    const type = stateData?.type ?? 'USER';
 
-  return passport.authenticate(
-    provider,
-    { session: false },
-    async (err: unknown, profile: OAuthProfile | undefined) => {
-      if (err) {
-        return next(new AppError('소셜 로그인에 실패했습니다', HTTP_STATUS.UNAUTHORIZED));
-      }
+    return passport.authenticate(
+      provider,
+      { session: false },
+      async (err: unknown, profile: OAuthProfile | undefined) => {
+        if (err) {
+          return next(new AppError('소셜 로그인에 실패했습니다', HTTP_STATUS.UNAUTHORIZED));
+        }
 
-      if (!profile) {
-        return next(new AppError('소셜 로그인 정보가 없습니다', HTTP_STATUS.UNAUTHORIZED));
-      }
+        if (!profile) {
+          return next(new AppError('소셜 로그인 정보가 없습니다', HTTP_STATUS.UNAUTHORIZED));
+        }
 
-      try {
-        const result = await oauthLoginService({ profile, type });
+        try {
+          const result = await oauthLoginService({ profile, type });
 
-        res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
+          res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
 
-        const redirectUrl = new URL('/oauth/callback', env.CORS_ORIGIN);
-        redirectUrl.searchParams.set('accessToken', result.tokens.accessToken);
+          const redirectUrl = new URL('/oauth/callback', env.CORS_ORIGIN);
+          redirectUrl.searchParams.set('accessToken', result.tokens.accessToken);
 
-        return res.redirect(redirectUrl.toString());
-      } catch (serviceError) {
-        return next(serviceError);
-      }
-    },
-  )(req, res, next);
+          return res.redirect(redirectUrl.toString());
+        } catch (serviceError) {
+          return next(serviceError);
+        }
+      },
+    )(req, res, next);
   },
 );
