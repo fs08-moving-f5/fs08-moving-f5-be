@@ -5,8 +5,25 @@ import { z } from 'zod';
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().optional(),
-  // Frontend URL (and CORS origin). Example: http://localhost:3000
-  CORS_ORIGIN: z.string().url().default('http://localhost:3000'),
+  // Frontend URL (and CORS origin). Example: http://localhost:3000 or http://localhost:3000,https://example.com
+  CORS_ORIGIN: z
+    .string()
+    .default('http://localhost:3000')
+    .refine(
+      (val) => {
+        if (val === '*') return true;
+        const origins = val.split(',').map((o) => o.trim());
+        return origins.every((origin) => {
+          try {
+            new URL(origin);
+            return true;
+          } catch {
+            return false;
+          }
+        });
+      },
+      { message: 'CORS_ORIGIN must be a valid URL or comma-separated URLs' },
+    ),
 
   // Backend base URL
   SERVER_URL: z.string().url().default('http://localhost:4000'),
@@ -37,4 +54,15 @@ const schema = z.object({
   // S3_BUCKET: z.string().min(1, 'S3_BUCKET is required').optional(),
 });
 
-export const env = schema.parse(process.env);
+const parseResult = schema.safeParse(process.env);
+
+if (!parseResult.success) {
+  console.error('❌ Environment variable validation failed:');
+  parseResult.error.issues.forEach((issue) => {
+    const path = issue.path.join('.') || 'root';
+    console.error(`  - ${path}: ${issue.message}`);
+  });
+  process.exit(1);
+}
+
+export const env = parseResult.data;
