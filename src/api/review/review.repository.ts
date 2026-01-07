@@ -1,7 +1,7 @@
-import prisma from '../../config/prisma';
-import { Prisma } from '../../generated/client';
-import { EstimateStatus } from '../../generated/enums';
-import { GetReviewParams } from '../../types/review';
+import prisma from '@/config/prisma';
+import { Prisma } from '@/generated/client';
+import { EstimateStatus } from '@/generated/enums';
+import { GetReviewParams } from '@/types/review';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
 export async function getReviewWrittenRepository({

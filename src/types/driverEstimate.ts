@@ -5,7 +5,7 @@ export type EstimateSort = 'latest' | 'oldest' | 'moving-latest' | 'moving-oldes
 
 export interface GetEstimateRequestsParams {
   driverId: string;
-  movingType?: ServiceEnum;
+  movingTypes?: ServiceEnum[];
   movingDate?: Date;
   isDesignated?: boolean;
   status?: EstimateStatus;
@@ -13,7 +13,7 @@ export interface GetEstimateRequestsParams {
 
   search?: string;
   sort?: EstimateSort;
-  cursor?: string | null;
+  cursor?: string;
   take?: number | string;
 }
 

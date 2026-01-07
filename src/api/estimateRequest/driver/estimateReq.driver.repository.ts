@@ -13,7 +13,7 @@ const DEFAULT_TAKE = 6;
 // 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsRepository({
   driverId,
-  movingType,
+  movingTypes,
   isDesignated = false,
   serviceRegionFilter,
   search,
@@ -35,9 +35,19 @@ export async function getEstimateRequestsRepository({
 
   const where: Prisma.EstimateRequestWhereInput = {
     isDelete: false,
-    isDesignated: false,
     status: EstimateStatus.PENDING,
-    ...(movingType && { movingType }),
+    ...(isDesignated
+      ? {
+          isDesignated: true,
+          designatedDriverId: driverId,
+        }
+      : {
+          isDesignated: false,
+        }),
+    ...(movingTypes &&
+      movingTypes.length > 0 && {
+        movingType: { in: movingTypes },
+      }),
     ...(search && {
       user: {
         name: {
@@ -50,7 +60,7 @@ export async function getEstimateRequestsRepository({
       addresses: {
         some: {
           sido: {
-            in: driverProfile.regions, // 핵심: Address.sido ∈ DriverProfile.regions
+            in: driverProfile.regions,
           },
         },
       },
