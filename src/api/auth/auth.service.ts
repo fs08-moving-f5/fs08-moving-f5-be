@@ -179,6 +179,24 @@ export const logoutService = async (userId: string, refreshToken: string): Promi
   await updateRefreshTokenRepository(userId, null);
 };
 
+// 로그아웃 (리프레시 토큰만으로 처리 - 토큰/쿠키가 이미 지워진 경우에도 안전하게 동작)
+export const logoutByRefreshTokenService = async (refreshToken: string): Promise<void> => {
+  try {
+    const payload = verifyRefreshToken(refreshToken);
+
+    const user = await findUserByIdRepository(payload.userId);
+    if (!user) return;
+
+    // 저장된 리프레시 토큰과 일치할 때만 무효화
+    if (user.refreshTokens !== refreshToken) return;
+
+    await updateRefreshTokenRepository(user.id, null);
+  } catch {
+    // 이미 만료/변조/형식 오류 등: 클라이언트 쿠키 삭제만으로 로그아웃은 완료로 간주
+    return;
+  }
+};
+
 // 토큰 갱신
 export const refreshTokenService = async (refreshToken: string): Promise<TokenResponse> => {
   try {

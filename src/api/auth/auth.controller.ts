@@ -1,4 +1,10 @@
-import { signupService, loginService, logoutService, refreshTokenService } from './auth.service';
+import {
+  signupService,
+  loginService,
+  logoutService,
+  logoutByRefreshTokenService,
+  refreshTokenService,
+} from './auth.service';
 import { oauthLoginService } from './auth.service';
 import { signupSchema, loginSchema } from './validators/auth.validators';
 import AppError from '@/utils/AppError';
@@ -50,24 +56,23 @@ export const loginController = asyncHandler(async (req: Request, res: Response) 
 
 // 로그아웃
 export const logoutController = asyncHandler(async (req: Request, res: Response) => {
-  if (!req.user) {
-    throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
-  }
-
   const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) {
-    throw new AppError('리프레시 토큰이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
-  }
 
-  await logoutService(req.user.id, refreshToken);
+  // 인증/쿠키가 없거나 이미 로그아웃된 상태여도 성공 처리(idempotent)
+  if (req.user?.id && refreshToken) {
+    try {
+      await logoutService(req.user.id, refreshToken);
+    } catch {
+      // 중복 호출/토큰 만료 등: 쿠키 삭제로 로그아웃 완료로 간주
+    }
+  } else if (refreshToken) {
+    await logoutByRefreshTokenService(refreshToken);
+  }
 
   // 쿠키 삭제
   res.clearCookie('refreshToken', getClearCookieOptions());
 
-  res.json({
-    success: true,
-    message: '로그아웃되었습니다',
-  });
+  res.status(HTTP_STATUS.NO_CONTENT).send();
 });
 
 // 토큰 갱신
@@ -98,9 +103,25 @@ export const getMeController = asyncHandler(async (req: Request, res: Response) 
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
 
+  const user = req.user;
+  const hasProfile = Boolean(
+    (user.type === 'USER' && user.userProfile) ||
+    (user.type === 'DRIVER' && user.driverProfile)
+  );
+
   res.json({
     success: true,
-    data: req.user,
+    data: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      type: user.type,
+      provider: user.provider,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      hasProfile: hasProfile,
+    },
   });
 });
 

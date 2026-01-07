@@ -298,23 +298,11 @@
  * /api/auth/refresh:
  *   post:
  *     summary: 토큰 갱신
- *     description: 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 발급받습니다.
+ *     description: 로그아웃합니다. 리프레시 토큰을 무효화(가능한 경우)하고 쿠키를 삭제합니다. 이미 로그아웃된 상태여도 성공(멱등) 처리합니다.
  *     tags: [Auth]
- *     requestBody:
- *       content:
  *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/RefreshTokenRequest'
- *     responses:
- *       200:
- *         description: 토큰 갱신 성공
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/TokenResponse'
- *         headers:
- *           Set-Cookie:
- *             schema:
+ *       204:
+ *         description: 로그아웃 성공
  *               type: string
  *               example: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict
  *       401:
