@@ -16,12 +16,6 @@ CREATE TYPE "AddressType" AS ENUM ('FROM', 'TO');
 -- CreateEnum
 CREATE TYPE "NotificationType" AS ENUM ('REQUEST_SENT', 'REQUEST_REJECTED', 'REQUEST_CANCELLED', 'ESTIMATE_RECEIVED', 'ESTIMATE_CONFIRMED', 'ESTIMATE_REJECTED', 'ESTIMATE_EXPIRED', 'NEW_REVIEW', 'FAVORITE_ADDED', 'SYSTEM_NOTICE', 'PROMOTION');
 
--- CreateEnum
-CREATE TYPE "HistoryActionType" AS ENUM ('CREATE_REQUEST', 'UPDATE_REQUEST', 'DELETE_REQUEST', 'CONFIRMED_ESTIMATE', 'REJECTED_ESTIMATE', 'CREATE_ESTIMATE', 'UPDATE_ESTIMATE', 'DELETE_ESTIMATE', 'EXPIRED_ESTIMATE', 'CREATE_FAVORITE', 'DELETE_FAVORITE', 'CREATE_REVIEW', 'UPDATE_REVIEW', 'DELETE_REVIEW', 'UPDATE_PROFILE', 'UPDATE_ADDRESS');
-
--- CreateEnum
-CREATE TYPE "HistoryEntityType" AS ENUM ('USER', 'USER_PROFILE', 'DRIVER_PROFILE', 'ESTIMATE_REQUEST', 'ESTIMATE_RESPONSE', 'ADDRESS', 'REVIEW', 'FAVORITE_DRIVER', 'NOTIFICATION', 'HISTORY');
-
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -162,9 +156,9 @@ CREATE TABLE "Notification" (
 CREATE TABLE "History" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "actionType" "HistoryActionType" NOT NULL,
+    "actionType" TEXT,
     "actionDesc" TEXT,
-    "entityType" "HistoryEntityType",
+    "entityType" TEXT,
     "entityId" TEXT,
     "previousData" JSONB,
     "newData" JSONB,
@@ -172,47 +166,6 @@ CREATE TABLE "History" (
 
     CONSTRAINT "History_pkey" PRIMARY KEY ("id")
 );
-
--- CreateView
-DROP TABLE IF EXISTS "DriverStatusView";
-
-CREATE OR REPLACE VIEW "DriverStatusView" AS
-SELECT
-  u.id AS "driverId",
-  dp.career AS career,
-  COALESCE(r.review_count, 0) AS review_count,
-  COALESCE(r.average_rating, 0) AS average_rating,
-  COALESCE(e.confirmed_estimate_count, 0) AS confirmed_estimate_count, 
-  COALESCE(f.favorite_driver_count, 0) AS favorite_driver_count
-FROM "User" u
-LEFT JOIN "DriverProfile" dp
-  ON dp."driverId" = u.id
-LEFT JOIN (
-  SELECT
-    e."driverId",
-    COUNT(*) AS review_count,
-    ROUND(AVG(r.rating), 1) AS average_rating
-  FROM "Review" r
-  JOIN "Estimate" e ON e.id = r."estimateId"
-  GROUP BY e."driverId"
-) r ON r."driverId" = u.id
-LEFT JOIN (
-  SELECT
-    "driverId",
-    COUNT(*) AS confirmed_estimate_count
-  FROM "Estimate"
-  WHERE "status" = 'CONFIRMED'
-    AND "isDelete" = false
-  GROUP BY "driverId"
-) e ON e."driverId" = u.id
-LEFT JOIN (
-  SELECT
-    "driverId", COUNT(*) AS favorite_driver_count
-  FROM "FavoriteDriver"
-  GROUP BY "driverId"
-) f ON f."driverId" = u.id
-WHERE u."type" = 'DRIVER'
-  AND u."isDelete" = false;
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");

@@ -35,7 +35,6 @@ model User {
   estimateRequest            EstimateRequest[]
   estimates                  Estimate[]
   notifications              Notification[]
-  histories                  History[]
   favoriteDrivers            FavoriteDriver[]  @relation("DriverFavorites")
   favoritedBy                FavoriteDriver[]  @relation("UserFavorites")
   reviews                    Review[]
@@ -122,6 +121,11 @@ model EstimateRequest {
 
   estimate  Estimate[]
   addresses Address[]
+
+  @@index([status, isDelete, movingType, createdAt]) // 무한 스크롤 + 필터(상태, 삭제 여부, 서비스 유형, 생성일일)
+  @@index([status, isDelete, movingDate]) // 정렬용(이사 빠른/느린순순)
+  @@index([createdAt, id]) // cursor 안정성 보강
+  @@index([userId, isDelete, createdAt]) //userId 기준 조회(마이페이지 / 히스토리용)
 }
 
 enum EstimateStatus {
@@ -151,6 +155,7 @@ model Estimate {
   review Review?
 
   @@unique([estimateRequestId, driverId])
+  @@index([driverId, isDelete, createdAt]) // 기사 기준 조회
 }
 
 model Address {
@@ -170,7 +175,9 @@ model Address {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([estimateRequestId, addressType])
+  @@unique([estimateRequestId, addressType]) //form, to 구분 활용
+  @@index([sido]) // 지역 필터(풀스캔 방지)
+  @@index([estimateRequestId]) //JOIN 최적화
 }
 
 enum AddressType {
@@ -190,6 +197,8 @@ model Review {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
 }
 
 model FavoriteDriver {
@@ -219,6 +228,8 @@ model Notification {
   isDelete  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId, isRead, isDelete, createdAt]) // 알림 목록, 안 읽은 수 최신순 정렬
 }
 
 enum NotificationType {
@@ -239,59 +250,22 @@ enum NotificationType {
 }
 
 model History {
-  id     String @id @default(uuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id String @id @default(uuid())
 
-  actionType HistoryActionType
+  actionType String?
   actionDesc String?
 
-  entityType HistoryEntityType?
+  entityType String?
   entityId   String?
 
   previousData Json?
   newData      Json?
 
   createdAt DateTime @default(now())
-}
 
-enum HistoryActionType {
-  CREATE_REQUEST // 견적 요청 생성(일반 유저)
-  UPDATE_REQUEST // 견적 요청 수정(일반 유저)
-  DELETE_REQUEST // 견적 요청 삭제(일반 유저)
-
-  CONFIRMED_ESTIMATE // 견적 확정(일반 유저)
-  REJECTED_ESTIMATE // 견적 거절(일반 유저)
-
-  CREATE_ESTIMATE // 견적서 생성(기사)
-  UPDATE_ESTIMATE // 견적서 수정(기사)
-  DELETE_ESTIMATE // 견적서 삭제(기사)
-
-  EXPIRED_ESTIMATE // 견적서 만료(시스템)
-
-  CREATE_FAVORITE // 찜하기
-  DELETE_FAVORITE // 찜하기 취소
-
-  CREATE_REVIEW // 리뷰 작성
-  UPDATE_REVIEW // 리뷰 수정
-  DELETE_REVIEW // 리뷰 삭제
-
-  UPDATE_PROFILE // 프로필 수정
-
-  UPDATE_ADDRESS //  주소 수정
-}
-
-enum HistoryEntityType {
-  USER
-  USER_PROFILE
-  DRIVER_PROFILE
-  ESTIMATE_REQUEST
-  ESTIMATE_RESPONSE
-  ADDRESS
-  REVIEW
-  FAVORITE_DRIVER
-  NOTIFICATION
-  HISTORY
+  @@index([createdAt]) // 감사 로그 최신순 정렬
+  @@index([entityType, entityId, createdAt]) // 대상 엔티티 기준
+  @@index([actionType, createdAt]) // 이벤트 기준
 }
 
 model DriverStatusView {

@@ -1,6 +1,6 @@
 import prisma from '@/config/prisma';
 import { Prisma } from '@/generated/client';
-import { EstimateStatus, HistoryActionType, HistoryEntityType } from '@/generated/enums';
+import { EstimateStatus } from '@/generated/enums';
 import {
   GetEstimateRequestsParams,
   CreateEstimateParams,
@@ -13,7 +13,7 @@ const DEFAULT_TAKE = 6;
 // 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsRepository({
   driverId,
-  movingType,
+  movingTypes,
   isDesignated = false,
   serviceRegionFilter,
   search,
@@ -35,9 +35,19 @@ export async function getEstimateRequestsRepository({
 
   const where: Prisma.EstimateRequestWhereInput = {
     isDelete: false,
-    isDesignated: false,
     status: EstimateStatus.PENDING,
-    ...(movingType && { movingType }),
+    ...(isDesignated
+      ? {
+          isDesignated: true,
+          designatedDriverId: driverId,
+        }
+      : {
+          isDesignated: false,
+        }),
+    ...(movingTypes &&
+      movingTypes.length > 0 && {
+        movingType: { in: movingTypes },
+      }),
     ...(search && {
       user: {
         name: {
@@ -50,7 +60,7 @@ export async function getEstimateRequestsRepository({
       addresses: {
         some: {
           sido: {
-            in: driverProfile.regions, // 핵심: Address.sido ∈ DriverProfile.regions
+            in: driverProfile.regions,
           },
         },
       },
@@ -177,27 +187,6 @@ export const createReviewRepository = async ({
       userId,
       rating: null,
       content: null,
-    },
-  });
-};
-
-// 히스토리 생성
-export const createHistoryRepository = async ({
-  userId,
-  entityId,
-  tx,
-}: {
-  userId: string;
-  entityId: string;
-  actionType: string;
-  tx?: Prisma.TransactionClient;
-}) => {
-  return await (tx ?? prisma).history.create({
-    data: {
-      userId,
-      entityType: HistoryEntityType.ESTIMATE_RESPONSE,
-      entityId,
-      actionType: HistoryActionType.CREATE_ESTIMATE,
     },
   });
 };

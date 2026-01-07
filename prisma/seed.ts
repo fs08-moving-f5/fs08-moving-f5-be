@@ -7,8 +7,6 @@ import type {
   ServiceEnum,
   EstimateStatus,
   NotificationType,
-  HistoryActionType,
-  HistoryEntityType,
 } from '../src/generated/enums';
 
 // 유틸리티 함수들
@@ -368,8 +366,8 @@ const userImageUrls = [
 ];
 
 const driverImageUrls = [
-  'https://i.namu.wiki/i/8kUtA4Ww_VmtkhXXxEHGPBhcxlhLq5dPSDr2WP7uAgsvE9vOy2pycKqkX1f3YVMiTe_pQSP7ARNOj6w1H96qc0hTYKdBXLg-cicsVI1SZJmJIrVL1Bp55QLX27g9NAFtwKbgwHOHuGusCyIkUOLf5w.webp',
-  'https://i.namu.wiki/i/vcERs-_SLgMJa618qP1U2iUj7Ipxx8d9mIucAkqNyxL0H3aDBLHOK15yv7Sv3HJj7VpHFtS3-mf5-j4WSSDRop80T9LTK10ngteBUFyD-4jTnpYqVYlTz1y_7uHVGVx7MrPPIA6ifKcV7uASXf8jTA.webp',
+  'https://i.namu.wiki/i/6HSFEPQa76yjt-2R2WSPlFVX6VfUV-oqW1pHlQSJuHht2He7GciDzk-bGDYpPRjubzeudlm7GXw3DMftNwvImY39w3hb9Knj56_l9sj-WLD0dC-MawfFBm_aIb5NPw_96zrpu9OaXgVAy0Y7Fq7mcg.webp',
+  'https://i.namu.wiki/i/xruUvD5zr3Ox0nhPlkY-N0fO1Da9xil6v2E-rruLNHQ4UP2c_V50f2t5dlrnQyB7dTu4cn_0gCTxCqnCGm9aLLFWoxI4-xbWQeJPVJouOl6tEOj0k4VFVp05jFEDHOoMztw38R43TOLc8f-kkS_5Dg.webp',
 ];
 
 // 주소 확장 (더 다양한 주소)
@@ -549,6 +547,21 @@ async function main() {
     isDelete: false,
   });
 
+  // ADMIN 유저 생성 (관리자 기능 테스트용)
+  const adminUserId = uuidv4();
+  users.push({
+    id: adminUserId,
+    providerId: null,
+    provider: 'local',
+    type: 'ADMIN',
+    name: '관리자',
+    email: 'admin@master.com',
+    password: masterPassword,
+    phone: '1000000002',
+    refreshTokens: null,
+    isDelete: false,
+  });
+
   // 기사님 2250명 생성 (30배)
   for (let i = 0; i < 2250; i++) {
     const driverId = uuidv4();
@@ -608,7 +621,7 @@ async function main() {
 
   await prisma.user.createMany({ data: users, skipDuplicates: true });
   console.log(
-    `✅ Created ${users.length} users (${userIds.length} users, ${driverIds.length} drivers)\n`,
+    `✅ Created ${users.length} users (${userIds.length} users, ${driverIds.length} drivers, 1 admin)\n`,
   );
 
   // 생성된 유저 ID 확인 (외래 키 제약 조건 확인용)
@@ -781,14 +794,18 @@ async function main() {
       userLastMovingDateMap.set(masterUserId, masterLastMovingDate);
     }
 
+    const isDesignated = i % 5 === 1; // 일부는 지정 요청
+    const designatedDriverId = isDesignated ? randomItem(driverIds) : null;
+
     estimateRequests.push({
       id: requestId,
       userId: masterUserId,
       movingType: randomItem(services),
       movingDate: masterLastMovingDate,
       status,
-      isDesignated: i % 5 === 1, // 일부는 지정 요청
-      isDelete: false,
+      isDesignated,
+      designatedDriverId,
+      isDelete: i % 20 === 0, // 5%는 삭제된 요청
     });
   }
 
@@ -828,6 +845,7 @@ async function main() {
       else status = 'CANCELLED';
 
       const isDesignated = Math.random() < 0.2;
+      const designatedDriverId = isDesignated ? randomItem(driverIds) : null;
 
       estimateRequests.push({
         id: requestId,
@@ -836,7 +854,8 @@ async function main() {
         movingDate,
         status,
         isDesignated,
-        isDelete: false,
+        designatedDriverId,
+        isDelete: Math.random() < 0.05, // 5%는 삭제된 요청
       });
     }
   }
@@ -872,14 +891,18 @@ async function main() {
       }
     }
 
+    const isDesignated = Math.random() < 0.2;
+    const designatedDriverId = isDesignated ? randomItem(driverIds) : null;
+
     estimateRequests.push({
       id: requestId,
       userId,
       movingType: randomItem(services),
       movingDate,
       status: 'PENDING',
-      isDesignated: Math.random() < 0.2,
-      isDelete: false,
+      isDesignated,
+      designatedDriverId,
+      isDelete: false, // PENDING 요청은 삭제하지 않음
     });
   }
 
@@ -951,9 +974,22 @@ async function main() {
     const estimateCount = randomInt(1, maxEstimates);
     requestEstimateCount.set(requestId, estimateCount);
 
-    // 해당 요청의 서비스 가능한 기사님 선택 (같은 요청 내에서 중복 방지)
-    // 같은 기사는 한 요청에 견적을 1개만 낼 수 있음
-    const selectedDrivers = randomItems(driverIds, Math.min(estimateCount, driverIds.length));
+    // 지정 요청인 경우 지정된 기사님을 포함
+    let selectedDrivers: string[] = [];
+    if (request.isDesignated && request.designatedDriverId) {
+      // 지정된 기사님을 첫 번째로 포함
+      selectedDrivers = [request.designatedDriverId as string];
+      // 나머지 기사님 선택 (지정된 기사님 제외)
+      const otherDrivers = driverIds.filter((id) => id !== request.designatedDriverId);
+      const additionalDrivers = randomItems(
+        otherDrivers,
+        Math.min(estimateCount - 1, otherDrivers.length),
+      );
+      selectedDrivers = [...selectedDrivers, ...additionalDrivers];
+    } else {
+      // 일반 요청: 랜덤 선택
+      selectedDrivers = randomItems(driverIds, Math.min(estimateCount, driverIds.length));
+    }
 
     for (let i = 0; i < estimateCount; i++) {
       const estimateId = uuidv4();
@@ -1012,7 +1048,7 @@ async function main() {
               ])
             : null,
         status,
-        isDelete: false,
+        isDelete: Math.random() < 0.03, // 3%는 삭제된 견적
       });
     }
   }
@@ -1023,12 +1059,16 @@ async function main() {
   // Review 생성 (확정된 견적에 충분한 리뷰 작성 - 다양한 점수 분포)
   console.log('⭐ Creating reviews...');
   const reviews: Prisma.ReviewCreateManyInput[] = [];
+  const reviewedEstimateIds = new Set<string>(); // 리뷰가 작성된 견적 ID 추적 (unique 제약)
 
-  // CONFIRMED 상태인 견적 찾기
-  const confirmedEstimates = estimates.filter((est) => est.status === 'CONFIRMED');
+  // CONFIRMED 상태이고 삭제되지 않은 견적 찾기
+  const confirmedEstimates = estimates.filter((est) => est.status === 'CONFIRMED' && !est.isDelete);
   console.log(`   Found ${confirmedEstimates.length} CONFIRMED estimates`);
 
   for (const estimate of confirmedEstimates) {
+    // 이미 리뷰가 있는 견적은 스킵 (unique 제약)
+    if (reviewedEstimateIds.has(estimate.id!)) continue;
+
     const request = requestMap.get(estimate.estimateRequestId);
     if (!request) continue;
 
@@ -1036,16 +1076,16 @@ async function main() {
     const daysSinceMoving = (now.getTime() - movingDate.getTime()) / (1000 * 60 * 60 * 24);
 
     // 리뷰 작성 조건:
-    // 1. 이사일이 지난 경우 (과거 180일 이내) - 90% 확률로 리뷰 작성
-    // 2. 이사일이 미래인 경우 - 30% 확률로 리뷰 작성 (사전 리뷰)
+    // 1. 이사일이 지난 경우 (과거 180일 이내) - 85% 확률로 리뷰 작성 (일부는 리뷰 없음)
+    // 2. 이사일이 미래인 경우 - 25% 확률로 리뷰 작성 (사전 리뷰)
     // 3. 너무 오래된 경우 (180일 이상) - 20% 확률로 리뷰 작성
     let shouldCreateReview = false;
     if (movingDate <= now && daysSinceMoving <= 180) {
-      // 과거 180일 이내: 90% 확률
-      shouldCreateReview = Math.random() < 0.9;
+      // 과거 180일 이내: 85% 확률 (15%는 리뷰 없음)
+      shouldCreateReview = Math.random() < 0.85;
     } else if (movingDate > now) {
-      // 미래: 30% 확률 (사전 리뷰)
-      shouldCreateReview = Math.random() < 0.3;
+      // 미래: 25% 확률 (사전 리뷰)
+      shouldCreateReview = Math.random() < 0.25;
     } else {
       // 180일 이상 지난 경우: 20% 확률
       shouldCreateReview = Math.random() < 0.2;
@@ -1073,6 +1113,7 @@ async function main() {
           ])
         : randomItem(reviewContents);
 
+    reviewedEstimateIds.add(estimate.id!);
     reviews.push({
       estimateId: estimate.id!,
       userId: request.userId as string,
@@ -1231,135 +1272,72 @@ async function main() {
     }
 
     // 읽음 상태: 최근 알림일수록 읽을 확률 높음 (시간 기반 가중치)
-    const isRead = Math.random() < 0.4; // 40%는 읽음
+    // 최근 알림(7일 이내): 60% 읽음, 오래된 알림: 20% 읽음
+    const daysAgo = randomInt(0, 90);
+    const isRead = daysAgo <= 7 ? Math.random() < 0.6 : Math.random() < 0.2;
+
+    // datajson에 실제 데이터 추가 (타입별로 다른 데이터)
+    let datajson: Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | undefined = undefined;
+    switch (type) {
+      case 'ESTIMATE_RECEIVED':
+        datajson = {
+          estimateRequestId: estimateRequestIds[randomInt(0, estimateRequestIds.length - 1)],
+          driverId: driverIds[randomInt(0, driverIds.length - 1)],
+        };
+        break;
+      case 'ESTIMATE_CONFIRMED':
+        datajson = {
+          estimateRequestId: estimateRequestIds[randomInt(0, estimateRequestIds.length - 1)],
+          estimateId: estimateIds[randomInt(0, estimateIds.length - 1)],
+        };
+        break;
+      case 'NEW_REVIEW':
+        datajson = {
+          reviewId: uuidv4(),
+          rating: randomInt(1, 5),
+        };
+        break;
+      case 'FAVORITE_ADDED':
+        datajson = {
+          driverId: driverIds[randomInt(0, driverIds.length - 1)],
+        };
+        break;
+      case 'REQUEST_SENT':
+        datajson = {
+          estimateRequestId: estimateRequestIds[randomInt(0, estimateRequestIds.length - 1)],
+        };
+        break;
+      case 'SYSTEM_NOTICE':
+        datajson = {
+          noticeId: uuidv4(),
+          title: '시스템 점검 안내',
+        };
+        break;
+      case 'PROMOTION':
+        datajson = {
+          promotionId: uuidv4(),
+          title: '신규 회원 할인 이벤트',
+        };
+        break;
+      default:
+        datajson = Prisma.JsonNull;
+    }
 
     notifications.push({
       userId,
       type,
       message,
-      datajson: Prisma.JsonNull,
+      datajson,
       isRead,
-      isDelete: false,
+      isDelete: Math.random() < 0.05, // 5%는 삭제된 알림
     });
   }
 
   await prisma.notification.createMany({ data: notifications, skipDuplicates: true });
   console.log(`✅ Created ${notifications.length} notifications\n`);
 
-  // History 생성 (7500개 - 30배 규모, 더 다양한 액션 타입 분포)
-  console.log('📜 Creating histories...');
-  const historyActionTypes: HistoryActionType[] = [
-    'CREATE_REQUEST',
-    'UPDATE_REQUEST',
-    'DELETE_REQUEST',
-    'CONFIRMED_ESTIMATE',
-    'REJECTED_ESTIMATE',
-    'CREATE_ESTIMATE',
-    'UPDATE_ESTIMATE',
-    'DELETE_ESTIMATE',
-    'EXPIRED_ESTIMATE',
-    'CREATE_FAVORITE',
-    'DELETE_FAVORITE',
-    'CREATE_REVIEW',
-    'UPDATE_REVIEW',
-    'DELETE_REVIEW',
-    'UPDATE_PROFILE',
-    'UPDATE_ADDRESS',
-  ];
-
-  const historyEntityTypes: HistoryEntityType[] = [
-    'USER',
-    'USER_PROFILE',
-    'DRIVER_PROFILE',
-    'ESTIMATE_REQUEST',
-    'ESTIMATE_RESPONSE',
-    'ADDRESS',
-    'REVIEW',
-    'FAVORITE_DRIVER',
-  ];
-
-  const histories: Prisma.HistoryCreateManyInput[] = [];
-
-  // 액션 타입별 가중치 (더 현실적인 분포)
-  const getWeightedActionType = (): HistoryActionType => {
-    const rand = Math.random();
-    if (rand < 0.25)
-      return 'CREATE_REQUEST'; // 25%
-    else if (rand < 0.4)
-      return 'CREATE_ESTIMATE'; // 15%
-    else if (rand < 0.5)
-      return 'CONFIRMED_ESTIMATE'; // 10%
-    else if (rand < 0.58)
-      return 'CREATE_REVIEW'; // 8%
-    else if (rand < 0.65)
-      return 'CREATE_FAVORITE'; // 7%
-    else if (rand < 0.72)
-      return 'UPDATE_PROFILE'; // 7%
-    else if (rand < 0.78)
-      return 'REJECTED_ESTIMATE'; // 6%
-    else if (rand < 0.83)
-      return 'UPDATE_REQUEST'; // 5%
-    else if (rand < 0.87)
-      return 'UPDATE_ESTIMATE'; // 4%
-    else if (rand < 0.9)
-      return 'UPDATE_REVIEW'; // 3%
-    else if (rand < 0.93)
-      return 'DELETE_FAVORITE'; // 3%
-    else if (rand < 0.96)
-      return 'EXPIRED_ESTIMATE'; // 3%
-    else if (rand < 0.98)
-      return 'DELETE_REQUEST'; // 2%
-    else if (rand < 0.99)
-      return 'DELETE_ESTIMATE'; // 1%
-    else return 'DELETE_REVIEW'; // 1%
-  };
-
-  for (let i = 0; i < 7500; i++) {
-    const actionType = getWeightedActionType();
-    const entityType = randomItem(historyEntityTypes);
-
-    let userId = '';
-    let actionDesc = '';
-
-    // 일반 유저가 수행하는 액션
-    if (
-      actionType === 'CREATE_REQUEST' ||
-      actionType === 'UPDATE_REQUEST' ||
-      actionType === 'DELETE_REQUEST' ||
-      actionType === 'CONFIRMED_ESTIMATE' ||
-      actionType === 'REJECTED_ESTIMATE'
-    ) {
-      userId = randomItem(userIds);
-    }
-    // 기사님이 수행하는 액션
-    else if (
-      actionType === 'CREATE_ESTIMATE' ||
-      actionType === 'UPDATE_ESTIMATE' ||
-      actionType === 'DELETE_ESTIMATE' ||
-      actionType === 'EXPIRED_ESTIMATE'
-    ) {
-      userId = randomItem(driverIds);
-    }
-    // 양쪽 모두 가능한 액션
-    else {
-      userId = Math.random() < 0.5 ? randomItem(userIds) : randomItem(driverIds);
-    }
-
-    actionDesc = `${actionType} 작업이 수행되었습니다.`;
-
-    histories.push({
-      userId,
-      actionType,
-      actionDesc,
-      entityType,
-      entityId: uuidv4(),
-      previousData: Prisma.JsonNull,
-      newData: Prisma.JsonNull,
-    });
-  }
-
-  await prisma.history.createMany({ data: histories, skipDuplicates: true });
-  console.log(`✅ Created ${histories.length} histories\n`);
+  // History 테이블은 비워둠
+  console.log('📜 Skipping history creation (keeping table empty)\n');
 
   console.log('🎉 Seeding finished successfully!');
   console.log('\n📊 Summary:');
@@ -1372,7 +1350,7 @@ async function main() {
   console.log(`   - Reviews: ${reviews.length}`);
   console.log(`   - Favorite Drivers: ${favorites.length}`);
   console.log(`   - Notifications: ${notifications.length}`);
-  console.log(`   - Histories: ${histories.length}`);
+  console.log(`   - Histories: 0 (table kept empty)`);
   console.log('\n🔗 Relationship Rules Applied:');
   console.log('   ✓ Each user can have max 1 PENDING request');
   console.log('   ✓ Each request can have max 8 estimates (general: 5, designated: +3)');
@@ -1381,15 +1359,23 @@ async function main() {
   console.log('   ✓ PENDING requests: mostly PENDING estimates (some REJECTED)');
   console.log('   ✓ REJECTED requests: mostly REJECTED estimates (some PENDING)');
   console.log('   ✓ CANCELLED requests: mostly CANCELLED estimates (some PENDING)');
+  console.log('   ✓ Designated requests include designatedDriverId');
+  console.log('   ✓ Each estimate can have only 1 review (unique constraint)');
   console.log('\n✨ Enhanced test scenarios:');
   console.log('   - Extended date range: -365 to +90 days');
   console.log('   - More diverse estimate statuses and prices');
-  console.log('   - Realistic review rating distribution');
-  console.log('   - Weighted notification and history types');
+  console.log('   - Realistic review rating distribution (85% of confirmed estimates)');
+  console.log('   - Weighted notification types');
   console.log('   - Expanded address pool (60+ locations)');
   console.log('   - User profile images: random from 2 URLs');
   console.log('   - Master user (user@master.com) with 50+ diverse requests');
   console.log('   - Master driver (driver@master.com) for driver feature testing');
+  console.log('   - Admin user (admin@master.com) for admin feature testing');
+  console.log('   - Deleted requests/estimates/notifications (5% each)');
+  console.log('   - Designated requests with actual designatedDriverId');
+  console.log('   - Notification datajson with actual data per type');
+  console.log('   - Some confirmed estimates without reviews (15%)');
+  console.log('   - History table kept empty');
 }
 
 main()
