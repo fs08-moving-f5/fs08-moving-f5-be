@@ -16,7 +16,7 @@ import { env } from '@/config/env';
 import type { OAuthProfile, OAuthProvider, OAuthUserType } from './strategies/passport';
 import { decodeOAuthState, encodeOAuthState } from './utils/oauth.utils';
 
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 // 회원가입
 export const signupController = asyncHandler(async (req: Request, res: Response) => {
@@ -135,7 +135,8 @@ const getPassportOptions = (provider: OAuthProvider, state: string) => {
   return { scope: ['email'], state };
 };
 
-export const oauthStartController = asyncHandler(async (req: Request, res: Response) => {
+export const oauthStartController = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
   const provider = req.params.provider as OAuthProvider;
   const type = (req.query.type as OAuthUserType) ?? 'USER';
 
@@ -150,10 +151,12 @@ export const oauthStartController = asyncHandler(async (req: Request, res: Respo
   const state = encodeOAuthState({ type });
   const options = getPassportOptions(provider, state);
 
-  return passport.authenticate(provider, options)(req, res);
-});
+    return passport.authenticate(provider, options)(req, res, next);
+  },
+);
 
-export const oauthCallbackController = asyncHandler(async (req: Request, res: Response) => {
+export const oauthCallbackController = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
   const provider = req.params.provider as OAuthProvider;
 
   if (provider !== 'google' && provider !== 'kakao' && provider !== 'naver') {
@@ -168,21 +171,26 @@ export const oauthCallbackController = asyncHandler(async (req: Request, res: Re
     { session: false },
     async (err: unknown, profile: OAuthProfile | undefined) => {
       if (err) {
-        throw new AppError('소셜 로그인에 실패했습니다', HTTP_STATUS.UNAUTHORIZED);
+        return next(new AppError('소셜 로그인에 실패했습니다', HTTP_STATUS.UNAUTHORIZED));
       }
 
       if (!profile) {
-        throw new AppError('소셜 로그인 정보가 없습니다', HTTP_STATUS.UNAUTHORIZED);
+        return next(new AppError('소셜 로그인 정보가 없습니다', HTTP_STATUS.UNAUTHORIZED));
       }
 
-      const result = await oauthLoginService({ profile, type });
+      try {
+        const result = await oauthLoginService({ profile, type });
 
-      res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
+        res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
 
-      const redirectUrl = new URL('/oauth/callback', env.CORS_ORIGIN);
-      redirectUrl.searchParams.set('accessToken', result.tokens.accessToken);
+        const redirectUrl = new URL('/oauth/callback', env.CORS_ORIGIN);
+        redirectUrl.searchParams.set('accessToken', result.tokens.accessToken);
 
-      res.redirect(redirectUrl.toString());
+        return res.redirect(redirectUrl.toString());
+      } catch (serviceError) {
+        return next(serviceError);
+      }
     },
-  )(req, res);
-});
+  )(req, res, next);
+  },
+);
