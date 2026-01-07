@@ -1,6 +1,6 @@
 import prisma from '../../config/prisma';
 import { Prisma } from '../../generated/client';
-import { EstimateStatus, HistoryEntityType, HistoryActionType } from '../../generated/enums';
+import { EstimateStatus } from '../../generated/enums';
 import { GetReviewParams } from '../../types/review';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
@@ -177,26 +177,5 @@ export async function updateReviewRepository({
   return await (tx ?? prisma).review.update({
     where: { id: reviewId },
     data: { rating, content },
-  });
-}
-
-// 히스토리 생성
-export async function createReviewHistoryRepository({
-  userId,
-  entityId,
-  tx,
-}: {
-  userId: string;
-  entityId: string;
-  tx?: Prisma.TransactionClient;
-}) {
-  return await (tx ?? prisma).history.create({
-    data: {
-      userId,
-      entityId,
-      entityType: HistoryEntityType.REVIEW,
-      actionType: HistoryActionType.CREATE_REVIEW,
-      actionDesc: '리뷰 작성',
-    },
   });
 }
