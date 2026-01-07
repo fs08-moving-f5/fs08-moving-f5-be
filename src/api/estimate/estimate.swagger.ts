@@ -195,6 +195,11 @@
  *           nullable: true
  *           description: 견적 가격 (원)
  *           example: 500000
+ *         comment:
+ *           type: string
+ *           nullable: true
+ *           description: 견적 코멘트
+ *           example: "합리적인 가격으로 진행 가능합니다."
  *         status:
  *           type: string
  *           enum: [PENDING, CONFIRMED, REJECTED, CANCELLED]
@@ -271,6 +276,11 @@
  *           nullable: true
  *           description: 견적 가격 (원)
  *           example: 500000
+ *         comment:
+ *           type: string
+ *           nullable: true
+ *           description: 견적 코멘트
+ *           example: "합리적인 가격으로 진행 가능합니다."
  *         status:
  *           type: string
  *           enum: [PENDING, CONFIRMED, REJECTED, CANCELLED]
@@ -649,6 +659,7 @@
  *                     estimates:
  *                         - id: "123e4567-e89b-12d3-a456-426614174000"
  *                           price: 500000
+ *                           comment: "합리적인 가격으로 진행 가능합니다."
  *                           status: "PENDING"
  *                           createdAt: "2024-01-15T10:30:00Z"
  *                           estimateRequestId: "123e4567-e89b-12d3-a456-426614174001"
@@ -669,6 +680,7 @@
  *                               reviewCount: 120
  *                         - id: "123e4567-e89b-12d3-a456-426614174006"
  *                           price: 450000
+ *                           comment: "신속하게 진행하겠습니다."
  *                           status: "PENDING"
  *                           createdAt: "2024-01-15T11:00:00Z"
  *                           estimateRequestId: "123e4567-e89b-12d3-a456-426614174001"
@@ -792,6 +804,7 @@
  *                       estimates:
  *                         - id: "123e4567-e89b-12d3-a456-426614174000"
  *                           price: 500000
+ *                           comment: "합리적인 가격으로 진행 가능합니다."
  *                           status: "CONFIRMED"
  *                           createdAt: "2024-01-15T10:30:00Z"
  *                           driver:
@@ -809,6 +822,7 @@
  *                               reviewCount: 120
  *                         - id: "123e4567-e89b-12d3-a456-426614174010"
  *                           price: 450000
+ *                           comment: "신속하게 진행하겠습니다."
  *                           status: "REJECTED"
  *                           createdAt: "2024-01-15T11:00:00Z"
  *                           driver:
@@ -847,6 +861,7 @@
  *                       estimates:
  *                         - id: "123e4567-e89b-12d3-a456-426614174000"
  *                           price: 500000
+ *                           comment: "합리적인 가격으로 진행 가능합니다."
  *                           status: "CONFIRMED"
  *                           createdAt: "2024-01-15T10:30:00Z"
  *                           driver:
