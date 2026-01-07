@@ -277,6 +277,7 @@ export const getReceivedEstimatesService = async ({
       return {
         id: estimate.id,
         price: estimate.price,
+        comment: estimate.comment,
         status: estimate.status,
         createdAt: estimate.createdAt,
         driver: {

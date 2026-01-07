@@ -305,6 +305,7 @@ export const getReceivedEstimatesRepository = async ({
     select: {
       id: true,
       price: true,
+      comment: true,
       status: true,
       createdAt: true,
       estimateRequest: {
@@ -415,6 +416,7 @@ export const getEstimateManyDriversRepository = async ({
     select: {
       id: true,
       price: true,
+      comment: true,
       status: true,
       createdAt: true,
       driver: {
