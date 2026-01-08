@@ -30,7 +30,7 @@ export const configurePassport = () => {
         {
           clientID: env.GOOGLE_CLIENT_ID,
           clientSecret: env.GOOGLE_CLIENT_SECRET,
-          callbackURL: `${env.SERVER_URL}/api/auth/oauth/google/callback`,
+          callbackURL: `${env.SERVER_URL}/auth/oauth/google/callback`,
         },
         (_accessToken, _refreshToken, profile, done) => {
           const email = toSafeString(profile.emails?.[0]?.value);
@@ -61,7 +61,7 @@ export const configurePassport = () => {
         {
           clientID: env.KAKAO_CLIENT_ID,
           clientSecret: env.KAKAO_CLIENT_SECRET,
-          callbackURL: `${env.SERVER_URL}/api/auth/oauth/kakao/callback`,
+          callbackURL: `${env.SERVER_URL}/auth/oauth/kakao/callback`,
         },
         (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
           const email = toSafeString(profile?._json?.kakao_account?.email);
@@ -93,7 +93,7 @@ export const configurePassport = () => {
         {
           clientID: env.NAVER_CLIENT_ID,
           clientSecret: env.NAVER_CLIENT_SECRET,
-          callbackURL: `${env.SERVER_URL}/api/auth/oauth/naver/callback`,
+          callbackURL: `${env.SERVER_URL}/auth/oauth/naver/callback`,
         },
         (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
           const email =
