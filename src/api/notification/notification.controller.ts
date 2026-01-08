@@ -8,7 +8,7 @@ import {
 } from './notification.service';
 
 export const getNotificationStreamController = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -35,7 +35,7 @@ export const getNotificationStreamController = asyncHandler(async (req, res) => 
 });
 
 export const getNotificationsController = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   const notifications = await getNotificationsService({ userId });
 
@@ -46,7 +46,7 @@ export const getNotificationsController = asyncHandler(async (req, res) => {
 });
 
 export const readNotificationController = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const notificationId = req.params.id;
 
   await readNotificationService({ userId, notificationId });

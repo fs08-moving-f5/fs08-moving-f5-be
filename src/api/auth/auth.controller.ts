@@ -103,11 +103,11 @@ export const refreshTokenController = asyncHandler(async (req: Request, res: Res
 
 // 현재 유저 정보 조회
 export const getMeController = asyncHandler(async (req: Request, res: Response) => {
-  if (!req.user) {
+  const user = req.currentUser;
+
+  if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
-
-  const user = req.user;
   const hasProfile = Boolean(
     (user.type === 'USER' && user.userProfile) || (user.type === 'DRIVER' && user.driverProfile),
   );

@@ -13,7 +13,7 @@ import HTTP_STATUS from '@/constants/http.constant';
 
 // 받은 요청 목록 조회(기사)
 export const getEstimateRequests = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const driverId = req.user!.id;
 
   const params: GetEstimateRequestsParams = {
     driverId,
@@ -35,7 +35,7 @@ export const getEstimateRequests = asyncHandler(async (req: Request, res: Respon
 
 // 견적 보내기(기사)
 export const createEstimate = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const driverId = req.user!.id;
 
   const data: CreateEstimateParams = {
     estimateRequestId: req.body.estimateRequestId,
@@ -51,7 +51,7 @@ export const createEstimate = asyncHandler(async (req: Request, res: Response) =
 
 // 견적 반려(기사)
 export const createEstimateReject = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const driverId = req.user!.id;
 
   const data: CreateEstimateRejectParams = {
     estimateRequestId: req.body.estimateRequestId,
@@ -66,7 +66,7 @@ export const createEstimateReject = asyncHandler(async (req: Request, res: Respo
 
 // 확정 견적 목록 조회
 export const getEstimateConfirm = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const driverId = req.user!.id;
 
   const data: GetEstimateParams = {
     driverId,
@@ -82,7 +82,7 @@ export const getEstimateConfirm = asyncHandler(async (req: Request, res: Respons
 
 // 확정 견적 상세 조회
 export const getEstimateConfirmId = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const driverId = req.user!.id;
   const { estimateId } = req.params;
 
   const estimate = await service.getEstimateConfirmIdService(estimateId, driverId);
@@ -95,7 +95,7 @@ export const getEstimateConfirmId = asyncHandler(async (req: Request, res: Respo
 
 // 반려 견적 목록 조회
 export const getEstimateReject = asyncHandler(async (req: Request, res: Response) => {
-  const driverId = req.user.id;
+  const driverId = req.user!.id;
 
   const data: GetEstimateParams = {
     driverId,

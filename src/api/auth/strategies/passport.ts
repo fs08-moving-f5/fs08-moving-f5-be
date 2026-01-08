@@ -43,7 +43,7 @@ export const configurePassport = () => {
             name,
           };
 
-          done(null, payload);
+          done(null, payload as unknown as Express.User);
         },
       ),
     );
@@ -76,7 +76,7 @@ export const configurePassport = () => {
             name,
           };
 
-          done(null, payload);
+          done(null, payload as unknown as Express.User);
         },
       ),
     );
@@ -113,7 +113,7 @@ export const configurePassport = () => {
             name,
           };
 
-          done(null, payload);
+          done(null, payload as unknown as Express.User);
         },
       ),
     );

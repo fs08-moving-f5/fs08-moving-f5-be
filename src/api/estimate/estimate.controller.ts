@@ -20,7 +20,7 @@ const isValidEstimateStatus = (value: string): value is EstimateStatus => {
 };
 
 export const getPendingEstimatesController = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   const estimates = await getPendingEstimatesService({ userId });
 
@@ -42,7 +42,7 @@ export const confirmEstimateController = asyncHandler(async (req, res) => {
 });
 
 export const getEstimateDetailController = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const { estimateId } = req.params;
 
   const estimate = await getEstimateDetailService({ estimateId, userId });
@@ -54,7 +54,7 @@ export const getEstimateDetailController = asyncHandler(async (req, res) => {
 });
 
 export const getReceivedEstimatesController = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const { status } = req.query;
   const limit = req.query.limit ? Number(req.query.limit) : 15;
   const cursor = req.query.cursor ? String(req.query.cursor) : undefined;
