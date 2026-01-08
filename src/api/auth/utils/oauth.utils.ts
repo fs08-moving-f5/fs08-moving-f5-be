@@ -15,7 +15,8 @@ export const decodeOAuthState = (
     if (parsed.type === 'USER' || parsed.type === 'DRIVER') {
       return {
         type: parsed.type,
-        redirectOrigin: typeof parsed.redirectOrigin === 'string' ? parsed.redirectOrigin : undefined,
+        redirectOrigin:
+          typeof parsed.redirectOrigin === 'string' ? parsed.redirectOrigin : undefined,
       };
     }
     return null;

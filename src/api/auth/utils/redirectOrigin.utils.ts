@@ -32,9 +32,7 @@ export const ensureRedirectOriginAllowed = (
   const allowed = getAllowedFrontendOrigins(corsOrigin);
   if (allowed.includes('*')) return normalized;
 
-  const allowedNormalized = allowed
-    .map(normalizeOrigin)
-    .filter((v): v is string => Boolean(v));
+  const allowedNormalized = allowed.map(normalizeOrigin).filter((v): v is string => Boolean(v));
 
   if (!allowedNormalized.includes(normalized)) {
     throw new AppError('허용되지 않은 redirectOrigin 입니다', HTTP_STATUS.BAD_REQUEST);
