@@ -122,10 +122,11 @@ model EstimateRequest {
   estimate  Estimate[]
   addresses Address[]
 
-  @@index([status, isDelete, movingType, createdAt]) // 무한 스크롤 + 필터(상태, 삭제 여부, 서비스 유형, 생성일일)
-  @@index([status, isDelete, movingDate]) // 정렬용(이사 빠른/느린순순)
+  @@index([status, isDelete, movingType, createdAt]) // 기사 요청 목록 조회 - 무한 스크롤 + 필터(상태, 삭제 여부, 서비스 유형, 생성일)
+  @@index([status, isDelete, movingDate]) // 정렬용(이사 빠른/느린순)
   @@index([createdAt, id]) // cursor 안정성 보강
-  @@index([userId, isDelete, createdAt]) //userId 기준 조회(마이페이지 / 히스토리용)
+  @@index([userId, isDelete, createdAt]) //userId 기준 조회(히스토리용)
+  @@index([isDesignated, designatedDriverId, status, isDelete]) //지정 견적 요청 전용(기사 기준)
 }
 
 enum EstimateStatus {
@@ -154,8 +155,9 @@ model Estimate {
 
   review Review?
 
-  @@unique([estimateRequestId, driverId])
-  @@index([driverId, isDelete, createdAt]) // 기사 기준 조회
+  @@unique([estimateRequestId, driverId]) // 요청당 기사 중복 방지
+  @@index([driverId, isDelete, createdAt]) // 기사 기준 견적 조회
+  @@index([estimateRequestId, status, isDelete]) //유저 받은 견적 관리
 }
 
 model Address {
@@ -176,8 +178,7 @@ model Address {
   updatedAt DateTime @updatedAt
 
   @@unique([estimateRequestId, addressType]) //form, to 구분 활용
-  @@index([sido]) // 지역 필터(풀스캔 방지)
-  @@index([estimateRequestId]) //JOIN 최적화
+  @@index([sido, estimateRequestId]) // 지역 필터(풀스캔 방지) + JOIN 최적화
 }
 
 enum AddressType {
@@ -198,7 +199,7 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([createdAt])
+  @@index([createdAt]) //최신순 정렬
 }
 
 model FavoriteDriver {
@@ -212,7 +213,9 @@ model FavoriteDriver {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, driverId])
+  @@unique([userId, driverId]) // 유저-기사 간 찜 여부 조회
+  @@index([userId, createdAt]) //유저 기준 찜 목록 조회
+  @@index([driverId, createdAt]) //기사 기준 찜 집계/조회
 }
 
 model Notification {
