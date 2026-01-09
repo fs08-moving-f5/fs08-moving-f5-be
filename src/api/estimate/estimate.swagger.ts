@@ -828,10 +828,6 @@
  *                   pagination:
  *                     hasNext: true
  *                     nextCursor: "123e4567-e89b-12d3-a456-426614174001"
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
  *       '401':
  *         description: 인증되지 않은 사용자입니다.
  *         content:
