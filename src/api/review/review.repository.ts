@@ -17,8 +17,10 @@ export async function getReviewWrittenRepository({
   const finalOffset = isNaN(parsedOffset) ? 0 : parsedOffset;
   const finalLimit = isNaN(parsedLimit) ? 10 : parsedLimit;
 
-  const where: Prisma.ReviewWhereInput = {
+  const where = {
     userId,
+    rating: { not: null },
+    content: { not: null },
     estimate: {
       isDelete: false,
       status: EstimateStatus.CONFIRMED,
@@ -98,7 +100,9 @@ export async function getReviewWritableRepository({
     },
     status: EstimateStatus.CONFIRMED,
     isDelete: false,
-    OR: [{ review: null }, { review: { rating: null } }],
+    review: {
+      AND: [{ rating: null }, { content: null }],
+    },
   };
 
   let orderBy = {};
