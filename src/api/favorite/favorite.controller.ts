@@ -81,10 +81,6 @@ export const deleteManyFavoriteDriverController = asyncHandler(
       throw new AppError('userId가 필요합니다.', HTTP_STATUS.BAD_REQUEST);
     }
 
-    if (driverIds.length < 1) {
-      throw new AppError('1개 이상의 driverId가 필요합니다.', HTTP_STATUS.BAD_REQUEST);
-    }
-
     const result = await deleteManyFavoriteDriverService({ userId, driverIds });
 
     res.status(HTTP_STATUS.OK).json({
