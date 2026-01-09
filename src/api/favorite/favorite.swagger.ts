@@ -371,7 +371,7 @@
  *     summary: 여러 기사 즐겨찾기 일괄 삭제
  *     description: |
  *       현재 사용자가 찜한 여러 기사를 한 번에 삭제합니다.
- *       요청 본문에 삭제할 기사 ID 배열을 전달합니다.
+ *       요청 본문에 삭제할 기사 ID 배열을 포함한 객체를 전달합니다.
  *     operationId: deleteManyFavoriteDrivers
  *     security:
  *       - bearerAuth: []
@@ -380,18 +380,24 @@
  *       content:
  *         application/json:
  *           schema:
- *             type: array
- *             items:
- *               type: string
- *               format: uuid
- *             description: 삭제할 드라이버 ID 배열
- *             minItems: 1
+ *             type: object
+ *             required:
+ *               - driverIds
+ *             properties:
+ *               driverIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: uuid
+ *                 description: 삭제할 드라이버 ID 배열
+ *                 minItems: 1
  *           examples:
  *             example:
  *               summary: 삭제할 기사 ID 배열 예시
  *               value:
- *                 - "123e4567-e89b-12d3-a456-426614174002"
- *                 - "123e4567-e89b-12d3-a456-426614174003"
+ *                 driverIds:
+ *                   - "123e4567-e89b-12d3-a456-426614174002"
+ *                   - "123e4567-e89b-12d3-a456-426614174003"
  *     responses:
  *       '200':
  *         description: 성공적으로 즐겨찾기를 삭제했습니다.
@@ -420,7 +426,7 @@
  *                   data:
  *                     removed: true
  *       '400':
- *         description: 잘못된 요청입니다. userId가 필요하거나 1개 이상의 driverId가 필요합니다.
+ *         description: 잘못된 요청입니다. userId가 필요하거나 유효하지 않은 driverId가 포함되어 있습니다.
  *         content:
  *           application/json:
  *             schema:
@@ -433,7 +439,11 @@
  *               emptyDriverIds:
  *                 summary: driverId 배열이 비어있는 경우
  *                 value:
- *                   message: 1개 이상의 driverId가 필요합니다.
+ *                   message: 최소 1개 이상의 드라이버 ID가 필요합니다.
+ *               invalidDriverId:
+ *                 summary: 유효하지 않은 driverId가 포함된 경우
+ *                 value:
+ *                   message: 유효하지 않은 드라이버 ID입니다. 유효한 드라이버 ID를 선택해주세요.
  *       '401':
  *         description: 인증되지 않은 사용자입니다.
  *         content:
