@@ -15,6 +15,10 @@ import passport from 'passport';
 import { env } from '@/config/env';
 import type { OAuthProfile, OAuthProvider, OAuthUserType } from './strategies/passport';
 import { decodeOAuthState, encodeOAuthState } from './utils/oauth.utils';
+import {
+  ensureRedirectOriginAllowed,
+  getOAuthRedirectBaseOrigin,
+} from './utils/redirectOrigin.utils';
 
 import type { NextFunction, Request, Response } from 'express';
 
@@ -99,11 +103,11 @@ export const refreshTokenController = asyncHandler(async (req: Request, res: Res
 
 // 현재 유저 정보 조회
 export const getMeController = asyncHandler(async (req: Request, res: Response) => {
-  if (!req.user) {
+  const user = req.currentUser;
+
+  if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
-
-  const user = req.user;
   const hasProfile = Boolean(
     (user.type === 'USER' && user.userProfile) || (user.type === 'DRIVER' && user.driverProfile),
   );
@@ -139,6 +143,10 @@ export const oauthStartController = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const provider = req.params.provider as OAuthProvider;
     const type = (req.query.type as OAuthUserType) ?? 'USER';
+    const redirectOrigin = ensureRedirectOriginAllowed(
+      req.query.redirectOrigin as string | undefined,
+      env.CORS_ORIGIN,
+    );
 
     if (provider !== 'google' && provider !== 'kakao' && provider !== 'naver') {
       throw new AppError('지원하지 않는 소셜 로그인 제공자입니다', HTTP_STATUS.BAD_REQUEST);
@@ -148,7 +156,7 @@ export const oauthStartController = asyncHandler(
       throw new AppError('유저 타입이 올바르지 않습니다', HTTP_STATUS.BAD_REQUEST);
     }
 
-    const state = encodeOAuthState({ type });
+    const state = encodeOAuthState({ type, redirectOrigin });
     const options = getPassportOptions(provider, state);
 
     return passport.authenticate(provider, options)(req, res, next);
@@ -165,6 +173,7 @@ export const oauthCallbackController = asyncHandler(
 
     const stateData = decodeOAuthState(req.query.state);
     const type = stateData?.type ?? 'USER';
+    const redirectOrigin = stateData?.redirectOrigin;
 
     return passport.authenticate(
       provider,
@@ -183,7 +192,9 @@ export const oauthCallbackController = asyncHandler(
 
           res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
 
-          const redirectUrl = new URL('/oauth/callback', env.CORS_ORIGIN);
+          // state는 변조될 수 있으므로 여기서도 redirectOrigin을 다시 검증합니다.
+          const frontendOrigin = getOAuthRedirectBaseOrigin(env.CORS_ORIGIN, redirectOrigin);
+          const redirectUrl = new URL('/oauth/callback', frontendOrigin);
           redirectUrl.searchParams.set('accessToken', result.tokens.accessToken);
 
           return res.redirect(redirectUrl.toString());

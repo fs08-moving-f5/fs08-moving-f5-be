@@ -6,7 +6,7 @@ import HTTP_STATUS from '@/constants/http.constant';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
 export const getReviewWritten = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   const params: GetReviewParams = {
     userId,
@@ -22,7 +22,7 @@ export const getReviewWritten = asyncHandler(async (req: Request, res: Response)
 
 // 작성 가능한 리뷰 목록 조회 (일반 유저)
 export const getReviewWritable = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   const params: GetReviewParams = {
     userId,
@@ -38,7 +38,7 @@ export const getReviewWritable = asyncHandler(async (req: Request, res: Response
 
 // 리뷰 작성 (일반 유저)
 export const createReview = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   const data: CreateReviewParams = {
     estimateId: req.body.estimateId,

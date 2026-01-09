@@ -16,9 +16,9 @@ export const loadUser = async (req: Request, res: Response, next: NextFunction) 
       throw new AppError('유저를 찾을 수 없습니다', HTTP_STATUS.NOT_FOUND);
     }
 
-    // 비밀번호 제외하고 req.user에 전체 정보 저장
+    // 비밀번호 제외하고 전체 유저 정보는 req.currentUser에 저장
     const { password, ...userWithoutPassword } = user;
-    req.user = userWithoutPassword;
+    req.currentUser = userWithoutPassword;
 
     next();
   } catch (error) {
