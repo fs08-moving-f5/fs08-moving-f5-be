@@ -55,28 +55,11 @@ export const getEstimateDetailController = asyncHandler(async (req, res) => {
 
 export const getReceivedEstimatesController = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { status } = req.query;
   const limit = req.query.limit ? Number(req.query.limit) : 15;
   const cursor = req.query.cursor ? String(req.query.cursor) : undefined;
 
-  // status가 제공된 경우 유효성 검증
-  let validatedStatus: EstimateStatus | undefined;
-  if (status) {
-    if (typeof status !== 'string') {
-      throw new AppError('유효하지 않은 status 값입니다.', HTTP_STATUS.BAD_REQUEST);
-    }
-
-    const upperStatus = status.toUpperCase();
-    if (isValidEstimateStatus(upperStatus)) {
-      validatedStatus = upperStatus;
-    } else {
-      throw new AppError('유효하지 않은 status 값입니다.', HTTP_STATUS.BAD_REQUEST);
-    }
-  }
-
   const { data, pagination } = await getReceivedEstimatesService({
     userId,
-    status: validatedStatus,
     cursorId: cursor,
     limit,
   });

@@ -3,6 +3,7 @@ import {
   confirmEstimateRepository,
   getEstimateDetailRepository,
   getReceivedEstimatesRepository,
+  getReceivedEstimateRequestsRepository,
   getIsMyFavoriteDriverRepository,
   confirmEstimateRequestRepository,
   getEstimateRequestDetailRepository,
@@ -49,34 +50,22 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
 
     const favoriteDriverIds = new Set(favoriteDrivers.map((driver) => driver.driverId));
 
-    const driverStatusMap = driverStatuses.reduce<
-      Record<
-        string,
+    // DriverStatusView는 기본값이 설정되어 있으므로 Map으로 직접 사용
+    const driverStatusMap = new Map(
+      driverStatuses.map((item) => [
+        item.driverId,
         {
-          confirmedEstimateCount: number;
-          favoriteDriverCount: number;
-          averageRating: number | null;
-          reviewCount: number;
-        }
-      >
-    >((acc, item) => {
-      acc[item.driverId] = {
-        confirmedEstimateCount: item.confirmedEstimateCount,
-        favoriteDriverCount: item.favoriteDriverCount,
-        averageRating: item.averageRating || null,
-        reviewCount: item.reviewCount,
-      };
-      return acc;
-    }, {});
+          confirmedEstimateCount: item.confirmedEstimateCount,
+          favoriteDriverCount: item.favoriteDriverCount,
+          averageRating: item.averageRating,
+          reviewCount: item.reviewCount,
+        },
+      ]),
+    );
 
     const estimateResult = estimates.map((estimate) => {
       const { estimateRequest, ...restEstimate } = estimate;
-      const driverStatus = driverStatusMap[estimate.driver.id] || {
-        confirmedEstimateCount: 0,
-        favoriteDriverCount: 0,
-        averageRating: null,
-        reviewCount: 0,
-      };
+      const driverStatus = driverStatusMap.get(estimate.driver.id);
 
       return {
         ...restEstimate,
@@ -84,13 +73,16 @@ export const getPendingEstimatesService = async ({ userId }: { userId: string })
         driver: {
           ...estimate.driver,
           isFavorite: favoriteDriverIds.has(estimate.driver.id),
-          driverProfile: {
-            ...estimate.driver.driverProfile,
-            favoriteDriverCount: driverStatus.favoriteDriverCount,
-            confirmedEstimateCount: driverStatus.confirmedEstimateCount,
-            averageRating: driverStatus.averageRating,
-            reviewCount: driverStatus.reviewCount,
-          },
+          driverProfile:
+            estimate.driver.driverProfile && driverStatus
+              ? {
+                  ...estimate.driver.driverProfile,
+                  favoriteDriverCount: driverStatus.favoriteDriverCount,
+                  confirmedEstimateCount: driverStatus.confirmedEstimateCount,
+                  averageRating: driverStatus.averageRating,
+                  reviewCount: driverStatus.reviewCount,
+                }
+              : estimate.driver.driverProfile,
         },
       };
     });
@@ -159,26 +151,22 @@ export const getEstimateDetailService = async ({
     getDriverStatusByDriverIdRepository({ driverId }),
   ]);
 
-  const confirmedEstimateCount = driverStatus?.confirmedEstimateCount || 0;
-  const favoriteDriverCount = driverStatus?.favoriteDriverCount || 0;
-  const averageRating = driverStatus?.averageRating || null;
-  const reviewCount = driverStatus?.reviewCount || 0;
-
   return {
     ...estimate,
     driver: estimate.driver
       ? {
           ...estimate.driver,
           isFavorite: isMyFavoriteDriver ? true : false,
-          driverProfile: estimate.driver.driverProfile
-            ? {
-                ...estimate.driver.driverProfile,
-                confirmedEstimateCount,
-                favoriteDriverCount,
-                averageRating,
-                reviewCount,
-              }
-            : null,
+          driverProfile:
+            estimate.driver.driverProfile && driverStatus
+              ? {
+                  ...estimate.driver.driverProfile,
+                  confirmedEstimateCount: driverStatus.confirmedEstimateCount,
+                  favoriteDriverCount: driverStatus.favoriteDriverCount,
+                  averageRating: driverStatus.averageRating,
+                  reviewCount: driverStatus.reviewCount,
+                }
+              : estimate.driver.driverProfile,
         }
       : null,
   };
@@ -186,17 +174,21 @@ export const getEstimateDetailService = async ({
 
 export const getReceivedEstimatesService = async ({
   userId,
-  status,
   cursorId,
   limit = 15,
 }: {
   userId: string;
-  status?: EstimateStatus;
   cursorId?: string;
   limit?: number;
 }) => {
   return await prisma.$transaction(async (tx) => {
-    const estimateRequests = await getNotPendingEstimateRequestInfoRepository({ userId, tx });
+    // DB 레벨에서 estimateRequest를 기준으로 estimate를 include해서 가져오기 (무한스크롤)
+    const estimateRequests = await getReceivedEstimateRequestsRepository({
+      userId,
+      cursorId,
+      limit,
+      tx,
+    });
 
     if (estimateRequests.length === 0) {
       return {
@@ -208,150 +200,72 @@ export const getReceivedEstimatesService = async ({
       };
     }
 
-    let filteredEstimateRequests = estimateRequests;
-    if (cursorId) {
-      const cursorIndex = estimateRequests.findIndex((er) => er.id === cursorId);
-      if (cursorIndex !== -1) {
-        filteredEstimateRequests = estimateRequests.slice(cursorIndex + 1);
-      } else {
-        return {
-          data: [],
-          pagination: {
-            hasNext: false,
-            nextCursor: null,
-          },
-        };
-      }
-    }
-
-    const estimateRequestIds = filteredEstimateRequests.map(
-      (estimateRequest) => estimateRequest.id,
+    // 모든 estimate에서 driverIds 수집
+    const driverIds = Array.from(
+      new Set(estimateRequests.flatMap((er) => er.estimate.map((e) => e.driver.id))),
     );
 
-    const receivedEstimates = await getReceivedEstimatesRepository({
-      estimateRequestIds,
-      status,
-      cursorId: undefined,
-      limit: undefined,
-      tx,
-    });
-
-    const allDriverIds = receivedEstimates.map((estimate) => estimate.driver.id);
-    const uniqueDriverIds = [...new Set(allDriverIds)];
-
     const [favoriteDrivers, driverStatuses] = await Promise.all([
-      getUserFavoriteDriversRepository({ userId, driverIds: uniqueDriverIds, tx }),
-      getDriverStatusesByDriverIdsRepository({ driverIds: uniqueDriverIds, tx }),
+      getUserFavoriteDriversRepository({ userId, driverIds, tx }),
+      getDriverStatusesByDriverIdsRepository({ driverIds, tx }),
     ]);
 
-    const favoriteDriverIds = new Set(favoriteDrivers.map((driver) => driver.driverId));
-
-    const driverStatusMap = driverStatuses.reduce<
-      Record<
-        string,
+    const favoriteDriverIds = new Set(favoriteDrivers.map((d) => d.driverId));
+    const driverStatusMap = new Map(
+      driverStatuses.map((item) => [
+        item.driverId,
         {
-          confirmedEstimateCount: number;
-          favoriteDriverCount: number;
-          averageRating: number | null;
-          reviewCount: number;
-        }
-      >
-    >((acc, item) => {
-      acc[item.driverId] = {
-        confirmedEstimateCount: item.confirmedEstimateCount,
-        favoriteDriverCount: item.favoriteDriverCount,
-        averageRating: item.averageRating || null,
-        reviewCount: item.reviewCount,
-      };
-      return acc;
-    }, {});
-
-    const estimatesWithStats = receivedEstimates.map((estimate) => {
-      const driverStatus = driverStatusMap[estimate.driver.id] || {
-        confirmedEstimateCount: 0,
-        favoriteDriverCount: 0,
-        averageRating: null,
-        reviewCount: 0,
-      };
-
-      return {
-        id: estimate.id,
-        price: estimate.price,
-        comment: estimate.comment,
-        status: estimate.status,
-        createdAt: estimate.createdAt,
-        driver: {
-          ...estimate.driver,
-          isFavorite: favoriteDriverIds.has(estimate.driver.id),
-          driverProfile: estimate.driver.driverProfile
-            ? {
-                ...estimate.driver.driverProfile,
-                confirmedEstimateCount: driverStatus.confirmedEstimateCount,
-                favoriteDriverCount: driverStatus.favoriteDriverCount,
-                averageRating: driverStatus.averageRating,
-                reviewCount: driverStatus.reviewCount,
-              }
-            : null,
+          confirmedEstimateCount: item.confirmedEstimateCount,
+          favoriteDriverCount: item.favoriteDriverCount,
+          averageRating: item.averageRating,
+          reviewCount: item.reviewCount,
         },
-      };
-    });
+      ]),
+    );
 
-    const estimateRequestMap = new Map<
-      string,
-      {
-        id: string;
-        movingType: string;
-        movingDate: Date;
-        isDesignated: boolean;
-        status: EstimateStatus;
-        createdAt: Date;
-        addresses: Array<{
-          id: string;
-          addressType: string;
-          address: string;
-          sido: string;
-          sigungu: string;
-        }>;
-        estimates: typeof estimatesWithStats;
-      }
-    >();
+    // 드라이버 통계 추가 및 변환
+    const hasNext = estimateRequests.length > limit;
+    const data = hasNext ? estimateRequests.slice(0, limit) : estimateRequests;
 
-    estimatesWithStats.forEach((estimate, index) => {
-      const estimateRequest = receivedEstimates[index].estimateRequest;
-      const estimateRequestId = estimateRequest.id;
+    const result = data.map((er) => ({
+      id: er.id,
+      movingType: er.movingType,
+      movingDate: er.movingDate,
+      isDesignated: er.isDesignated,
+      status: er.status,
+      createdAt: er.createdAt,
+      addresses: er.addresses,
+      estimates: er.estimate.map((e) => {
+        const driverStatus = driverStatusMap.get(e.driver.id);
+        return {
+          id: e.id,
+          price: e.price,
+          comment: e.comment,
+          status: e.status,
+          createdAt: e.createdAt,
+          driver: {
+            id: e.driver.id,
+            name: e.driver.name,
+            isFavorite: favoriteDriverIds.has(e.driver.id),
+            driverProfile:
+              e.driver.driverProfile && driverStatus
+                ? {
+                    ...e.driver.driverProfile,
+                    confirmedEstimateCount: driverStatus.confirmedEstimateCount,
+                    favoriteDriverCount: driverStatus.favoriteDriverCount,
+                    averageRating: driverStatus.averageRating,
+                    reviewCount: driverStatus.reviewCount,
+                  }
+                : null,
+          },
+        };
+      }),
+    }));
 
-      if (!estimateRequestMap.has(estimateRequestId)) {
-        const originalEstimateRequest = filteredEstimateRequests.find(
-          (orig) => orig.id === estimateRequest.id,
-        );
-        estimateRequestMap.set(estimateRequestId, {
-          id: estimateRequest.id,
-          movingType: estimateRequest.movingType,
-          movingDate: estimateRequest.movingDate,
-          isDesignated: estimateRequest.isDesignated,
-          status: estimateRequest.status,
-          createdAt: originalEstimateRequest?.createdAt || new Date(0),
-          addresses: estimateRequest.addresses,
-          estimates: [],
-        });
-      }
-
-      const groupedEstimateRequest = estimateRequestMap.get(estimateRequestId);
-      if (groupedEstimateRequest) {
-        groupedEstimateRequest.estimates.push(estimate);
-      }
-    });
-
-    const result = Array.from(estimateRequestMap.values()).sort((a, b) => {
-      return b.createdAt.getTime() - a.createdAt.getTime();
-    });
-
-    const hasNext = result.length > limit;
-    const data = hasNext ? result.slice(0, limit) : result;
-    const nextCursor = hasNext ? data[data.length - 1].id : null;
+    const nextCursor = hasNext ? result[result.length - 1].id : null;
 
     return {
-      data,
+      data: result,
       pagination: {
         hasNext,
         nextCursor,

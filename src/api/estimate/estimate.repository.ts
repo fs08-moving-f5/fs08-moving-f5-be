@@ -354,6 +354,90 @@ export const getReceivedEstimatesRepository = async ({
   });
 };
 
+// estimateRequest를 기준으로 estimate를 include해서 가져오기
+export const getReceivedEstimateRequestsRepository = async ({
+  userId,
+  cursorId,
+  limit = 15,
+  tx,
+}: {
+  userId: string;
+  cursorId?: string;
+  limit?: number;
+  tx?: Prisma.TransactionClient;
+}) => {
+  return await (tx ?? prisma).estimateRequest.findMany({
+    where: {
+      userId,
+      isDelete: false,
+      status: {
+        not: EstimateStatus.PENDING,
+      },
+      estimate: {
+        some: {
+          isDelete: false,
+        },
+      },
+    },
+    select: {
+      id: true,
+      movingType: true,
+      movingDate: true,
+      isDesignated: true,
+      status: true,
+      createdAt: true,
+      addresses: {
+        select: {
+          id: true,
+          addressType: true,
+          address: true,
+          sido: true,
+          sigungu: true,
+        },
+      },
+      estimate: {
+        where: {
+          isDelete: false,
+        },
+        select: {
+          id: true,
+          price: true,
+          comment: true,
+          status: true,
+          createdAt: true,
+          driver: {
+            select: {
+              id: true,
+              name: true,
+              driverProfile: {
+                select: {
+                  id: true,
+                  imageUrl: true,
+                  career: true,
+                  shortIntro: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: limit + 1,
+    ...(cursorId
+      ? {
+          cursor: { id: cursorId },
+          skip: 1,
+        }
+      : {}),
+  });
+};
+
 export const getEstimateRequestDetailRepository = async ({
   userId,
   tx,
