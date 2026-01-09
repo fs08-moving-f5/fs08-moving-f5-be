@@ -354,7 +354,7 @@
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/ReceivedEstimateItem'
- *           description: 해당 견적 요청에 대한 견적 목록 (status 필터가 적용된 경우 해당 상태의 견적만 포함)
+ *           description: 해당 견적 요청에 대한 견적 목록
  *
  *     EstimateDetail:
  *       type: object
@@ -557,16 +557,6 @@
  *       description: 견적 ID
  *       example: "123e4567-e89b-12d3-a456-426614174000"
  *
- *     statusQuery:
- *       in: query
- *       name: status
- *       required: false
- *       schema:
- *         type: string
- *         enum: [PENDING, CONFIRMED, REJECTED, CANCELLED]
- *       description: 견적 상태 필터 (대소문자 구분 없음)
- *       example: "PENDING"
- *
  *     limitQuery:
  *       in: query
  *       name: limit
@@ -744,8 +734,6 @@
  *     description: |
  *       현재 사용자가 받은 견적 목록을 조회합니다.
  *       견적 요청(estimateRequest)별로 그룹화되어 반환되며, 각 견적 요청에는 해당하는 견적(estimate) 배열이 포함됩니다.
- *       status 쿼리 파라미터를 통해 특정 상태의 견적만 필터링할 수 있습니다.
- *       가능한 상태 값: PENDING, CONFIRMED, REJECTED, CANCELLED (대소문자 구분 없음)
  *       각 견적에는 드라이버 정보, 드라이버의 확정된 견적 수, 찜하기 수, 리뷰 평균 점수가 포함됩니다.
  *       페이지네이션을 지원하며, limit과 cursor 파라미터를 사용하여 페이지 단위로 조회할 수 있습니다.
  *       cursor는 estimateRequest의 ID를 사용하며, PENDING 상태가 아닌 견적 요청만 조회됩니다.
@@ -753,7 +741,6 @@
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: '#/components/parameters/statusQuery'
  *       - $ref: '#/components/parameters/limitQuery'
  *       - $ref: '#/components/parameters/cursorQuery'
  *     responses:
@@ -780,7 +767,7 @@
  *                   description: 응답 메시지
  *             examples:
  *               allEstimates:
- *                 summary: 전체 견적 조회 (status 파라미터 없음)
+ *                 summary: 받은 견적 조회
  *                 value:
  *                   success: true
  *                   data:
@@ -841,47 +828,6 @@
  *                   pagination:
  *                     hasNext: true
  *                     nextCursor: "123e4567-e89b-12d3-a456-426614174001"
- *               filteredEstimates:
- *                 summary: 특정 상태 견적 조회 (status=CONFIRMED)
- *                 value:
- *                   success: true
- *                   data:
- *                     - id: "123e4567-e89b-12d3-a456-426614174001"
- *                       movingType: "HOME_MOVING"
- *                       movingDate: "2024-02-01T09:00:00Z"
- *                       isDesignated: false
- *                       status: "CONFIRMED"
- *                       createdAt: "2024-01-15T10:00:00Z"
- *                       addresses:
- *                         - id: "123e4567-e89b-12d3-a456-426614174002"
- *                           addressType: "FROM"
- *                           address: "서울특별시 강남구 테헤란로 123"
- *                           sido: "서울특별시"
- *                           sigungu: "강남구"
- *                       estimates:
- *                         - id: "123e4567-e89b-12d3-a456-426614174000"
- *                           price: 500000
- *                           comment: "합리적인 가격으로 진행 가능합니다."
- *                           status: "CONFIRMED"
- *                           createdAt: "2024-01-15T10:30:00Z"
- *                           driver:
- *                             id: "123e4567-e89b-12d3-a456-426614174005"
- *                             name: "홍길동"
- *                             isFavorite: true
- *                             driverProfile:
- *                               id: "123e4567-e89b-12d3-a456-426614174003"
- *                               imageUrl: "https://example.com/image.jpg"
- *                               career: 5
- *                               shortIntro: "안전하고 신속한 이사를 약속드립니다"
- *                               confirmedEstimateCount: 150
- *                               favoriteDriverCount: 45
- *                               averageRating: 4.5
- *                               reviewCount: 120
- *                   pagination:
- *                     hasNext: false
- *                     nextCursor: null
- *       '400':
- *         description: 잘못된 요청입니다. status 값이 유효하지 않습니다.
  *         content:
  *           application/json:
  *             schema:

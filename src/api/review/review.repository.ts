@@ -17,8 +17,10 @@ export async function getReviewWrittenRepository({
   const finalOffset = isNaN(parsedOffset) ? 0 : parsedOffset;
   const finalLimit = isNaN(parsedLimit) ? 10 : parsedLimit;
 
-  const where: Prisma.ReviewWhereInput = {
+  const where = {
     userId,
+    rating: { not: null },
+    content: { not: null },
     estimate: {
       isDelete: false,
       status: EstimateStatus.CONFIRMED,
@@ -29,7 +31,7 @@ export async function getReviewWrittenRepository({
   switch (sort) {
     case 'latest':
     default:
-      orderBy = { createdAt: 'desc' };
+      orderBy = { updatedAt: 'desc' };
       break;
   }
 
@@ -39,7 +41,7 @@ export async function getReviewWrittenRepository({
       id: true,
       rating: true,
       content: true,
-      createdAt: true,
+      updatedAt: true,
       estimate: {
         select: {
           driver: {
@@ -76,7 +78,7 @@ export async function getReviewWrittenRepository({
   return { reviews, total };
 }
 
-// 작성 가능한 리뷰 목록 조회 (일반 유저)
+// 리뷰 작성 가능한 견적 목록 조회 (일반 유저)
 export async function getReviewWritableRepository({
   userId,
   sort = 'latest',
@@ -90,14 +92,17 @@ export async function getReviewWritableRepository({
   const finalOffset = isNaN(parsedOffset) ? 0 : parsedOffset;
   const finalLimit = isNaN(parsedLimit) ? 10 : parsedLimit;
 
-  const where: Prisma.EstimateWhereInput = {
+  // 리뷰 테이블 존재 + 아직 작성 X
+  const where = {
     estimateRequest: {
       userId,
       isDelete: false,
     },
     status: EstimateStatus.CONFIRMED,
-    review: null,
     isDelete: false,
+    review: {
+      AND: [{ rating: null }, { content: null }],
+    },
   };
 
   let orderBy = {};
@@ -123,6 +128,8 @@ export async function getReviewWritableRepository({
       },
       estimateRequest: {
         select: {
+          id: true,
+          userId: true,
           movingDate: true,
           movingType: true,
           isDesignated: true,
@@ -146,7 +153,7 @@ export async function getReviewWritableRepository({
   return { estimates, total };
 }
 
-// 리뷰 존재 여부 조회
+// 리뷰 테이블 존재 여부 조회
 export async function findReviewForWriteRepository({
   estimateId,
   userId,
@@ -156,8 +163,11 @@ export async function findReviewForWriteRepository({
 }) {
   return await prisma.review.findFirst({
     where: { estimateId, userId },
-    include: {
-      estimate: { select: { driverId: true } },
+    select: {
+      id: true,
+      rating: true,
+      content: true,
+      estimate: { select: { driverId: true, review: true } },
     },
   });
 }

@@ -15,7 +15,7 @@ export interface GetReviewParams extends PaginationParams {
 export interface WrittenReviewItem {
   rating: number | null;
   content: string | null;
-  createdAt: Date;
+  updatedAt: Date;
   driver: {
     name: string;
     shortIntro: string | null;

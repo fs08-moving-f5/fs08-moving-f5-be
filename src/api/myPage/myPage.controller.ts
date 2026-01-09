@@ -6,8 +6,7 @@ import HTTP_STATUS from '@/constants/http.constant';
 import type { Request, Response } from 'express';
 import type { User } from '@/generated/client';
 
-// loadUser 미들웨어를 거친 후 req.user는 전체 User 정보를 포함합니다
-type RequestWithFullUser = Request & { user: Omit<User, 'password'> };
+// loadUser 미들웨어를 거친 후 req.currentUser는 전체 User 정보를 포함합니다
 
 // ========== MyPage Controllers ==========
 
@@ -16,7 +15,7 @@ type RequestWithFullUser = Request & { user: Omit<User, 'password'> };
  * GET /api/my-page
  */
 export const getMyPageController = asyncHandler(async (req: Request, res: Response) => {
-  const user = req.user as Omit<User, 'password'>;
+  const user = req.currentUser;
 
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
@@ -39,7 +38,7 @@ export const getMyPageController = asyncHandler(async (req: Request, res: Respon
  * GET /api/my-page/reviews?page=1&limit=10
  */
 export const getMyPageReviewsController = asyncHandler(async (req: Request, res: Response) => {
-  const user = req.user as Omit<User, 'password'>;
+  const user = req.currentUser;
 
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
