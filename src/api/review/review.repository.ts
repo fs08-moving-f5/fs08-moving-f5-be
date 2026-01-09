@@ -90,17 +90,15 @@ export async function getReviewWritableRepository({
   const finalOffset = isNaN(parsedOffset) ? 0 : parsedOffset;
   const finalLimit = isNaN(parsedLimit) ? 10 : parsedLimit;
 
-  const where: Prisma.EstimateWhereInput = {
+  // 리뷰 테이블 존재 + 아직 작성 X
+  const where = {
     estimateRequest: {
       userId,
       isDelete: false,
     },
     status: EstimateStatus.CONFIRMED,
-    review: {
-      rating: null,
-      content: null,
-    },
     isDelete: false,
+    OR: [{ review: null }, { review: { rating: null } }],
   };
 
   let orderBy = {};
@@ -126,6 +124,8 @@ export async function getReviewWritableRepository({
       },
       estimateRequest: {
         select: {
+          id: true,
+          userId: true,
           movingDate: true,
           movingType: true,
           isDesignated: true,
@@ -159,8 +159,11 @@ export async function findReviewForWriteRepository({
 }) {
   return await prisma.review.findFirst({
     where: { estimateId, userId },
-    include: {
-      estimate: { select: { driverId: true } },
+    select: {
+      id: true,
+      rating: true,
+      content: true,
+      estimate: { select: { driverId: true, review: true } },
     },
   });
 }
