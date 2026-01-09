@@ -15,7 +15,7 @@ interface QueryParams {
 }
 
 export const addFavoriteDriverController = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const driverId = req.params.driverId;
 
   if (!userId || !driverId) {
@@ -31,7 +31,7 @@ export const addFavoriteDriverController = asyncHandler(async (req, res) => {
 });
 
 export const deleteFavoriteDriverController = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const driverId = req.params.driverId;
 
   if (!userId || !driverId) {
@@ -48,7 +48,7 @@ export const deleteFavoriteDriverController = asyncHandler(async (req, res) => {
 
 export const getFavoriteDriversController = asyncHandler(
   async (req: Request<{}, {}, {}, QueryParams>, res: Response) => {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const { cursor, limit } = req.query;
 
     if (!userId) {
@@ -74,7 +74,7 @@ export const getFavoriteDriversController = asyncHandler(
 
 export const deleteManyFavoriteDriverController = asyncHandler(
   async (req: Request<{}, {}, string[], {}>, res) => {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const driverIds = req.body;
 
     if (!userId) {

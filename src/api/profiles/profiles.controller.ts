@@ -21,13 +21,12 @@ import HTTP_STATUS from '@/constants/http.constant';
 import type { Request, Response } from 'express';
 import type { User } from '@/generated/client';
 
-// loadUser 미들웨어를 거친 후 req.user는 전체 User 정보를 포함합니다
-type RequestWithFullUser = Request & { user: Omit<User, 'password'> };
+// loadUser 미들웨어를 거친 후 req.currentUser는 전체 User 정보를 포함합니다
 
 // ========== 공통 프로필 조회 (유저 타입에 따라 자동 조회) ==========
 export const getMyProfileController = asyncHandler(async (req: Request, res: Response) => {
   // loadUser 미들웨어를 거쳐서 전체 user 정보가 있음
-  const user = req.user as Omit<User, 'password'>;
+  const user = req.currentUser;
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
@@ -60,7 +59,7 @@ export const getMyProfileController = asyncHandler(async (req: Request, res: Res
 // 유저 프로필 조회
 export const getUserProfileController = asyncHandler(async (req: Request, res: Response) => {
   // loadUser 미들웨어를 거쳐서 전체 user 정보가 있음
-  const user = req.user as Omit<User, 'password'>;
+  const user = req.currentUser;
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
@@ -96,7 +95,7 @@ export const getUserProfileController = asyncHandler(async (req: Request, res: R
 // 유저 프로필 생성
 export const createUserProfileController = asyncHandler(async (req: Request, res: Response) => {
   // loadUser 미들웨어를 거쳐서 전체 user 정보가 있음
-  const user = req.user as Omit<User, 'password'>;
+  const user = req.currentUser;
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
@@ -118,7 +117,7 @@ export const createUserProfileController = asyncHandler(async (req: Request, res
 // 유저 프로필 수정
 export const updateUserProfileController = asyncHandler(async (req: Request, res: Response) => {
   // loadUser 미들웨어를 거쳐서 전체 user 정보가 있음
-  const user = req.user as Omit<User, 'password'>;
+  const user = req.currentUser;
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
@@ -142,7 +141,7 @@ export const updateUserProfileController = asyncHandler(async (req: Request, res
 // 기사 프로필 조회
 export const getDriverProfileController = asyncHandler(async (req: Request, res: Response) => {
   // loadUser 미들웨어를 거쳐서 전체 user 정보가 있음
-  const user = req.user as Omit<User, 'password'>;
+  const user = req.currentUser;
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
@@ -178,7 +177,7 @@ export const getDriverProfileController = asyncHandler(async (req: Request, res:
 // 기사 프로필 생성
 export const createDriverProfileController = asyncHandler(async (req: Request, res: Response) => {
   // loadUser 미들웨어를 거쳐서 전체 user 정보가 있음
-  const user = req.user as Omit<User, 'password'>;
+  const user = req.currentUser;
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }
@@ -200,7 +199,7 @@ export const createDriverProfileController = asyncHandler(async (req: Request, r
 // 기사 프로필 수정
 export const updateDriverProfileController = asyncHandler(async (req: Request, res: Response) => {
   // loadUser 미들웨어를 거쳐서 전체 user 정보가 있음
-  const user = req.user as Omit<User, 'password'>;
+  const user = req.currentUser;
   if (!user) {
     throw new AppError('인증이 필요합니다', HTTP_STATUS.UNAUTHORIZED);
   }

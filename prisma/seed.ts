@@ -176,7 +176,7 @@ const koreanNames = [
   '송강호',
   '유해진',
   '노무현',
-  '전두환',
+  '오인하',
   '문재인',
   '고종',
   '류시원',
@@ -1144,32 +1144,41 @@ async function main() {
 
     if (!shouldCreateReview) continue;
 
-    // 점수 분포: 5점 50%, 4점 30%, 3점 15%, 2점 4%, 1점 1% (더 현실적인 분포)
-    const ratingRand = Math.random();
-    let rating: number;
-    if (ratingRand < 0.5) rating = 5;
-    else if (ratingRand < 0.8) rating = 4;
-    else if (ratingRand < 0.95) rating = 3;
-    else if (ratingRand < 0.99) rating = 2;
-    else rating = 1;
+    // Review 내용 작성 여부 (추가)
+    const shouldWriteReviewBody = Math.random() < 0.7; // 70%는 실제 리뷰 작성, 30% 리뷰 미작성(견적 생성 시 테이블만 존재하는 경우)
 
-    // 낮은 점수일 경우 더 구체적인 리뷰 내용
-    const content =
-      rating <= 2
-        ? randomItem([
-            '시간 약속을 지키지 않았습니다.',
-            '가구 보호가 제대로 되지 않았습니다.',
-            '서비스가 기대에 못 미쳤습니다.',
-            '가격 대비 서비스가 아쉬웠습니다.',
-          ])
-        : randomItem(reviewContents);
+    let rating: number | undefined;
+    let content: string | undefined;
+
+    if (shouldWriteReviewBody) {
+      // 점수 분포: 5점 50%, 4점 30%, 3점 15%, 2점 4%, 1점 1% (더 현실적인 분포)
+      const ratingRand = Math.random();
+      if (ratingRand < 0.5) rating = 5;
+      else if (ratingRand < 0.8) rating = 4;
+      else if (ratingRand < 0.95) rating = 3;
+      else if (ratingRand < 0.99) rating = 2;
+      else rating = 1;
+
+      // 낮은 점수일 경우 더 구체적인 리뷰 내용
+      content =
+        rating <= 2
+          ? randomItem([
+              '시간 약속을 지키지 않았습니다.',
+              '가구 보호가 제대로 되지 않았습니다.',
+              '서비스가 기대에 못 미쳤습니다.',
+              '가격 대비 서비스가 아쉬웠습니다.',
+            ])
+          : randomItem(reviewContents);
+    }
 
     reviewedEstimateIds.add(estimate.id!);
     reviews.push({
       estimateId: estimate.id!,
       userId: request.userId as string,
-      rating,
-      content,
+      ...(shouldWriteReviewBody && {
+        rating,
+        content,
+      }),
     });
   }
 

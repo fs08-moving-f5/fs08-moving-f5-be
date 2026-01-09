@@ -26,7 +26,7 @@ export async function getReviewWrittenService(
       id: review.id,
       rating: review.rating,
       content: review.content,
-      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
       driver: {
         id: review.estimate.driver.id,
         name: review.estimate.driver.name,
@@ -44,7 +44,7 @@ export async function getReviewWrittenService(
   return { reviews: mapped, total };
 }
 
-// 작성 가능한 리뷰 목록 조회 (일반 유저)
+// 리뷰 작성 가능한 견적 목록 조회 (일반 유저)
 export async function getReviewWritableService(
   params: GetReviewParams,
 ): Promise<WritableReviewListResult> {
