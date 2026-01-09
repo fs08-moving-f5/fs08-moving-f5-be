@@ -2,8 +2,9 @@ import { Request, Response } from 'express';
 import { getDriversService } from './driver.service';
 import HTTP_STATUS from '@/constants/http.constant';
 import { isRegionKey } from './types';
+import asyncHandler from '@/middlewares/asyncHandler';
 
-export const getDriversController = async (req: Request, res: Response) => {
+export const getDriversController = asyncHandler(async (req: Request, res: Response) => {
   const { region, service, sort, cursor, limit, search } = req.query;
   const userId = req.user?.id;
 
@@ -25,4 +26,4 @@ export const getDriversController = async (req: Request, res: Response) => {
     data: result.data,
     pagination: result.pagination,
   });
-};
+});
