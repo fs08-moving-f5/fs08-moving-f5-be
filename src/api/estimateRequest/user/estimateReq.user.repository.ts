@@ -1,6 +1,8 @@
 import splitAddresses from '@/utils/splitAddresses';
 import prisma from '../../../config/prisma';
 import { createEstimateRequestParams } from '@/types/userEstimate';
+import { Address, ServiceEnum } from '@/generated/client';
+import { GeoPoint } from '@/api/drivers/utils/geocodeAddress';
 
 // 진행 중인 견적 요청 여부 (유저)
 export async function getEstimateRequestsInProgressRepository({ userId }: { userId: string }) {
@@ -115,3 +117,44 @@ export async function updateEstimateRequestToDesignatedRepository({
     },
   });
 }
+
+export const createEstimateRequestWithGeocodeRepository = async ({
+  userId,
+  movingType,
+  movingDate,
+  from,
+  to,
+  fromGeocode,
+  toGeocode,
+}: {
+  userId: string;
+  movingType: ServiceEnum;
+  movingDate: Date;
+  from: Address;
+  to: Address;
+  fromGeocode: GeoPoint;
+  toGeocode: GeoPoint;
+}) => {
+  return prisma.estimateRequest.create({
+    data: {
+      user: {
+        connect: { id: userId },
+      },
+      movingType,
+      movingDate,
+      addresses: {
+        create: [
+          { ...from, addressType: 'FROM', lat: fromGeocode.lat, lng: fromGeocode.lng },
+          { ...to, addressType: 'TO', lat: toGeocode.lat, lng: toGeocode.lng },
+        ],
+      },
+    },
+    select: {
+      id: true,
+      user: true,
+      movingType: true,
+      movingDate: true,
+      addresses: true,
+    },
+  });
+};
