@@ -6,7 +6,11 @@ import {
   deleteManyFavoriteDriverController,
   getFavoriteDriversController,
 } from './favorite.controller';
-import validateMiddleware from '@/middlewares/validateMiddleware';
+import {
+  validateParamsMiddleware,
+  validateBodyMiddleware,
+  validateQueryMiddleware,
+} from '@/middlewares/validateMiddleware';
 import {
   deleteManyFavoriteDriverBodyValidator,
   driverIdParamsValidator,
@@ -19,7 +23,7 @@ router.get(
   '/',
   authenticate,
   requireUserOrDriver,
-  validateMiddleware(getFavoriteDriversQueryValidator),
+  validateQueryMiddleware(getFavoriteDriversQueryValidator),
   getFavoriteDriversController,
 );
 
@@ -27,7 +31,7 @@ router.delete(
   '/driver',
   authenticate,
   requireUserOrDriver,
-  validateMiddleware(deleteManyFavoriteDriverBodyValidator),
+  validateBodyMiddleware(deleteManyFavoriteDriverBodyValidator),
   deleteManyFavoriteDriverController,
 );
 
@@ -35,7 +39,7 @@ router.post(
   '/driver/:driverId',
   authenticate,
   requireUserOrDriver,
-  validateMiddleware(driverIdParamsValidator),
+  validateParamsMiddleware(driverIdParamsValidator),
   addFavoriteDriverController,
 );
 
@@ -43,7 +47,7 @@ router.delete(
   '/driver/:driverId',
   authenticate,
   requireUserOrDriver,
-  validateMiddleware(driverIdParamsValidator),
+  validateParamsMiddleware(driverIdParamsValidator),
   deleteFavoriteDriverController,
 );
 
