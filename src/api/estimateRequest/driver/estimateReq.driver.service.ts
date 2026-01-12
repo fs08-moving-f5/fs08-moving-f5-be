@@ -3,15 +3,15 @@ import * as repo from './estimateReq.driver.repository';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 import ERROR_MESSAGE from '@/constants/errorMessage.constant';
-import {
+import splitAddresses from '@/utils/splitAddresses';
+import { NotificationType } from '@/generated/enums';
+import { createNotificationAndPushUnreadService } from '@/api/notification/notification.service';
+import type {
   GetEstimateRequestsParams,
   CreateEstimateParams,
   CreateEstimateRejectParams,
   GetEstimateParams,
 } from '@/types/driverEstimate';
-import splitAddresses from '@/utils/splitAddresses';
-import { NotificationType } from '@/generated/enums';
-import { createNotificationAndPushUnreadService } from '@/api/notification/notification.service';
 
 // 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsService(params: GetEstimateRequestsParams) {
