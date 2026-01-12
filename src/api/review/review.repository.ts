@@ -142,6 +142,11 @@ export async function getReviewWritableRepository({
           },
         },
       },
+      review: {
+        select: {
+          id: true,
+        },
+      },
     },
     orderBy,
     skip: finalOffset,
@@ -154,20 +159,14 @@ export async function getReviewWritableRepository({
 }
 
 // 리뷰 테이블 존재 여부 조회
-export async function findReviewForWriteRepository({
-  estimateId,
-  userId,
-}: {
-  estimateId: string;
-  userId: string;
-}) {
-  return await prisma.review.findFirst({
-    where: { estimateId, userId },
+export async function findReviewForWriteRepository({ reviewId }: { reviewId: string }) {
+  return await prisma.review.findUnique({
+    where: { id: reviewId },
     select: {
       id: true,
       rating: true,
       content: true,
-      estimate: { select: { driverId: true, review: true } },
+      estimate: { select: { driverId: true } },
     },
   });
 }
