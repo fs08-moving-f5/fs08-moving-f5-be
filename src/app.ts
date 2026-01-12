@@ -4,7 +4,13 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
 import { env, logger, corsOptions, swaggerSpec } from './config/index';
-import { errorHandler, notFoundHandler, applySecurity } from './middlewares/index';
+import { PRESIGN_EXPIRE_SECONDS } from './constants/presignExpire.constant';
+import {
+  errorHandler,
+  notFoundHandler,
+  applySecurity,
+  presignImageUrlsMiddleware,
+} from './middlewares/index';
 
 import apiRouter from './api/index';
 
@@ -25,7 +31,7 @@ app.get('/health', (_req, res) => {
 });
 
 // 3. API Router
-app.use('/api', apiRouter);
+app.use('/api', presignImageUrlsMiddleware({ expiresInSeconds: PRESIGN_EXPIRE_SECONDS }), apiRouter);
 
 // 4. Swagger 문서
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

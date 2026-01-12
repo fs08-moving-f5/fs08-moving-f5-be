@@ -14,8 +14,30 @@ export const servicesSchema = z
   .min(1, '최소 1개 이상의 서비스를 선택해야 합니다')
   .max(3, '최대 3개 서비스까지 선택 가능합니다');
 
-// 이미지 URL 검증 스키마 (선택적)
-export const imageUrlSchema = z.string().url('올바른 URL 형식이 아닙니다').optional();
+// 이미지 Key 검증 스키마 (선택적)
+// - 버킷을 private로 두기 위해 DB에는 URL이 아닌 S3 Object Key를 저장합니다.
+// - data: URL(베이스64) 저장을 막습니다.
+export const imageUrlSchema = z
+  .string()
+  .min(1, '이미지 key가 비어있습니다')
+  .max(2048, '이미지 key가 너무 깁니다')
+  .refine((v) => !v.toLowerCase().startsWith('data:'), {
+    message: 'data URL은 허용하지 않습니다',
+  })
+  .refine((v) => !(v.toLowerCase().startsWith('http://') || v.toLowerCase().startsWith('https://')),
+    {
+      message: 'URL이 아닌 S3 object key를 전달해주세요',
+    },
+  )
+  .refine(
+    (v) =>
+      v.startsWith('profile/profile-images/') ||
+      v.startsWith('profile-images/'),
+    {
+      message: '프로필 이미지 key 형식이 올바르지 않습니다',
+    },
+  )
+  .optional();
 
 // ========== UserProfile Validators ==========
 

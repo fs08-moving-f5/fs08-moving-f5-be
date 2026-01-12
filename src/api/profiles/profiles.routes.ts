@@ -8,14 +8,27 @@ import {
   getDriverPublicProfileController,
   createDriverProfileController,
   updateDriverProfileController,
+  createProfileImagePutPresignController,
 } from './profiles.controller';
 import { authenticate } from '@/middlewares/authMiddleware';
 import { loadUser } from '@/middlewares/loadUserMiddleware';
+import {
+  createProfileImagePutPresign,
+} from './middlewares/profileImagePresign.middleware';
 
 const router = Router();
 
 // 공통 프로필 조회 (유저 타입 자동 판별)
 router.get('/me', authenticate, loadUser, getMyProfileController);
+
+// 프로필 이미지 presign (단계적 전환)
+router.post(
+  '/me/profile-image/presign-put',
+  authenticate,
+  loadUser,
+  createProfileImagePutPresign,
+  createProfileImagePutPresignController,
+);
 
 // 유저 프로필 라우트
 router.get('/user', authenticate, loadUser, getUserProfileController);
