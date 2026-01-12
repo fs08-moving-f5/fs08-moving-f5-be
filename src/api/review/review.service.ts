@@ -55,7 +55,7 @@ export async function getReviewWritableService(
 
     return {
       id: estimate.id,
-      reviewId: estimate.review.id,
+      reviewId: estimate.review!.id,
       price: estimate.price,
       createdAt: estimate.createdAt,
       driver: {
