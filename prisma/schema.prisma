@@ -72,10 +72,19 @@ model DriverProfile {
   regions     RegionEnum[]
   services    ServiceEnum[]
 
+  officeAddress   String?
+  officeZoneCode  String?
+  officeSido      String?
+  officeSigungu   String?
+  officeLat       Float?
+  officeLng       Float?
+  officeUpdatedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([career])
+  @@index([officeLat, officeLng])
 }
 
 enum RegionEnum {
@@ -176,11 +185,15 @@ model Address {
   sigungu        String
   sigunguEnglish String
 
+  lat Float?
+  lng Float?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([estimateRequestId, addressType]) //form, to 구분 활용
   @@index([sido, estimateRequestId]) // 지역 필터(풀스캔 방지) + JOIN 최적화
+  @@index([lat, lng])
 }
 
 enum AddressType {
