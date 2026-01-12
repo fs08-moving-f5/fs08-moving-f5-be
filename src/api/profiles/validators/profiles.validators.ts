@@ -24,19 +24,15 @@ export const imageUrlSchema = z
   .refine((v) => !v.toLowerCase().startsWith('data:'), {
     message: 'data URL은 허용하지 않습니다',
   })
-  .refine((v) => !(v.toLowerCase().startsWith('http://') || v.toLowerCase().startsWith('https://')),
+  .refine(
+    (v) => !(v.toLowerCase().startsWith('http://') || v.toLowerCase().startsWith('https://')),
     {
       message: 'URL이 아닌 S3 object key를 전달해주세요',
     },
   )
-  .refine(
-    (v) =>
-      v.startsWith('profile/profile-images/') ||
-      v.startsWith('profile-images/'),
-    {
-      message: '프로필 이미지 key 형식이 올바르지 않습니다',
-    },
-  )
+  .refine((v) => v.startsWith('profile/profile-images/') || v.startsWith('profile-images/'), {
+    message: '프로필 이미지 key 형식이 올바르지 않습니다',
+  })
   .optional();
 
 // ========== UserProfile Validators ==========

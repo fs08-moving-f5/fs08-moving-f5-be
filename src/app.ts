@@ -31,7 +31,11 @@ app.get('/health', (_req, res) => {
 });
 
 // 3. API Router
-app.use('/api', presignImageUrlsMiddleware({ expiresInSeconds: PRESIGN_EXPIRE_SECONDS }), apiRouter);
+app.use(
+  '/api',
+  presignImageUrlsMiddleware({ expiresInSeconds: PRESIGN_EXPIRE_SECONDS }),
+  apiRouter,
+);
 
 // 4. Swagger 문서
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

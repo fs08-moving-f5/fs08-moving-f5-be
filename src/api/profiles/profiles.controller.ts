@@ -60,7 +60,7 @@ export const getMyProfileController = asyncHandler(async (req: Request, res: Res
 
   const mappedProfile = await mapNullableProfileImage(profile);
   const profileAll = {
-    ...(mappedProfile),
+    ...mappedProfile,
     name: user.name,
     email: user.email,
     phone: user.phone,
@@ -272,4 +272,3 @@ export const getDriverPublicProfileController = asyncHandler(
     });
   },
 );
-

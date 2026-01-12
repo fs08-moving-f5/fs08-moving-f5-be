@@ -54,7 +54,10 @@ export const getS3PublicUrlForKey = (key: string) => {
   return `${baseUrl}/${key.replace(/^\/+/, '')}`;
 };
 
-export const createPresignedGetUrlForKey = async (key: string, expiresInSeconds = PRESIGN_EXPIRE_SECONDS) => {
+export const createPresignedGetUrlForKey = async (
+  key: string,
+  expiresInSeconds = PRESIGN_EXPIRE_SECONDS,
+) => {
   const { S3_BUCKET } = requireS3Env();
 
   const s3 = createS3Client();

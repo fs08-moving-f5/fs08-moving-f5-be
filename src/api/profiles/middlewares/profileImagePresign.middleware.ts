@@ -40,7 +40,10 @@ export const createProfileImagePutPresign = asyncHandler(async (req, res, next) 
   const user = requireAuthUser(req.currentUser);
 
   if (!env.S3_BUCKET || !env.AWS_REGION) {
-    throw new AppError('S3 설정이 서버에 구성되어 있지 않습니다', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    throw new AppError(
+      'S3 설정이 서버에 구성되어 있지 않습니다',
+      HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    );
   }
 
   const { contentType } = createProfileImagePutPresignSchema.parse(req.body);

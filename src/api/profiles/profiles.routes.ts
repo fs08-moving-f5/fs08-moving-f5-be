@@ -12,9 +12,7 @@ import {
 } from './profiles.controller';
 import { authenticate } from '@/middlewares/authMiddleware';
 import { loadUser } from '@/middlewares/loadUserMiddleware';
-import {
-  createProfileImagePutPresign,
-} from './middlewares/profileImagePresign.middleware';
+import { createProfileImagePutPresign } from './middlewares/profileImagePresign.middleware';
 
 const router = Router();
 
