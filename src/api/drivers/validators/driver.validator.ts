@@ -57,3 +57,9 @@ export const updateDriverOfficeBodyValidator = z.object({
 });
 
 export type UpdateDriverOfficeBodyValidator = z.infer<typeof updateDriverOfficeBodyValidator>;
+
+export const getNearbyRequestsQueryValidator = z.object({
+  radiusKm: z.coerce.number().min(0).max(200).default(20).optional(),
+});
+
+export type GetNearbyRequestsQueryValidator = z.infer<typeof getNearbyRequestsQueryValidator>;

@@ -1,5 +1,5 @@
 import prisma from '@/config/prisma';
-import { Prisma, UserType } from '@/generated/client';
+import { Prisma, UserType, AddressType, EstimateStatus } from '@/generated/client';
 import {
   GetDriverStatusesRepositoryParams,
   GetFilteredDriverIdsParams,
@@ -103,6 +103,56 @@ export const updateDriverOfficeRepository = async ({
       officeLat: true,
       officeLng: true,
       officeUpdatedAt: true,
+    },
+  });
+};
+
+export const findDriverOfficePointRepository = async ({ driverId }: { driverId: string }) => {
+  return await prisma.driverProfile.findUnique({
+    where: { driverId },
+    select: {
+      officeLat: true,
+      officeLng: true,
+    },
+  });
+};
+
+export const findFromAddressesInBoxRepository = async (params: {
+  minLat: number;
+  minLng: number;
+  maxLat: number;
+  maxLng: number;
+}) => {
+  return await prisma.address.findMany({
+    where: {
+      addressType: AddressType.FROM,
+      lat: { gte: params.minLat, lte: params.maxLat },
+      lng: { gte: params.minLng, lte: params.maxLng },
+      estimateRequest: {
+        isDelete: false,
+        status: EstimateStatus.PENDING,
+      },
+    },
+    select: {
+      id: true,
+      estimateRequestId: true,
+      sido: true,
+      sigungu: true,
+      address: true,
+      addressEnglish: true,
+      zoneCode: true,
+      lat: true,
+      lng: true,
+      estimateRequest: {
+        select: {
+          id: true,
+          movingType: true,
+          movingDate: true,
+          isDesignated: true,
+          createdAt: true,
+          designatedDriverId: true,
+        },
+      },
     },
   });
 };

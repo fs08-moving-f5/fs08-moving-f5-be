@@ -299,7 +299,7 @@
  *
  * tags:
  *   - name: Drivers
- *     description: 드라이버(기사) 목록 조회 및 사무실 정보 관리 API
+ *     description: 드라이버(기사) 목록 조회, 사무실 정보 관리 및 주변 견적 요청 조회 API
  */
 
 /**
@@ -640,6 +640,201 @@
  *                   message: "주소 변환에 실패했습니다"
  *                   statusCode: 500
  *                   name: "AppError"
+ *               serverError:
+ *                 summary: 서버 오류
+ *                 value:
+ *                   message: "서버 내부 오류가 발생했습니다"
+ *                   statusCode: 500
+ *                   name: "AppError"
+ */
+
+/**
+ * @swagger
+ * /api/drivers/me/requests/nearby:
+ *   get:
+ *     tags:
+ *       - Drivers
+ *     summary: 내 사무실 주변 견적 요청 조회
+ *     description: |
+ *       현재 로그인한 드라이버(기사)의 사무실 위치를 기준으로 반경 내의 견적 요청을 조회합니다.
+ *       거리순으로 정렬되어 반환되며, 각 견적 요청에는 출발지 주소, 이사 유형, 이사 예정일, 거리 정보가 포함됩니다.
+ *
+ *       **동작 방식:**
+ *       1. 드라이버의 사무실 위치(위도/경도)를 조회합니다.
+ *       2. 지정된 반경(radiusKm) 내의 견적 요청 출발지를 검색합니다.
+ *       3. 실제 거리를 계산하여 반경 내의 요청만 필터링합니다.
+ *       4. 거리순으로 정렬하여 반환합니다.
+ *
+ *       **쿼리 파라미터:**
+ *       - `radiusKm` (선택): 검색 반경 (킬로미터). 기본값은 20km이며, 최소 0km, 최대 200km까지 설정 가능합니다.
+ *
+ *       **주의사항:**
+ *       - 사무실 주소가 등록되어 있지 않거나 위도/경도가 없는 경우 400 에러가 발생합니다.
+ *       - 먼저 `/api/drivers/me/office` 엔드포인트로 사무실 주소를 등록해야 합니다.
+ *       - 거리는 Haversine 공식을 사용하여 계산됩니다.
+ *
+ *       **사용 예시:**
+ *       - 기본 반경(20km) 조회: `GET /api/drivers/me/requests/nearby`
+ *       - 10km 반경 조회: `GET /api/drivers/me/requests/nearby?radiusKm=10`
+ *       - 50km 반경 조회: `GET /api/drivers/me/requests/nearby?radiusKm=50`
+ *     operationId: getNearbyEstimateRequests
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: radiusKm
+ *         required: false
+ *         schema:
+ *           type: number
+ *           minimum: 0
+ *           maximum: 200
+ *           default: 20
+ *         description: |
+ *           검색 반경 (킬로미터)
+ *           기본값: 20km
+ *           최소값: 0km
+ *           최대값: 200km
+ *         example: 20
+ *     responses:
+ *       '200':
+ *         description: 성공적으로 주변 견적 요청을 조회했습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: 요청 성공 여부
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       estimateRequestId:
+ *                         type: string
+ *                         format: uuid
+ *                         description: 견적 요청 ID
+ *                         example: "123e4567-e89b-12d3-a456-426614174000"
+ *                       distanceKm:
+ *                         type: number
+ *                         format: float
+ *                         description: 사무실로부터의 거리 (킬로미터)
+ *                         example: 5.2
+ *                       movingType:
+ *                         type: string
+ *                         enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
+ *                         description: 이사 유형
+ *                         example: "HOME_MOVING"
+ *                       movingDate:
+ *                         type: string
+ *                         format: date-time
+ *                         description: 이사 예정일
+ *                         example: "2026-02-01T09:00:00.000Z"
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: 견적 요청 생성 일시
+ *                         example: "2026-01-12T10:00:00.000Z"
+ *                       fromAddress:
+ *                         type: object
+ *                         properties:
+ *                           sido:
+ *                             type: string
+ *                             description: 시도
+ *                             example: "서울특별시"
+ *                           sigungu:
+ *                             type: string
+ *                             description: 시군구
+ *                             example: "강남구"
+ *                           address:
+ *                             type: string
+ *                             nullable: true
+ *                             description: 전체 주소
+ *                             example: "서울특별시 강남구 테헤란로 123"
+ *                         description: 출발지 주소 정보
+ *             examples:
+ *               success:
+ *                 summary: 성공 응답 예시 (견적 요청이 있는 경우)
+ *                 value:
+ *                   success: true
+ *                   data:
+ *                     - estimateRequestId: "123e4567-e89b-12d3-a456-426614174000"
+ *                       distanceKm: 3.5
+ *                       movingType: "HOME_MOVING"
+ *                       movingDate: "2026-02-01T09:00:00.000Z"
+ *                       createdAt: "2026-01-12T10:00:00.000Z"
+ *                       fromAddress:
+ *                         sido: "서울특별시"
+ *                         sigungu: "강남구"
+ *                         address: "서울특별시 강남구 테헤란로 123"
+ *                     - estimateRequestId: "123e4567-e89b-12d3-a456-426614174001"
+ *                       distanceKm: 8.2
+ *                       movingType: "OFFICE_MOVING"
+ *                       movingDate: "2026-02-05T14:00:00.000Z"
+ *                       createdAt: "2026-01-12T11:00:00.000Z"
+ *                       fromAddress:
+ *                         sido: "서울특별시"
+ *                         sigungu: "송파구"
+ *                         address: "서울특별시 송파구 올림픽로 300"
+ *               empty:
+ *                 summary: 주변에 견적 요청이 없는 경우
+ *                 value:
+ *                   success: true
+ *                   data: []
+ *       '400':
+ *         description: 잘못된 요청입니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               noOffice:
+ *                 summary: 사무실 주소가 등록되지 않은 경우
+ *                 value:
+ *                   message: "사무실 주소(위도/경도)가 필요합니다"
+ *                   statusCode: 400
+ *                   name: "AppError"
+ *               invalidRadius:
+ *                 summary: 유효하지 않은 반경 값
+ *                 value:
+ *                   message: "유효하지 않은 반경입니다"
+ *                   statusCode: 400
+ *                   name: "AppError"
+ *       '401':
+ *         description: 인증이 필요합니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               unauthorized:
+ *                 summary: 인증되지 않은 사용자
+ *                 value:
+ *                   message: "인증이 필요합니다"
+ *                   statusCode: 401
+ *                   name: "AppError"
+ *       '403':
+ *         description: 드라이버 권한이 필요합니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               forbidden:
+ *                 summary: 드라이버가 아닌 사용자
+ *                 value:
+ *                   message: "드라이버 권한이 필요합니다"
+ *                   statusCode: 403
+ *                   name: "AppError"
+ *       '500':
+ *         description: 서버 내부 오류가 발생했습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
  *               serverError:
  *                 summary: 서버 오류
  *                 value:
