@@ -40,6 +40,7 @@
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "argon2": "^0.44.0",
+    "axios": "^1.13.2",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

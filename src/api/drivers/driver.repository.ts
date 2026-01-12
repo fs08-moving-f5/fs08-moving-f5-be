@@ -4,6 +4,7 @@ import {
   GetDriverStatusesRepositoryParams,
   GetFilteredDriverIdsParams,
   GetDriverInfoRepositoryParams,
+  UpdateDriverOfficeBody,
 } from './types';
 
 export const getFilteredDriverIdsRepository = async ({ where, tx }: GetFilteredDriverIdsParams) => {
@@ -69,6 +70,39 @@ export const getDriverInfoRepository = async ({ driverIds, tx }: GetDriverInfoRe
           services: true,
         },
       },
+    },
+  });
+};
+
+export const updateDriverOfficeRepository = async ({
+  driverId,
+  body,
+  geocodeResult,
+}: {
+  driverId: string;
+  body: UpdateDriverOfficeBody;
+  geocodeResult: { lat: number; lng: number };
+}) => {
+  return await prisma.driverProfile.update({
+    where: { driverId },
+    data: {
+      officeAddress: body.officeAddress,
+      officeZoneCode: body.officeZoneCode,
+      officeSido: body.officeSido,
+      officeSigungu: body.officeSigungu,
+      officeLat: geocodeResult.lat,
+      officeLng: geocodeResult.lng,
+      officeUpdatedAt: new Date(),
+    },
+    select: {
+      id: true,
+      officeAddress: true,
+      officeZoneCode: true,
+      officeSido: true,
+      officeSigungu: true,
+      officeLat: true,
+      officeLng: true,
+      officeUpdatedAt: true,
     },
   });
 };

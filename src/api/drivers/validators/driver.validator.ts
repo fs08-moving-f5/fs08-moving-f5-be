@@ -48,3 +48,12 @@ export const getDriversQueryValidator = z.object({
 });
 
 export type GetDriversQueryValidator = z.infer<typeof getDriversQueryValidator>;
+
+export const updateDriverOfficeBodyValidator = z.object({
+  officeAddress: z.string().min(1, '사무실 주소는 필수입니다'),
+  officeZoneCode: z.string().optional(),
+  officeSido: z.string().optional(),
+  officeSigungu: z.string().optional(),
+});
+
+export type UpdateDriverOfficeBodyValidator = z.infer<typeof updateDriverOfficeBodyValidator>;
