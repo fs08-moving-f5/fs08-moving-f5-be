@@ -5,7 +5,7 @@ import {
   getNotificationStreamController,
   readNotificationController,
 } from './notification.controller';
-import validateMiddleware from '@/middlewares/validateMiddleware';
+import { validateParamsMiddleware } from '@/middlewares/validateMiddleware';
 import { notificationIdParamsValidator } from './validators/notification.validators';
 
 const router = Router();
@@ -17,7 +17,7 @@ router.get('/', authenticate, getNotificationsController);
 router.patch(
   '/:id',
   authenticate,
-  validateMiddleware(notificationIdParamsValidator),
+  validateParamsMiddleware(notificationIdParamsValidator),
   readNotificationController,
 );
 
