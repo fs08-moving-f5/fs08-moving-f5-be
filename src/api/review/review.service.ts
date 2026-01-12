@@ -51,11 +51,18 @@ export async function getReviewWritableService(
   const { estimates, total } = await repo.getReviewWritableRepository(params);
 
   const mapped = estimates.map((estimate) => {
+    if (!estimate.review) {
+      throw new AppError(
+        '서버 내부 상태가 올바르지 않습니다.', // 확정 견적에 리뷰 테이블이 존재하지 않음
+        HTTP_STATUS.INTERNAL_SERVER_ERROR,
+      );
+    }
+
     const { from, to } = splitAddresses(estimate.estimateRequest.addresses);
 
     return {
       id: estimate.id,
-      reviewId: estimate.review!.id,
+      reviewId: estimate.review.id,
       price: estimate.price,
       createdAt: estimate.createdAt,
       driver: {

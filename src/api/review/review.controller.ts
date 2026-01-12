@@ -13,8 +13,8 @@ export const getReviewWritten = asyncHandler(async (req: Request, res: Response)
 
   const params: GetReviewParams = {
     userId,
-    offset: query.offset,
-    limit: query.limit,
+    offset: query.offset ?? 0,
+    limit: query.limit ?? 10,
   };
 
   const reviews = await service.getReviewWrittenService(params);
@@ -30,8 +30,8 @@ export const getReviewWritable = asyncHandler(async (req: Request, res: Response
 
   const params: GetReviewParams = {
     userId,
-    offset: query.offset,
-    limit: query.limit,
+    offset: query.offset ?? 0,
+    limit: query.limit ?? 10,
   };
 
   const reviews = await service.getReviewWritableService(params);
