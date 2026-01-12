@@ -11,6 +11,6 @@ router.get('/written', authenticate, controller.getReviewWritten);
 router.get('/writable', authenticate, controller.getReviewWritable);
 
 // 리뷰 작성 (일반 유저)
-router.patch('/:reviewId', authenticate, controller.createReview);
+router.patch('/:reviewId', authenticate, controller.updateReview);
 
 export default router;
