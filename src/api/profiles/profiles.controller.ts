@@ -18,8 +18,25 @@ import AppError from '@/utils/AppError';
 import asyncHandler from '@/middlewares/asyncHandler';
 import HTTP_STATUS from '@/constants/http.constant';
 
+import { mapNullableProfileImage } from '@/utils/profileImage';
+
 import type { Request, Response } from 'express';
 import type { User } from '@/generated/client';
+
+// ========== Profile Image Presign Controllers ==========
+export const createProfileImagePutPresignController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const data = res.locals.profileImagePutPresign;
+    if (!data) {
+      throw new AppError('presign 생성에 실패했습니다', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data,
+    });
+  },
+);
 
 // loadUser 미들웨어를 거친 후 req.currentUser는 전체 User 정보를 포함합니다
 
@@ -41,8 +58,9 @@ export const getMyProfileController = asyncHandler(async (req: Request, res: Res
     return;
   }
 
+  const mappedProfile = await mapNullableProfileImage(profile);
   const profileAll = {
-    ...profile,
+    ...mappedProfile,
     name: user.name,
     email: user.email,
     phone: user.phone,
@@ -79,8 +97,9 @@ export const getUserProfileController = asyncHandler(async (req: Request, res: R
   }
 
   // user 필드 병합
+  const mappedProfile = await mapNullableProfileImage(profile as any);
   const merged = {
-    ...profile,
+    ...(mappedProfile as any),
     name: user.name,
     email: user.email,
     phone: user.phone,
@@ -107,10 +126,11 @@ export const createUserProfileController = asyncHandler(async (req: Request, res
   const validatedData = createUserProfileSchema.parse(req.body);
 
   const profile = await createUserProfileService(user.id, validatedData);
+  const mappedProfile = await mapNullableProfileImage(profile as any);
 
   res.status(HTTP_STATUS.CREATED).json({
     success: true,
-    data: profile,
+    data: mappedProfile,
   });
 });
 
@@ -129,10 +149,11 @@ export const updateUserProfileController = asyncHandler(async (req: Request, res
   const validatedData = updateUserProfileSchema.parse(req.body);
 
   const profile = await updateUserProfileService(user.id, validatedData);
+  const mappedProfile = await mapNullableProfileImage(profile as any);
 
   res.json({
     success: true,
-    data: profile,
+    data: mappedProfile,
   });
 });
 
@@ -161,8 +182,9 @@ export const getDriverProfileController = asyncHandler(async (req: Request, res:
   }
 
   // driver(User) 정보도 병합해서 반환
+  const mappedProfile = await mapNullableProfileImage(profile as any);
   const merged = {
-    ...profile,
+    ...(mappedProfile as any),
     name: user.name,
     email: user.email,
     phone: user.phone,
@@ -189,10 +211,11 @@ export const createDriverProfileController = asyncHandler(async (req: Request, r
   const validatedData = createDriverProfileSchema.parse(req.body);
 
   const profile = await createDriverProfileService(user.id, validatedData);
+  const mappedProfile = await mapNullableProfileImage(profile as any);
 
   res.status(HTTP_STATUS.CREATED).json({
     success: true,
-    data: profile,
+    data: mappedProfile,
   });
 });
 
@@ -211,10 +234,11 @@ export const updateDriverProfileController = asyncHandler(async (req: Request, r
   const validatedData = updateDriverProfileSchema.parse(req.body);
 
   const profile = await updateDriverProfileService(user.id, validatedData);
+  const mappedProfile = await mapNullableProfileImage(profile as any);
 
   res.json({
     success: true,
-    data: profile,
+    data: mappedProfile,
   });
 });
 
@@ -237,9 +261,14 @@ export const getDriverPublicProfileController = asyncHandler(
       return;
     }
 
+    const mappedProfile = await mapNullableProfileImage((data.driverProfile as any) ?? null);
+
     res.json({
       success: true,
-      data,
+      data: {
+        ...data,
+        driverProfile: mappedProfile,
+      },
     });
   },
 );
