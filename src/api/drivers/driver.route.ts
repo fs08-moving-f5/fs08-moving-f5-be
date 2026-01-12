@@ -6,7 +6,7 @@ import {
 } from './driver.controller';
 import { validateQueryMiddleware, validateBodyMiddleware } from '@/middlewares/validateMiddleware';
 import { getDriversQueryValidator } from './validators/driver.validator';
-import { authenticate, requireDriver } from '@/middlewares/authMiddleware';
+import { authenticate, requireDriver, optionalAuthenticate } from '@/middlewares/authMiddleware';
 import {
   getNearbyRequestsQueryValidator,
   updateDriverOfficeBodyValidator,
@@ -14,7 +14,12 @@ import {
 
 const router = Router();
 
-router.get('/', validateQueryMiddleware(getDriversQueryValidator), getDriversController);
+router.get(
+  '/',
+  optionalAuthenticate,
+  validateQueryMiddleware(getDriversQueryValidator),
+  getDriversController,
+);
 
 router.patch(
   '/me/office',
