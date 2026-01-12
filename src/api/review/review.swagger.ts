@@ -164,7 +164,7 @@
 
 /**
  * @swagger
- * /api/reviews/write:
+ * /api/reviews/{reviewId}:
  *   patch:
  *     tags: [Review]
  *     summary: 리뷰 작성 (일반 유저)
