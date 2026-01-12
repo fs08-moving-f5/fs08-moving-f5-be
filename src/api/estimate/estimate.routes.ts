@@ -6,7 +6,10 @@ import {
   getPendingEstimatesController,
   getReceivedEstimatesController,
 } from './estimate.controller';
-import validateMiddleware from '@/middlewares/validateMiddleware';
+import {
+  validateQueryMiddleware,
+  validateParamsMiddleware,
+} from '@/middlewares/validateMiddleware';
 import {
   estimateIdParamsValidator,
   receiveEstimateRequestQueryValidator,
@@ -21,7 +24,7 @@ router.get(
   '/received',
   authenticate,
   requireUser,
-  validateMiddleware(receiveEstimateRequestQueryValidator),
+  validateQueryMiddleware(receiveEstimateRequestQueryValidator),
   getReceivedEstimatesController,
 );
 
@@ -29,7 +32,7 @@ router.get(
   '/:estimateId',
   authenticate,
   requireUser,
-  validateMiddleware(estimateIdParamsValidator),
+  validateParamsMiddleware(estimateIdParamsValidator),
   getEstimateDetailController,
 );
 
@@ -37,7 +40,7 @@ router.post(
   '/:estimateId/confirm',
   authenticate,
   requireUser,
-  validateMiddleware(estimateIdParamsValidator),
+  validateParamsMiddleware(estimateIdParamsValidator),
   confirmEstimateController,
 );
 

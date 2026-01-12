@@ -107,13 +107,15 @@ export const getDriversService = async ({
       tx,
     });
 
-    const favoriteDrivers = userId
-      ? await getUserFavoriteDriversRepository({
-          userId,
-          driverIds: uniqueDriverIds,
-          tx,
-        })
-      : [];
+    // 회원/비회원 모두 사용 가능한 API이므로 userId가 유효한 문자열일 때만 찜 목록 조회
+    const favoriteDrivers =
+      userId && userId.trim() !== '' && uniqueDriverIds.length > 0
+        ? await getUserFavoriteDriversRepository({
+            userId,
+            driverIds: uniqueDriverIds,
+            tx,
+          })
+        : [];
 
     const favoriteDriverIds = new Set(favoriteDrivers.map((driver) => driver.driverId));
 
