@@ -16,12 +16,14 @@ import type {
 export const getEstimateRequests = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
 
+  const query = validator.getEstimateRequestsSchema.parse(req.query);
+
   const params: GetEstimateRequestsParams = {
     driverId,
-    search: req.query.search ? String(req.query.search) : undefined,
-    sort: req.query.sort as EstimateSort,
-    cursor: req.query.cursor ? String(req.query.cursor) : undefined,
-    take: req.query.take ? Number(req.query.take) : undefined,
+    search: query.search,
+    sort: query.sort,
+    cursor: query.cursor ?? undefined,
+    take: query.take,
   };
 
   const estimates = await service.getEstimateRequestsService(params);
@@ -32,13 +34,16 @@ export const getEstimateRequests = asyncHandler(async (req: Request, res: Respon
 // 견적 보내기(기사)
 export const createEstimate = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
-  const { estimateRequestId } = req.params;
+  const query = validator.createEstimateSchema.parse({
+    params: req.params,
+    body: req.body,
+  });
 
   const data: CreateEstimateParams = {
-    estimateRequestId,
-    price: Number(req.body.price),
-    comment: String(req.body.comment),
     driverId,
+    estimateRequestId: query.params.estimateRequestId,
+    price: query.body.price,
+    comment: query.body.comment,
   };
 
   const estimate = await service.createEstimateService(data);
@@ -49,12 +54,15 @@ export const createEstimate = asyncHandler(async (req: Request, res: Response) =
 // 견적 반려(기사)
 export const createEstimateReject = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
-  const { estimateRequestId } = req.params;
+  const query = validator.createEstimateRejectSchema.parse({
+    params: req.params,
+    body: req.body,
+  });
 
   const data: CreateEstimateRejectParams = {
-    estimateRequestId,
-    rejectReason: String(req.body.rejectReason),
     driverId,
+    estimateRequestId: query.params.estimateRequestId,
+    rejectReason: query.body.rejectReason,
   };
 
   const estimate = await service.createEstimateRejectService(data);
@@ -66,11 +74,13 @@ export const createEstimateReject = asyncHandler(async (req: Request, res: Respo
 export const getEstimateConfirm = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
 
+  const query = validator.getEstimateListSchema.parse(req.query);
+
   const data: GetEstimateParams = {
     driverId,
-    sort: req.query.sort as EstimateSort,
-    cursor: req.query.cursor ? String(req.query.cursor) : null,
-    take: req.query.take ? Number(req.query.take) : undefined,
+    sort: query.sort,
+    cursor: query.cursor ?? undefined,
+    take: query.take,
   };
 
   const estimateConfirm = await service.getEstimateConfirmService(data);
@@ -81,7 +91,7 @@ export const getEstimateConfirm = asyncHandler(async (req: Request, res: Respons
 // 확정 견적 상세 조회
 export const getEstimateConfirmId = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
-  const { estimateId } = req.params;
+  const { estimateId } = validator.getConfirmedEstimateDetailSchema.parse(req.query);
 
   const estimate = await service.getEstimateConfirmIdService(estimateId, driverId);
 
@@ -95,11 +105,13 @@ export const getEstimateConfirmId = asyncHandler(async (req: Request, res: Respo
 export const getEstimateReject = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
 
+  const query = validator.getEstimateListSchema.parse(req.query);
+
   const data: GetEstimateParams = {
     driverId,
-    sort: req.query.sort as EstimateSort,
-    cursor: req.query.cursor ? String(req.query.cursor) : null,
-    take: req.query.take ? Number(req.query.take) : undefined,
+    sort: query.sort,
+    cursor: query.cursor ?? undefined,
+    take: query.take,
   };
 
   const estimateReject = await service.getEstimateRejectService(data);

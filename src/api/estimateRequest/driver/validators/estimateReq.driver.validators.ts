@@ -9,11 +9,9 @@ const paginationSchema = {
 
 // 받은 요청 목록
 export const getEstimateRequestsSchema = z.object({
-  query: z.object({
-    search: z.string().min(1).optional(),
-    sort: z.enum(['latest', 'oldest', 'moving-latest', 'moving-oldest']).optional(),
-    ...paginationSchema,
-  }),
+  search: z.string().min(1).optional(),
+  sort: z.enum(['latest', 'oldest', 'moving-latest', 'moving-oldest']).optional(),
+  ...paginationSchema,
 });
 
 // 견적 생성
@@ -39,15 +37,11 @@ export const createEstimateRejectSchema = z.object({
 
 // 확정/반려 목록
 export const getEstimateListSchema = z.object({
-  query: z.object({
-    sort: z.enum(['latest']).optional(),
-    ...paginationSchema,
-  }),
+  sort: z.enum(['latest']).optional(),
+  ...paginationSchema,
 });
 
 // 확정 상세
 export const getConfirmedEstimateDetailSchema = z.object({
-  params: z.object({
-    estimateId: z.string().uuid(),
-  }),
+  estimateId: z.string().uuid(),
 });
