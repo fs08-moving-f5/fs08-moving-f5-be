@@ -776,6 +776,16 @@
  *                             nullable: true
  *                             description: 전체 주소
  *                             example: "서울특별시 강남구 테헤란로 123"
+ *                           lat:
+ *                             type: number
+ *                             format: float
+ *                             description: 출발지 위도
+ *                             example: 37.5665
+ *                           lng:
+ *                             type: number
+ *                             format: float
+ *                             description: 출발지 경도
+ *                             example: 126.9780
  *                         description: 출발지 주소 정보
  *             examples:
  *               success:
@@ -792,6 +802,8 @@
  *                         sido: "서울특별시"
  *                         sigungu: "강남구"
  *                         address: "서울특별시 강남구 테헤란로 123"
+ *                         lat: 37.5665
+ *                         lng: 126.9780
  *                     - estimateRequestId: "123e4567-e89b-12d3-a456-426614174001"
  *                       distanceKm: 8.2
  *                       movingType: "OFFICE_MOVING"
@@ -801,6 +813,8 @@
  *                         sido: "서울특별시"
  *                         sigungu: "송파구"
  *                         address: "서울특별시 송파구 올림픽로 300"
+ *                         lat: 37.5133
+ *                         lng: 127.1028
  *               empty:
  *                 summary: 주변에 견적 요청이 없는 경우
  *                 value:
