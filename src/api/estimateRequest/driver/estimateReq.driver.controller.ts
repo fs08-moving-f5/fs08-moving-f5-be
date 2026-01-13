@@ -16,12 +16,15 @@ import type {
 export const getEstimateRequests = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
 
+  const movingTypes =
+    typeof req.query.movingTypes === 'string'
+      ? (req.query.movingTypes.split(',') as ServiceEnum[])
+      : (req.query.movingTypes as ServiceEnum[] | undefined);
+
   const params: GetEstimateRequestsParams = {
     driverId,
-    movingTypes: req.query.movingTypes as ServiceEnum[],
-    movingDate: req.query.movingDate ? new Date(String(req.query.movingDate)) : undefined,
+    movingTypes,
     isDesignated: req.query.isDesignated === 'true',
-    status: req.query.status as EstimateStatus,
     serviceRegionFilter: req.query.serviceRegionFilter === 'true',
     search: req.query.search ? String(req.query.search) : undefined,
     sort: req.query.sort as EstimateSort,
@@ -37,9 +40,10 @@ export const getEstimateRequests = asyncHandler(async (req: Request, res: Respon
 // 견적 보내기(기사)
 export const createEstimate = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
+  const { estimateRequestId } = req.params;
 
   const data: CreateEstimateParams = {
-    estimateRequestId: req.body.estimateRequestId,
+    estimateRequestId,
     price: Number(req.body.price),
     comment: String(req.body.comment),
     driverId,
@@ -53,9 +57,10 @@ export const createEstimate = asyncHandler(async (req: Request, res: Response) =
 // 견적 반려(기사)
 export const createEstimateReject = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
+  const { estimateRequestId } = req.params;
 
   const data: CreateEstimateRejectParams = {
-    estimateRequestId: req.body.estimateRequestId,
+    estimateRequestId,
     rejectReason: String(req.body.rejectReason),
     driverId,
   };

@@ -13,9 +13,6 @@ const DEFAULT_TAKE = 6;
 // 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsRepository({
   driverId,
-  movingTypes,
-  isDesignated = false,
-  serviceRegionFilter,
   search,
   sort = 'latest',
   cursor,
@@ -24,48 +21,6 @@ export async function getEstimateRequestsRepository({
   // take를 숫자로 변환
   const parsedTake = typeof take === 'string' ? parseInt(take, 10) : take;
   const finalTake = isNaN(parsedTake) ? DEFAULT_TAKE : parsedTake;
-
-  // 드라이버 프로필 regions 조회
-  const driverProfile = await prisma.driverProfile.findUnique({
-    where: { driverId },
-    select: { regions: true },
-  });
-
-  if (!driverProfile) return [];
-
-  const where: Prisma.EstimateRequestWhereInput = {
-    isDelete: false,
-    status: EstimateStatus.PENDING,
-    ...(isDesignated
-      ? {
-          isDesignated: true,
-          designatedDriverId: driverId,
-        }
-      : {
-          isDesignated: false,
-        }),
-    ...(movingTypes &&
-      movingTypes.length > 0 && {
-        movingType: { in: movingTypes },
-      }),
-    ...(search && {
-      user: {
-        name: {
-          contains: search,
-          mode: 'insensitive',
-        },
-      },
-    }),
-    ...(serviceRegionFilter && {
-      addresses: {
-        some: {
-          sido: {
-            in: driverProfile.regions,
-          },
-        },
-      },
-    }),
-  };
 
   let orderBy = {};
   switch (sort) {
@@ -85,7 +40,26 @@ export async function getEstimateRequestsRepository({
   }
 
   return await prisma.estimateRequest.findMany({
-    where,
+    where: {
+      isDelete: false,
+      status: EstimateStatus.PENDING,
+      estimate: {
+        none: {
+          driverId,
+          isDelete: false,
+        },
+      },
+      ...(search && {
+        user: {
+          is: {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        },
+      }),
+    },
     select: {
       id: true,
       movingType: true,
@@ -202,7 +176,7 @@ export async function getEstimateConfirmRepository({
   const parsedTake = typeof take === 'string' ? parseInt(take, 10) : take;
   const finalTake = isNaN(parsedTake) ? DEFAULT_TAKE : parsedTake;
 
-  const where: Prisma.EstimateWhereInput = {
+  const where = {
     driverId,
     isDelete: false,
     status: {
@@ -295,7 +269,7 @@ export async function getEstimateRejectRepository({
   const parsedTake = typeof take === 'string' ? parseInt(take, 10) : take;
   const finalTake = isNaN(parsedTake) ? DEFAULT_TAKE : parsedTake;
 
-  const where: Prisma.EstimateWhereInput = {
+  const where = {
     driverId,
     isDelete: false,
     status: EstimateStatus.REJECTED,
