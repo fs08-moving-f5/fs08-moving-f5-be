@@ -8,26 +8,18 @@ import {
   getEstimateRequestsInProgressRepository,
 } from './estimateReq.user.repository';
 import { createEstimateRequestParams } from '@/types/userEstimate';
+import HTTP_STATUS from '@/constants/http.constant';
 
 //진행 중인 견적 요청 보기 (유저)
 export const getEstimateRequestsInProgressService = async ({ userId }: { userId: string }) => {
-  if (!userId) {
-    throw new AppError('유저 로그인이 필요합니다.', 401);
-  }
   return await getEstimateRequestsInProgressRepository({ userId });
 };
 
 //견적 요청 (유저)
 export const createEstimateRequestService = async (data: createEstimateRequestParams) => {
-  if (!data.userId) {
-    throw new AppError('유저 로그인이 필요합니다.', 401);
-  }
-  if (!data.movingType || !data.movingDate || !data.from || !data.to) {
-    throw new AppError('필수 데이터가 누락되었습니다.', 400);
-  }
   const inProgress = await getEstimateRequestsInProgressRepository({ userId: data.userId });
   if (inProgress.length > 0) {
-    throw new AppError('이미 진행 중인 견적 요청이 있습니다.', 409);
+    throw new AppError('이미 진행 중인 견적 요청이 있습니다.', HTTP_STATUS.CONFLICT);
   }
   return createEstimateRequestRepository(data);
 };
@@ -37,23 +29,16 @@ export const createDesignatedEstimateRequestService = async (data: {
   userId: string;
   designatedDriverId: string;
 }) => {
-  if (!data.userId) {
-    throw new AppError('유저 로그인이 필요합니다.', 401);
-  }
-  if (!data.designatedDriverId) {
-    throw new AppError('지정 기사 정보가 누락되었습니다.', 400);
-  }
-
   const designatedDriver = await findDesignatedDriverRepository({
     designatedDriverId: data.designatedDriverId,
   });
   if (!designatedDriver) {
-    throw new AppError('지정 기사 정보를 찾을 수 없습니다.', 404);
+    throw new AppError('지정 기사 정보를 찾을 수 없습니다.', HTTP_STATUS.NOT_FOUND);
   }
 
   const pendingRequest = await findLatestPendingEstimateRequestRepository({ userId: data.userId });
   if (!pendingRequest) {
-    throw new AppError('일반 견적 요청을 먼저 진행해주세요.', 404);
+    throw new AppError('일반 견적 요청을 먼저 진행해주세요.', HTTP_STATUS.NOT_FOUND);
   }
 
   const updatedRequest = await updateEstimateRequestToDesignatedRepository({
