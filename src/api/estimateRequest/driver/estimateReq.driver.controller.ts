@@ -16,16 +16,8 @@ import type {
 export const getEstimateRequests = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
 
-  const movingTypes =
-    typeof req.query.movingTypes === 'string'
-      ? (req.query.movingTypes.split(',') as ServiceEnum[])
-      : (req.query.movingTypes as ServiceEnum[] | undefined);
-
   const params: GetEstimateRequestsParams = {
     driverId,
-    movingTypes,
-    isDesignated: req.query.isDesignated === 'true',
-    serviceRegionFilter: req.query.serviceRegionFilter === 'true',
     search: req.query.search ? String(req.query.search) : undefined,
     sort: req.query.sort as EstimateSort,
     cursor: req.query.cursor ? String(req.query.cursor) : undefined,

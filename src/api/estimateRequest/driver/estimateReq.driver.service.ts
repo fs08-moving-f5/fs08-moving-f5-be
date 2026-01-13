@@ -15,9 +15,9 @@ import type {
 
 // 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsService(params: GetEstimateRequestsParams) {
-  const requests = await repo.getEstimateRequestsRepository(params);
+  const { requests, total } = await repo.getEstimateRequestsRepository(params);
 
-  return requests.map((req) => {
+  const mapped = requests.map((req) => {
     const { from, to } = splitAddresses(req.addresses);
 
     return {
@@ -32,6 +32,8 @@ export async function getEstimateRequestsService(params: GetEstimateRequestsPara
       to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
     };
   });
+
+  return { requests: mapped, total };
 }
 
 // 견적 보내기(기사)

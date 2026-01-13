@@ -39,48 +39,56 @@ export async function getEstimateRequestsRepository({
       break;
   }
 
-  return await prisma.estimateRequest.findMany({
-    where: {
-      isDelete: false,
-      status: EstimateStatus.PENDING,
-      estimate: {
-        none: {
-          driverId,
-          isDelete: false,
-        },
+  const where: Prisma.EstimateRequestWhereInput = {
+    isDelete: false,
+    status: EstimateStatus.PENDING,
+    estimate: {
+      none: {
+        driverId,
+        isDelete: false,
       },
-      ...(search && {
-        user: {
-          is: {
-            name: {
-              contains: search,
-              mode: 'insensitive',
-            },
+    },
+    ...(search && {
+      user: {
+        is: {
+          name: {
+            contains: search,
+            mode: 'insensitive',
           },
         },
-      }),
-    },
-    select: {
-      id: true,
-      movingType: true,
-      movingDate: true,
-      isDesignated: true,
-      createdAt: true,
-      updatedAt: true,
-      user: { select: { id: true, name: true } },
-      addresses: {
-        select: {
-          addressType: true,
-          sido: true,
-          sigungu: true,
+      },
+    }),
+  };
+
+  const [requests, total] = await prisma.$transaction([
+    prisma.estimateRequest.findMany({
+      where,
+      select: {
+        id: true,
+        movingType: true,
+        movingDate: true,
+        isDesignated: true,
+        createdAt: true,
+        updatedAt: true,
+        user: { select: { id: true, name: true } },
+        addresses: {
+          select: {
+            addressType: true,
+            sido: true,
+            sigungu: true,
+          },
         },
       },
-    },
-    orderBy,
-    take: finalTake,
-    skip: cursor ? 1 : 0,
-    ...(cursor && { cursor: { id: cursor } }),
-  });
+      orderBy,
+      take: finalTake,
+      skip: cursor ? 1 : 0,
+      ...(cursor && { cursor: { id: cursor } }),
+    }),
+
+    prisma.estimateRequest.count({ where }),
+  ]);
+
+  return { requests, total };
 }
 
 // 기존 견적 존재 여부
