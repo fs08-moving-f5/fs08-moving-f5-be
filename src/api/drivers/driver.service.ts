@@ -1,12 +1,25 @@
 import {
+  findDriverOfficePointRepository,
+  findFromAddressesInBoxRepository,
   getDriverInfoRepository,
   getDriverStatusesRepository,
   getFilteredDriverIdsRepository,
+  updateDriverOfficeRepository,
 } from './driver.repository';
 import { getUserFavoriteDriversRepository } from '../estimate/estimate.repository';
 import prisma from '@/config/prisma';
-import { GetDriversServiceParams, regionMap } from './types';
+import {
+  GetDriversServiceParams,
+  NearbyEstimateRequestItem,
+  regionMap,
+  UpdateDriverOfficeBody,
+} from './types';
 import { Prisma, RegionEnum, ServiceEnum, UserType } from '@/generated/client';
+import AppError from '@/utils/AppError';
+import HTTP_STATUS from '@/constants/http.constant';
+import { geocodeAddress } from './utils/geocodeAddress';
+import { getBoundingBox } from './utils/getBoundingBox';
+import { getDistanceKm } from './utils/getDistanceKm';
 
 export const getDriversService = async ({
   userId,
@@ -163,4 +176,100 @@ export const getDriversService = async ({
       },
     };
   });
+};
+
+export const updateDriverOfficeService = async (params: {
+  driverId: string;
+  body: UpdateDriverOfficeBody;
+}) => {
+  const { driverId, body } = params;
+
+  const officeAddress = body.officeAddress?.trim();
+
+  if (!officeAddress) {
+    throw new AppError('사무실 주소가 필요합니다', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const geocodeResult = await geocodeAddress(officeAddress);
+
+  if (!geocodeResult) {
+    throw new AppError('주소 변환에 실패했습니다', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+  }
+
+  const result = await updateDriverOfficeRepository({
+    driverId,
+    body: {
+      officeAddress,
+      officeZoneCode: body.officeZoneCode,
+      officeSido: body.officeSido,
+      officeSigungu: body.officeSigungu,
+    },
+    geocodeResult: { lat: geocodeResult.lat, lng: geocodeResult.lng },
+  });
+
+  return result;
+};
+
+export const getNearbyEstimateRequestsService = async (params: {
+  driverId: string;
+  radiusKm: number;
+}) => {
+  const office = await findDriverOfficePointRepository({ driverId: params.driverId });
+
+  if (!office || office.officeLat === null || office.officeLng === null) {
+    throw new AppError('사무실 주소(위도/경도)가 필요합니다', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const baseLat = office.officeLat;
+  const baseLng = office.officeLng;
+
+  const box = getBoundingBox({
+    lat: baseLat,
+    lng: baseLng,
+    radiusKm: params.radiusKm,
+  });
+
+  const candidates = await findFromAddressesInBoxRepository({
+    minLat: box.minLat,
+    minLng: box.minLng,
+    maxLat: box.maxLat,
+    maxLng: box.maxLng,
+  });
+
+  const items = candidates
+    .map((row) => {
+      if (row.lat === null || row.lng === null) return null;
+
+      const distanceKm = getDistanceKm({
+        from: {
+          lat: baseLat,
+          lng: baseLng,
+        },
+        to: {
+          lat: row.lat,
+          lng: row.lng,
+        },
+      });
+
+      if (distanceKm > params.radiusKm) return null;
+
+      const item: NearbyEstimateRequestItem = {
+        estimateRequestId: row.estimateRequestId,
+        distanceKm,
+        movingType: row.estimateRequest.movingType,
+        movingDate: row.estimateRequest.movingDate.toISOString(),
+        createdAt: row.estimateRequest.createdAt.toISOString(),
+        fromAddress: {
+          sido: row.sido,
+          sigungu: row.sigungu,
+          address: row.address,
+        },
+      };
+
+      return item;
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null)
+    .sort((a, b) => a.distanceKm - b.distanceKm);
+
+  return items;
 };
