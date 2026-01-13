@@ -40,6 +40,29 @@
  *             enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
  *           description: 제공 서비스 목록
  *           example: ["HOME_MOVING", "OFFICE_MOVING"]
+ *         officeAddress:
+ *           type: string
+ *           nullable: true
+ *           description: 사무실 주소
+ *           example: "서울특별시 강남구 테헤란로 123"
+ *         officeLat:
+ *           type: number
+ *           format: float
+ *           nullable: true
+ *           description: 사무실 위도
+ *           example: 37.5665
+ *         officeLng:
+ *           type: number
+ *           format: float
+ *           nullable: true
+ *           description: 사무실 경도
+ *           example: 126.9780
+ *         officeUpdatedAt:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           description: 사무실 정보 업데이트 일시
+ *           example: "2024-01-15T10:30:00Z"
  *
  *     DriverListItem:
  *       type: object

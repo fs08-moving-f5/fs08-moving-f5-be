@@ -71,5 +71,7 @@ export interface NearbyEstimateRequestItem {
     sido: string;
     sigungu: string;
     address: string;
+    lat: number;
+    lng: number;
   };
 }
