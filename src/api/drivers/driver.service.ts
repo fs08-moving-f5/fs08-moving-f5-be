@@ -263,6 +263,8 @@ export const getNearbyEstimateRequestsService = async (params: {
           sido: row.sido,
           sigungu: row.sigungu,
           address: row.address,
+          lat: row.lat,
+          lng: row.lng,
         },
       };
 
