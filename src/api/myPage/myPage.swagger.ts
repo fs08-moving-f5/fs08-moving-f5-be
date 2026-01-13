@@ -52,6 +52,33 @@
  *                 enum: [서울, 경기, 인천, 강원, 충북, 충남, 대전, 세종, 전북, 전남, 광주, 경북, 경남, 대구, 부산, 울산, 제주]
  *               description: 서비스 가능 지역
  *               example: ["서울", "경기"]
+ *             favoritedCount:
+ *               type: integer
+ *               description: 즐겨찾기된 횟수
+ *               example: 15
+ *             officeAddress:
+ *               type: string
+ *               nullable: true
+ *               description: 사무실 주소
+ *               example: "서울특별시 강남구 테헤란로 123"
+ *             officeLat:
+ *               type: number
+ *               format: float
+ *               nullable: true
+ *               description: 사무실 위도
+ *               example: 37.5665
+ *             officeLng:
+ *               type: number
+ *               format: float
+ *               nullable: true
+ *               description: 사무실 경도
+ *               example: 126.9780
+ *             officeUpdatedAt:
+ *               type: string
+ *               format: date-time
+ *               nullable: true
+ *               description: 사무실 정보 업데이트 일시
+ *               example: "2024-01-15T10:30:00Z"
  *         activity:
  *           type: object
  *           properties:
