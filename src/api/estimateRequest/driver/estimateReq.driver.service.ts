@@ -2,7 +2,6 @@ import prisma from '@/config/prisma';
 import * as repo from './estimateReq.driver.repository';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
-import ERROR_MESSAGE from '@/constants/errorMessage.constant';
 import splitAddresses from '@/utils/splitAddresses';
 import { EstimateStatus, NotificationType } from '@/generated/enums';
 import { createNotificationAndPushUnreadService } from '@/api/notification/notification.service';
@@ -40,17 +39,13 @@ export async function getEstimateRequestsService(params: GetEstimateRequestsPara
 export async function createEstimateService(data: CreateEstimateParams) {
   const { estimateRequestId, driverId, price, comment } = data;
 
-  if (!estimateRequestId || !driverId || !price || !comment) {
-    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
-  }
-
   const exists = await repo.findExistingEstimateRepository({
     estimateRequestId,
     driverId,
   });
 
   if (exists) {
-    throw new AppError(ERROR_MESSAGE.ALREADY_SUBMITTED, HTTP_STATUS.BAD_REQUEST);
+    throw new AppError('이미 해당 요청에 견적을 제출했습니다.', HTTP_STATUS.BAD_REQUEST);
   }
 
   const estimate = await prisma.$transaction(async (tx) => {
@@ -79,17 +74,13 @@ export async function createEstimateService(data: CreateEstimateParams) {
 export async function createEstimateRejectService(data: CreateEstimateRejectParams) {
   const { estimateRequestId, rejectReason, driverId } = data;
 
-  if (!estimateRequestId || !driverId || !rejectReason) {
-    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
-  }
-
   const exists = await repo.findExistingEstimateRepository({
     estimateRequestId,
     driverId,
   });
 
   if (exists) {
-    throw new AppError(ERROR_MESSAGE.ALREADY_SUBMITTED, HTTP_STATUS.BAD_REQUEST);
+    throw new AppError('이미 해당 요청에 견적을 제출했습니다.', HTTP_STATUS.BAD_REQUEST);
   }
 
   const estimate = await prisma.$transaction(async (tx) => {
@@ -139,14 +130,10 @@ export async function getEstimateConfirmService(params: GetEstimateParams) {
 
 // 확정 견적 상세 조회
 export async function getEstimateConfirmIdService(estimateId: string, driverId: string) {
-  if (!estimateId) {
-    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
-  }
-
   const estimate = await repo.getEstimateConfirmIdRepository(estimateId, driverId);
 
   if (!estimate) {
-    throw new AppError(ERROR_MESSAGE.ESTIMATE.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+    throw new AppError('해당 견적이 존재하지 않습니다.', HTTP_STATUS.NOT_FOUND);
   }
 
   const { from, to } = splitAddresses(estimate.estimateRequest.addresses);

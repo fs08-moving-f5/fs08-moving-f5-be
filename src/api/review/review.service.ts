@@ -2,7 +2,6 @@ import prisma from '../../config/prisma';
 import * as repo from './review.repository';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
-import ERROR_MESSAGE from '@/constants/errorMessage.constant';
 import {
   GetReviewParams,
   UpdateReviewParams,

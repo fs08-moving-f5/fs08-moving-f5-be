@@ -3,12 +3,10 @@ import * as service from './estimateReq.driver.service';
 import * as validator from './validators/estimateReq.driver.validators';
 import asyncHandler from '@/middlewares/asyncHandler';
 import HTTP_STATUS from '@/constants/http.constant';
-import { ServiceEnum, EstimateStatus } from '@/generated/enums';
 import type {
   GetEstimateRequestsParams,
   CreateEstimateParams,
   CreateEstimateRejectParams,
-  EstimateSort,
   GetEstimateParams,
 } from '@/types/driverEstimate';
 
