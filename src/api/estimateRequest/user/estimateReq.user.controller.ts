@@ -13,7 +13,7 @@ import HTTP_STATUS from '@/constants/http.constant';
 
 //진행 중인 견적 조회 (유저)
 export const getEstimateRequestsInProgress = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user?.id;
   if (!userId) {
     throw new AppError('유저 로그인이 필요합니다.', HTTP_STATUS.UNAUTHORIZED);
   }
@@ -23,7 +23,7 @@ export const getEstimateRequestsInProgress = asyncHandler(async (req: Request, r
 
 //견적 요청 (유저)
 export const createEstimateRequest = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user?.id;
   if (!userId) {
     throw new AppError('유저 로그인이 필요합니다.', HTTP_STATUS.UNAUTHORIZED);
   }
@@ -44,7 +44,7 @@ export const createEstimateRequest = asyncHandler(async (req: Request, res: Resp
 
 // 지정 견적 요청 (유저)
 export const createDesignatedEstimateRequest = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user?.id;
   if (!userId) {
     throw new AppError('유저 로그인이 필요합니다.', HTTP_STATUS.UNAUTHORIZED);
   }
