@@ -4,7 +4,7 @@ import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 import ERROR_MESSAGE from '@/constants/errorMessage.constant';
 import splitAddresses from '@/utils/splitAddresses';
-import { NotificationType } from '@/generated/enums';
+import { EstimateStatus, NotificationType } from '@/generated/enums';
 import { createNotificationAndPushUnreadService } from '@/api/notification/notification.service';
 import type {
   GetEstimateRequestsParams,
@@ -115,6 +115,8 @@ export async function getEstimateConfirmService(params: GetEstimateParams) {
   return estimates.map((e) => {
     const { from, to } = splitAddresses(e.estimateRequest.addresses);
 
+    const isCompleted = e.status === EstimateStatus.CONFIRMED && !!e.review;
+
     return {
       id: e.id,
       price: e.price,
@@ -130,6 +132,7 @@ export async function getEstimateConfirmService(params: GetEstimateParams) {
       isDesignated: e.estimateRequest.isDesignated,
       from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
       to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
+      type: isCompleted ? 'completed' : 'normal',
     };
   });
 }
@@ -181,7 +184,7 @@ export async function getEstimateRejectService(params: GetEstimateParams) {
       },
       from: from ? { sido: from.sido, sigungu: from.sigungu } : null,
       to: to ? { sido: to.sido, sigungu: to.sigungu } : null,
-      isRejected: true,
+      type: 'rejected',
     };
   });
 }
