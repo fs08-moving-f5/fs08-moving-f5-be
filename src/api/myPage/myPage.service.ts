@@ -25,6 +25,10 @@ interface MyPageData {
     services: ServiceEnum[];
     regions: RegionEnum[];
     favoritedCount: number;
+    officeAddress: string | null;
+    officeLat: number | null;
+    officeLng: number | null;
+    officeUpdatedAt: Date | null;
   };
   activity: {
     completedCount: number;
@@ -101,6 +105,10 @@ export const getMyPageDataService = async (driverId: string): Promise<MyPageData
       services: profile?.services || [],
       regions: profile?.regions || [],
       favoritedCount: favoritedCount,
+      officeAddress: profile?.officeAddress || null,
+      officeLat: profile?.officeLat || null,
+      officeLng: profile?.officeLng || null,
+      officeUpdatedAt: profile?.officeUpdatedAt || null,
     },
     activity: {
       completedCount,
