@@ -33,6 +33,34 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+// 선택적 JWT 인증 미들웨어 (토큰이 있으면 검증, 없으면 통과)
+export const optionalAuthenticate = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Authorization 헤더에서 토큰 추출
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      // 토큰이 없으면 그냥 통과
+      return next();
+    }
+
+    const token = authHeader.substring(7); // "Bearer " 제거
+
+    // 토큰 검증
+    const payload = verifyAccessToken(token);
+
+    // 요청 객체에 유저 정보 추가
+    req.user = {
+      id: payload.userId,
+    };
+
+    next();
+  } catch (error) {
+    // 토큰 검증 실패 시에도 그냥 통과 (비로그인 사용자로 처리)
+    next();
+  }
+};
+
 // 유저 타입 확인 미들웨어
 export const authorizeUserType = (...allowedTypes: UserType[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {

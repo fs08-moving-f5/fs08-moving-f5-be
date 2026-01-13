@@ -298,9 +298,10 @@
  * /api/auth/refresh:
  *   post:
  *     summary: 토큰 갱신
- *     description: 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 발급받습니다.
+ *     description: 리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다.
  *     tags: [Auth]
  *     requestBody:
+ *       required: false
  *       content:
  *         application/json:
  *           schema:

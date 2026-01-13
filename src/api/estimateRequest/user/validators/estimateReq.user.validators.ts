@@ -1,1 +1,29 @@
-// 예시 파일입니다. 자유롭게 사용하세요.
+import { ServiceEnum } from '@/generated/enums';
+import { z } from 'zod';
+
+export const createEstimateRequestWithGeocodeSchema = z.object({
+  movingType: z.nativeEnum(ServiceEnum),
+  movingDate: z.string().datetime(),
+  from: z.object({
+    address: z.string(),
+    zoneCode: z.coerce.number(),
+    addressEnglish: z.string(),
+    sido: z.string(),
+    sidoEnglish: z.string(),
+    sigungu: z.string(),
+    sigunguEnglish: z.string(),
+  }),
+  to: z.object({
+    address: z.string(),
+    zoneCode: z.coerce.number(),
+    addressEnglish: z.string(),
+    sido: z.string(),
+    sidoEnglish: z.string(),
+    sigungu: z.string(),
+    sigunguEnglish: z.string(),
+  }),
+});
+
+export type CreateEstimateRequestWithGeocodeBody = z.infer<
+  typeof createEstimateRequestWithGeocodeSchema
+>;

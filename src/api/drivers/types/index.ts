@@ -53,3 +53,23 @@ export interface GetDriverInfoRepositoryParams {
   driverIds: string[];
   tx?: Prisma.TransactionClient;
 }
+
+export interface UpdateDriverOfficeBody {
+  officeAddress: string;
+  officeZoneCode?: string;
+  officeSido?: string;
+  officeSigungu?: string;
+}
+
+export interface NearbyEstimateRequestItem {
+  estimateRequestId: string;
+  distanceKm: number;
+  movingType: ServiceEnum;
+  movingDate: string;
+  createdAt: string;
+  fromAddress: {
+    sido: string;
+    sigungu: string;
+    address: string;
+  };
+}

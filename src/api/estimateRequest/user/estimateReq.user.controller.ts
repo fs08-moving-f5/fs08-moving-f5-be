@@ -5,6 +5,7 @@ import {
   createEstimateRequestService,
   createDesignatedEstimateRequestService,
   getEstimateRequestsInProgressService,
+  createEstimateRequestWithGeocodeService,
 } from './estimateReq.user.service';
 import { createEstimateRequestParams } from '@/types/userEstimate';
 import AppError from '@/utils/AppError';
@@ -51,10 +52,33 @@ export const createDesignatedEstimateRequest = asyncHandler(async (req: Request,
   if (!designatedDriverId) {
     throw new AppError('지정 기사 정보가 누락되었습니다.', HTTP_STATUS.BAD_REQUEST);
   }
-
   const estimateReq = await createDesignatedEstimateRequestService({
     userId,
     designatedDriverId,
   });
   res.status(HTTP_STATUS.OK).json({ success: true, data: estimateReq });
+});
+
+export const createEstimateRequestWithGeocode = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new AppError('유저 로그인이 필요합니다.', HTTP_STATUS.UNAUTHORIZED);
+  }
+
+  const { movingType, movingDate, from, to } = req.body;
+
+  if (!movingType || !movingDate || !from || !to) {
+    throw new AppError('필수 데이터가 누락되었습니다.', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const estimateReq = await createEstimateRequestWithGeocodeService({
+    userId,
+    movingType,
+    movingDate,
+    from,
+    to,
+  });
+
+  res.status(HTTP_STATUS.CREATED).json({ success: true, data: estimateReq });
 });

@@ -6,9 +6,13 @@ import {
   findLatestPendingEstimateRequestRepository,
   updateEstimateRequestToDesignatedRepository,
   getEstimateRequestsInProgressRepository,
+  createEstimateRequestWithGeocodeRepository,
 } from './estimateReq.user.repository';
 import { createEstimateRequestParams } from '@/types/userEstimate';
+
+import { Address, ServiceEnum } from '@/generated/client';
 import HTTP_STATUS from '@/constants/http.constant';
+import { geocodeAddress } from '@/api/drivers/utils/geocodeAddress';
 
 //진행 중인 견적 요청 보기 (유저)
 export const getEstimateRequestsInProgressService = async ({ userId }: { userId: string }) => {
@@ -57,5 +61,51 @@ export const createDesignatedEstimateRequestService = async (data: {
     designatedDriverId: updatedRequest.designatedDriverId ?? null,
     from: _from ? { sido: _from.sido, sigungu: _from.sigungu } : null,
     to: _to ? { sido: _to.sido, sigungu: _to.sigungu } : null,
+  };
+};
+
+export const createEstimateRequestWithGeocodeService = async ({
+  userId,
+  movingType,
+  movingDate,
+  from,
+  to,
+}: {
+  userId: string;
+  movingType: ServiceEnum;
+  movingDate: Date;
+  from: Address;
+  to: Address;
+}) => {
+  const hasInProgress = await getEstimateRequestsInProgressRepository({ userId });
+
+  if (hasInProgress.length > 0) {
+    throw new AppError('이미 진행 중인 견적 요청이 있습니다.', HTTP_STATUS.CONFLICT);
+  }
+
+  const fromGeocode = await geocodeAddress(from.address);
+  const toGeocode = await geocodeAddress(to.address);
+
+  if (!fromGeocode || !toGeocode) {
+    throw new AppError('주소 변환에 실패했습니다.', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+  }
+
+  const estimateReq = await createEstimateRequestWithGeocodeRepository({
+    userId,
+    movingType,
+    movingDate,
+    from,
+    to,
+    fromGeocode,
+    toGeocode,
+  });
+
+  return {
+    id: estimateReq.id,
+    name: estimateReq.user.name,
+    movingType: estimateReq.movingType,
+    movingDate: estimateReq.movingDate,
+    from: estimateReq.addresses.find((a) => a.addressType === 'FROM')?.address,
+    to: estimateReq.addresses.find((a) => a.addressType === 'TO')?.address,
   };
 };

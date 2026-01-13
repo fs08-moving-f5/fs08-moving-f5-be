@@ -104,7 +104,7 @@
  * /api/reviews/writable:
  *   get:
  *     tags: [Review]
- *     summary: 작성 가능한 리뷰 목록 조회 (일반 유저)
+ *     summary: 리뷰 작성 가능한 견적 목록 조회 (일반 유저)
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -164,7 +164,7 @@
 
 /**
  * @swagger
- * /api/reviews/write:
+ * /api/reviews/{reviewId}:
  *   patch:
  *     tags: [Review]
  *     summary: 리뷰 작성 (일반 유저)

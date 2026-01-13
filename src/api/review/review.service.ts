@@ -5,7 +5,7 @@ import HTTP_STATUS from '@/constants/http.constant';
 import ERROR_MESSAGE from '@/constants/errorMessage.constant';
 import {
   GetReviewParams,
-  CreateReviewParams,
+  UpdateReviewParams,
   WrittenReviewListResult,
   WritableReviewListResult,
 } from '../../types/review';
@@ -26,7 +26,7 @@ export async function getReviewWrittenService(
       id: review.id,
       rating: review.rating,
       content: review.content,
-      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
       driver: {
         id: review.estimate.driver.id,
         name: review.estimate.driver.name,
@@ -44,17 +44,25 @@ export async function getReviewWrittenService(
   return { reviews: mapped, total };
 }
 
-// 작성 가능한 리뷰 목록 조회 (일반 유저)
+// 리뷰 작성 가능한 견적 목록 조회 (일반 유저)
 export async function getReviewWritableService(
   params: GetReviewParams,
 ): Promise<WritableReviewListResult> {
   const { estimates, total } = await repo.getReviewWritableRepository(params);
 
   const mapped = estimates.map((estimate) => {
+    if (!estimate.review) {
+      throw new AppError(
+        '서버 내부 상태가 올바르지 않습니다.', // 확정 견적에 리뷰 테이블이 존재하지 않음
+        HTTP_STATUS.INTERNAL_SERVER_ERROR,
+      );
+    }
+
     const { from, to } = splitAddresses(estimate.estimateRequest.addresses);
 
     return {
       id: estimate.id,
+      reviewId: estimate.review.id,
       price: estimate.price,
       createdAt: estimate.createdAt,
       driver: {
@@ -75,24 +83,23 @@ export async function getReviewWritableService(
 }
 
 // 리뷰 작성 (일반 유저)
-export async function createReviewService(params: CreateReviewParams) {
-  const { estimateId, userId, rating, content } = params;
+export async function updateReviewService(params: UpdateReviewParams) {
+  const { reviewId, rating, content } = params;
 
-  if (!estimateId || rating == null || content == null) {
-    throw new AppError(ERROR_MESSAGE.REQUIRED_FIELD_MISSING, HTTP_STATUS.BAD_REQUEST);
+  if (!reviewId || rating == null || content == null) {
+    throw new AppError('필수 데이터가 누락되었습니다.', HTTP_STATUS.BAD_REQUEST);
   }
 
   const review = await repo.findReviewForWriteRepository({
-    estimateId,
-    userId,
+    reviewId,
   });
 
   if (!review) {
-    throw new AppError(ERROR_MESSAGE.REVIEW.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+    throw new AppError('해당 리뷰가 존재하지 않습니다.', HTTP_STATUS.NOT_FOUND);
   }
 
   if (review.rating !== null || review.content !== null) {
-    throw new AppError(ERROR_MESSAGE.ALREADY_WRITTEN, HTTP_STATUS.BAD_REQUEST);
+    throw new AppError('이미 해당 견적에 리뷰를 제출했습니다.', HTTP_STATUS.BAD_REQUEST);
   }
 
   const result = await prisma.$transaction(async (tx) => {
