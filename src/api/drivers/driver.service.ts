@@ -14,7 +14,7 @@ import {
   regionMap,
   UpdateDriverOfficeBody,
 } from './types';
-import { Prisma, RegionEnum, ServiceEnum, UserType } from '@/generated/client';
+import { AddressType, Prisma, RegionEnum, ServiceEnum, UserType } from '@/generated/client';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 import { geocodeAddress } from './utils/geocodeAddress';
@@ -258,6 +258,11 @@ export const getNearbyEstimateRequestsService = async (params: {
         distanceKm,
         movingType: row.estimateRequest.movingType,
         movingDate: row.estimateRequest.movingDate.toISOString(),
+        isDesignated: row.estimateRequest.isDesignated,
+        user: {
+          id: row.estimateRequest.user.id,
+          name: row.estimateRequest.user.name,
+        },
         createdAt: row.estimateRequest.createdAt.toISOString(),
         fromAddress: {
           sido: row.sido,
@@ -265,6 +270,17 @@ export const getNearbyEstimateRequestsService = async (params: {
           address: row.address,
           lat: row.lat,
           lng: row.lng,
+        },
+        toAddress: {
+          sido:
+            row.estimateRequest.addresses.find((address) => address.addressType === AddressType.TO)
+              ?.sido ?? '',
+          sigungu:
+            row.estimateRequest.addresses.find((address) => address.addressType === AddressType.TO)
+              ?.sigungu ?? '',
+          address:
+            row.estimateRequest.addresses.find((address) => address.addressType === AddressType.TO)
+              ?.address ?? '',
         },
       };
 
