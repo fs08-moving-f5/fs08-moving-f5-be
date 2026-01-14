@@ -680,7 +680,15 @@
  *     summary: 내 사무실 주변 견적 요청 조회
  *     description: |
  *       현재 로그인한 드라이버(기사)의 사무실 위치를 기준으로 반경 내의 견적 요청을 조회합니다.
- *       거리순으로 정렬되어 반환되며, 각 견적 요청에는 출발지 주소, 이사 유형, 이사 예정일, 거리 정보가 포함됩니다.
+ *       거리순으로 정렬되어 반환되며, 각 견적 요청에는 다음 정보가 포함됩니다:
+ *       - 출발지 주소 (시도, 시군구, 전체 주소, 위도/경도)
+ *       - 도착지 주소 (시도, 시군구, 전체 주소)
+ *       - 이사 유형 (SMALL_MOVING, HOME_MOVING, OFFICE_MOVING)
+ *       - 이사 예정일
+ *       - 지정 드라이버 여부 (isDesignated)
+ *       - 견적 요청 작성자 정보 (사용자 ID, 이름)
+ *       - 사무실로부터의 거리 (킬로미터)
+ *       - 견적 요청 생성 일시
  *
  *       **동작 방식:**
  *       1. 드라이버의 사무실 위치(위도/경도)를 조회합니다.
@@ -755,6 +763,23 @@
  *                         format: date-time
  *                         description: 이사 예정일
  *                         example: "2026-02-01T09:00:00.000Z"
+ *                       isDesignated:
+ *                         type: boolean
+ *                         description: 지정 드라이버 여부
+ *                         example: false
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: uuid
+ *                             description: 사용자 ID
+ *                             example: "123e4567-e89b-12d3-a456-426614174000"
+ *                           name:
+ *                             type: string
+ *                             description: 사용자 이름
+ *                             example: "홍길동"
+ *                         description: 견적 요청 작성자 정보
  *                       createdAt:
  *                         type: string
  *                         format: date-time
@@ -787,6 +812,22 @@
  *                             description: 출발지 경도
  *                             example: 126.9780
  *                         description: 출발지 주소 정보
+ *                       toAddress:
+ *                         type: object
+ *                         properties:
+ *                           sido:
+ *                             type: string
+ *                             description: 도착지 시도
+ *                             example: "서울특별시"
+ *                           sigungu:
+ *                             type: string
+ *                             description: 도착지 시군구
+ *                             example: "송파구"
+ *                           address:
+ *                             type: string
+ *                             description: 도착지 전체 주소
+ *                             example: "서울특별시 송파구 올림픽로 300"
+ *                         description: 도착지 주소 정보
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시 (견적 요청이 있는 경우)
@@ -797,6 +838,10 @@
  *                       distanceKm: 3.5
  *                       movingType: "HOME_MOVING"
  *                       movingDate: "2026-02-01T09:00:00.000Z"
+ *                       isDesignated: false
+ *                       user:
+ *                         id: "123e4567-e89b-12d3-a456-426614174002"
+ *                         name: "홍길동"
  *                       createdAt: "2026-01-12T10:00:00.000Z"
  *                       fromAddress:
  *                         sido: "서울특별시"
@@ -804,10 +849,18 @@
  *                         address: "서울특별시 강남구 테헤란로 123"
  *                         lat: 37.5665
  *                         lng: 126.9780
+ *                       toAddress:
+ *                         sido: "서울특별시"
+ *                         sigungu: "송파구"
+ *                         address: "서울특별시 송파구 올림픽로 300"
  *                     - estimateRequestId: "123e4567-e89b-12d3-a456-426614174001"
  *                       distanceKm: 8.2
  *                       movingType: "OFFICE_MOVING"
  *                       movingDate: "2026-02-05T14:00:00.000Z"
+ *                       isDesignated: true
+ *                       user:
+ *                         id: "123e4567-e89b-12d3-a456-426614174003"
+ *                         name: "김철수"
  *                       createdAt: "2026-01-12T11:00:00.000Z"
  *                       fromAddress:
  *                         sido: "서울특별시"
@@ -815,6 +868,10 @@
  *                         address: "서울특별시 송파구 올림픽로 300"
  *                         lat: 37.5133
  *                         lng: 127.1028
+ *                       toAddress:
+ *                         sido: "서울특별시"
+ *                         sigungu: "강남구"
+ *                         address: "서울특별시 강남구 테헤란로 456"
  *               empty:
  *                 summary: 주변에 견적 요청이 없는 경우
  *                 value:

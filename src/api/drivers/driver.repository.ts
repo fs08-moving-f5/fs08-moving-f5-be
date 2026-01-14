@@ -151,6 +151,20 @@ export const findFromAddressesInBoxRepository = async (params: {
           isDesignated: true,
           createdAt: true,
           designatedDriverId: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          addresses: {
+            select: {
+              addressType: true,
+              sido: true,
+              sigungu: true,
+              address: true,
+            },
+          },
         },
       },
     },
