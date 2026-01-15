@@ -9,7 +9,6 @@ RUN npm ci
 
 COPY . .
 RUN npm run build
-RUN npm prune --omit=dev
 
 FROM node:24-alpine
 WORKDIR /app
