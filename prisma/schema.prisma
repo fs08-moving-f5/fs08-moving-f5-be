@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated"
@@ -14,7 +8,8 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
+  id String @id @default(uuid())
+
   providerId String?
   provider   String   @default("local")
   type       UserType @default(USER)
@@ -32,38 +27,35 @@ model User {
 
   userProfile                UserProfile?
   driverProfile              DriverProfile?
-  estimateRequest            EstimateRequest[]
   estimates                  Estimate[]
-  notifications              Notification[]
+  designatedEstimateRequests EstimateRequest[] @relation("DesignatedEstimateRequests")
+  estimateRequest            EstimateRequest[]
   favoriteDrivers            FavoriteDriver[]  @relation("DriverFavorites")
   favoritedBy                FavoriteDriver[]  @relation("UserFavorites")
+  notifications              Notification[]
   reviews                    Review[]
-  designatedEstimateRequests EstimateRequest[] @relation("DesignatedEstimateRequests")
-}
-
-enum UserType {
-  USER
-  DRIVER
-  ADMIN
 }
 
 model UserProfile {
-  id     String @id @default(uuid())
-  userId String @unique
+  id String @id @default(uuid())
+
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
 
   imageUrl String?
   regions  RegionEnum[]
   services ServiceEnum[]
 
+  isDelete  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model DriverProfile {
-  id       String @id @default(uuid())
-  driverId String @unique
+  id String @id @default(uuid())
+
   driver   User   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  driverId String @unique
 
   imageUrl    String?
   career      Int?
@@ -73,18 +65,181 @@ model DriverProfile {
   services    ServiceEnum[]
 
   officeAddress   String?
-  officeZoneCode  String?
-  officeSido      String?
-  officeSigungu   String?
   officeLat       Float?
   officeLng       Float?
+  officeSido      String?
+  officeSigungu   String?
   officeUpdatedAt DateTime?
+  officeZoneCode  String?
 
+  isDelete  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([career])
   @@index([officeLat, officeLng])
+}
+
+model EstimateRequest {
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  movingType         ServiceEnum
+  movingDate         DateTime
+  status             EstimateStatus @default(PENDING)
+  isDesignated       Boolean        @default(false)
+  designatedDriverId String?
+
+  isDelete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  designatedDriver User?      @relation("DesignatedEstimateRequests", fields: [designatedDriverId], references: [id])
+  addresses        Address[]
+  estimate         Estimate[]
+
+  @@index([movingType, createdAt])
+  @@index([movingDate])
+  @@index([createdAt, id])
+  @@index([userId, createdAt])
+  @@index([isDesignated, designatedDriverId])
+}
+
+model Estimate {
+  id String @id @default(uuid())
+
+  estimateRequest   EstimateRequest @relation(fields: [estimateRequestId], references: [id], onDelete: Cascade)
+  estimateRequestId String
+  driver            User            @relation(fields: [driverId], references: [id])
+  driverId          String
+
+  price        Int?
+  comment      String?
+  rejectReason String?
+  status       EstimateStatus @default(PENDING)
+
+  isDelete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  review Review?
+
+  @@unique([estimateRequestId, driverId])
+  @@index([driverId, createdAt])
+  @@index([estimateRequestId])
+}
+
+model Address {
+  id String @id @default(uuid())
+
+  estimateRequest   EstimateRequest @relation(fields: [estimateRequestId], references: [id], onDelete: Cascade)
+  estimateRequestId String
+
+  addressType    AddressType
+  zoneCode       String
+  address        String
+  addressEnglish String
+  sido           String
+  sidoEnglish    String
+  sigungu        String
+  sigunguEnglish String
+
+  lat Float?
+  lng Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([estimateRequestId, addressType])
+  @@index([sido, estimateRequestId])
+  @@index([lat, lng])
+}
+
+model Review {
+  id String @id @default(uuid())
+
+  estimate   Estimate @relation(fields: [estimateId], references: [id])
+  estimateId String   @unique
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+
+  rating  Int?
+  content String?
+
+  isDelete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model FavoriteDriver {
+  id String @id @default(uuid())
+
+  user     User   @relation("UserFavorites", fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  driver   User   @relation("DriverFavorites", fields: [driverId], references: [id], onDelete: Cascade)
+  driverId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, driverId])
+  @@index([userId, createdAt])
+  @@index([driverId, createdAt])
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  type     NotificationType
+  message  String
+  datajson Json?
+  isRead   Boolean          @default(false)
+
+  isDelete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, isRead, isDelete, createdAt])
+}
+
+model History {
+  id String @id @default(uuid())
+
+  actionType   String?
+  entityType   String?
+  entityId     String?
+  previousData Json?
+  newData      Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entityType, entityId, createdAt])
+  @@index([actionType, createdAt])
+}
+
+model DriverStatusView {
+  driverId               String @id @map("driverId")
+  career                 Int?
+  reviewCount            Int    @map("review_count")
+  averageRating          Float  @map("average_rating")
+  confirmedEstimateCount Int    @map("confirmed_estimate_count")
+  favoriteDriverCount    Int    @map("favorite_driver_count")
+
+  @@map("DriverStatusView")
+}
+
+enum UserType {
+  USER
+  DRIVER
+  ADMIN
 }
 
 enum RegionEnum {
@@ -113,87 +268,11 @@ enum ServiceEnum {
   OFFICE_MOVING
 }
 
-model EstimateRequest {
-  id     String @id @default(uuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  movingType ServiceEnum
-  movingDate DateTime
-  status     EstimateStatus @default(PENDING)
-
-  isDesignated       Boolean @default(false)
-  designatedDriverId String?
-  designatedDriver   User?   @relation("DesignatedEstimateRequests", fields: [designatedDriverId], references: [id], onDelete: SetNull)
-
-  isDelete  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  estimate  Estimate[]
-  addresses Address[]
-
-  @@index([movingType, createdAt]) // 기사 요청 목록 조회 - 무한 스크롤 + 필터(상태, 삭제 여부, 서비스 유형, 생성일)
-  @@index([movingDate]) // 정렬용(이사 빠른/느린순)
-  @@index([createdAt, id]) // cursor 안정성 보강
-  @@index([userId, createdAt]) //userId 기준 조회(히스토리용)
-  @@index([isDesignated, designatedDriverId]) //지정 견적 요청 전용(기사 기준)
-}
-
 enum EstimateStatus {
-  PENDING // 대기 중
-  CONFIRMED // 확정
-  REJECTED // 거절
-  CANCELLED // 취소
-}
-
-model Estimate {
-  id                String          @id @default(uuid())
-  estimateRequestId String
-  estimateRequest   EstimateRequest @relation(fields: [estimateRequestId], references: [id], onDelete: Cascade)
-
-  driverId String
-  driver   User   @relation(fields: [driverId], references: [id])
-
-  price        Int?
-  comment      String?
-  rejectReason String?
-  status       EstimateStatus @default(PENDING)
-
-  isDelete  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  review Review?
-
-  @@unique([estimateRequestId, driverId]) // 요청당 기사 중복 방지
-  @@index([driverId, createdAt]) // 기사 기준 견적 조회
-  @@index([estimateRequestId]) //유저 받은 견적 관리
-}
-
-model Address {
-  id                String          @id @default(uuid())
-  estimateRequestId String
-  estimateRequest   EstimateRequest @relation(fields: [estimateRequestId], references: [id], onDelete: Cascade)
-
-  addressType    AddressType
-  zoneCode       String
-  address        String
-  addressEnglish String
-  sido           String
-  sidoEnglish    String
-  sigungu        String
-  sigunguEnglish String
-
-  lat Float?
-  lng Float?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([estimateRequestId, addressType]) //form, to 구분 활용
-  @@index([sido, estimateRequestId]) // 지역 필터(풀스캔 방지) + JOIN 최적화
-  @@index([lat, lng])
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
 }
 
 enum AddressType {
@@ -201,98 +280,16 @@ enum AddressType {
   TO
 }
 
-model Review {
-  id         String   @id @default(uuid())
-  estimateId String   @unique
-  estimate   Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-
-  rating  Int?
-  content String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([createdAt]) //최신순 정렬
-}
-
-model FavoriteDriver {
-  id     String @id @default(uuid())
-  userId String
-  user   User   @relation("UserFavorites", fields: [userId], references: [id], onDelete: Cascade)
-
-  driverId String
-  driver   User   @relation("DriverFavorites", fields: [driverId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, driverId]) // 유저-기사 간 찜 여부 조회
-  @@index([userId, createdAt]) //유저 기준 찜 목록 조회
-  @@index([driverId, createdAt]) //기사 기준 찜 집계/조회
-}
-
-model Notification {
-  id     String @id @default(uuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  type     NotificationType
-  message  String
-  datajson Json?
-  isRead   Boolean          @default(false)
-
-  isDelete  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId, isRead, isDelete, createdAt]) // 알림 목록, 안 읽은 수 최신순 정렬
-}
-
 enum NotificationType {
-  REQUEST_SENT // 유저가 견적 요청을 보냄
-  REQUEST_REJECTED // 유저가 견적을 거절
-  REQUEST_CANCELLED // 유저가 견적 요청을 취소
-
-  ESTIMATE_RECEIVED // 기사가 견적을 작성하여 유저에게 도착
-  ESTIMATE_CONFIRMED // 유저가 견적서를 보고 견적 확정
-  ESTIMATE_REJECTED // 기사가 요청을 거절(반려 사유)
-  ESTIMATE_EXPIRED // 견적 시간 만료
-
-  NEW_REVIEW // 새 리뷰 등록
-  FAVORITE_ADDED // 기사 찜하기
-
-  SYSTEM_NOTICE // 시스템 알림(점검/유지보수 등)
-  PROMOTION // 프로모션, 이벤트
-}
-
-model History {
-  id String @id @default(uuid())
-
-  actionType String?
-  actionDesc String?
-
-  entityType String?
-  entityId   String?
-
-  previousData Json?
-  newData      Json?
-
-  createdAt DateTime @default(now())
-
-  @@index([createdAt]) // 감사 로그 최신순 정렬
-  @@index([entityType, entityId, createdAt]) // 대상 엔티티 기준
-  @@index([actionType, createdAt]) // 이벤트 기준
-}
-
-model DriverStatusView {
-  driverId               String @id @map("driverId")
-  career                 Int?
-  reviewCount            Int    @map("review_count")
-  averageRating          Float  @map("average_rating")
-  confirmedEstimateCount Int    @map("confirmed_estimate_count")
-  favoriteDriverCount    Int    @map("favorite_driver_count")
-
-  @@map("DriverStatusView")
+  REQUEST_SENT
+  REQUEST_REJECTED
+  REQUEST_CANCELLED
+  ESTIMATE_RECEIVED
+  ESTIMATE_CONFIRMED
+  ESTIMATE_REJECTED
+  ESTIMATE_EXPIRED
+  NEW_REVIEW
+  FAVORITE_ADDED
+  SYSTEM_NOTICE
+  PROMOTION
 }
