@@ -33,3 +33,12 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     restart: unless-stopped
+
+  migrate:
+    build: .
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    command: ['npx', 'prisma', 'migrate', 'deploy']
+    restart: no
