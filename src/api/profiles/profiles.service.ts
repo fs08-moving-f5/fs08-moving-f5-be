@@ -13,7 +13,9 @@ import { verifyPassword, hashPassword } from '@/api/auth/utils/auth.utils';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 
-import { bumpDriverListCacheVersion } from '@/cache/invalidate/driverList.invalidate';
+import { bumpDriverListCacheVersion } from '@/cache/invalidate';
+import { buildDriverDetailCacheKey } from '@/cache/keys';
+import { cacheGet, cacheSet } from '@/cache/redis.helper';
 
 import type { UserProfile, DriverProfile, UserType } from '@/generated/client';
 import type {
@@ -115,6 +117,12 @@ export const updateUserProfileService = async (
 
 // ========== DriverProfile Service ==========
 
+type DriverPublicProfileResponse = {
+  id: string;
+  name: string;
+  driverProfile: DriverProfile | null;
+};
+
 // 기사 프로필 조회
 export const getDriverProfileService = async (driverId: string): Promise<DriverProfile | null> => {
   const profile = await findDriverProfileByDriverIdRepository(driverId);
@@ -124,8 +132,24 @@ export const getDriverProfileService = async (driverId: string): Promise<DriverP
 // 기사 프로필 (공개용) 조회: 기사 ID로 기사 이름 + driverProfile 반환
 export const getDriverPublicProfileService = async (
   driverId: string,
-): Promise<{ id: string; name: string; driverProfile: DriverProfile | null } | null> => {
-  return await findDriverWithProfileByDriverIdRepository(driverId);
+): Promise<DriverPublicProfileResponse | null> => {
+  const cacheKey = buildDriverDetailCacheKey(driverId);
+
+  // 캐시 조회
+  const cached = await cacheGet<DriverPublicProfileResponse>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const result = await findDriverWithProfileByDriverIdRepository(driverId);
+  if (!result) {
+    return null;
+  }
+
+  // 캐시 저장 (5분)
+  await cacheSet(cacheKey, result, 300);
+
+  return result;
 };
 
 // 기사 프로필 생성
