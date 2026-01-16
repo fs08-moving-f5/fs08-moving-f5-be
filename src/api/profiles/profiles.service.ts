@@ -13,6 +13,8 @@ import { verifyPassword, hashPassword } from '@/api/auth/utils/auth.utils';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 
+import { bumpDriverListCacheVersion } from '@/cache/invalidate/driverList.invalidate';
+
 import type { UserProfile, DriverProfile, UserType } from '@/generated/client';
 import type {
   CreateUserProfileInput,
@@ -210,6 +212,9 @@ export const updateDriverProfileService = async (
   }
 
   const profile = await updateDriverProfileRepository(driverId, profileUpdateData);
+
+  // 기사 찾기 페이지 캐시 무효화
+  await bumpDriverListCacheVersion();
 
   return profile;
 };
