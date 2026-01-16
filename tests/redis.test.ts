@@ -58,3 +58,6 @@ describe('Redis Cache', () => {
     expect(cached).toBeNull();
   });
 });
+
+// tests/.env.test 생성 후 테스트 (.env와 같은 내용)
+// npx jest tests/redis.test.ts
