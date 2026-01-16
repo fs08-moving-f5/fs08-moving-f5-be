@@ -13,6 +13,7 @@ import {
   NearbyEstimateRequestItem,
   regionMap,
   UpdateDriverOfficeBody,
+  DriverListResponse,
 } from './types';
 import { AddressType, Prisma, RegionEnum, ServiceEnum, UserType } from '@/generated/client';
 import AppError from '@/utils/AppError';
@@ -33,7 +34,7 @@ export const getDriversService = async ({
   limit = 15,
   search,
 }: GetDriversServiceParams) => {
-  const cacheKey = buildDriversCacheKey({
+  const cacheKey = await buildDriversCacheKey({
     userId,
     region,
     service,
@@ -44,14 +45,8 @@ export const getDriversService = async ({
   });
 
   // 캐시 조회
-  const cached = await cacheGet<{
-    data: any[];
-    pagination: { hasNext: boolean; nextCursor: string | null };
-  }>(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
+  const cached = await cacheGet<DriverListResponse>(cacheKey);
+  if (cached) return cached;
 
   // DB 조회
   const result = await prisma.$transaction(async (tx) => {
