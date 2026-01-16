@@ -13,7 +13,7 @@ import { verifyPassword, hashPassword } from '@/api/auth/utils/auth.utils';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
 
-import { bumpDriverListCacheVersion } from '@/cache/invalidate';
+import { bumpDriverListCacheVersion, invalidateDriverDetailCache } from '@/cache/invalidate';
 import { buildDriverDetailCacheKey } from '@/cache/keys';
 import { cacheGet, cacheSet } from '@/cache/redis.helper';
 
@@ -146,7 +146,7 @@ export const getDriverPublicProfileService = async (
     return null;
   }
 
-  // 캐시 저장 (5분)
+  // 캐시 저장 (TTL 5분)
   await cacheSet(cacheKey, result, 300);
 
   return result;
@@ -237,7 +237,9 @@ export const updateDriverProfileService = async (
 
   const profile = await updateDriverProfileRepository(driverId, profileUpdateData);
 
-  // 기사 찾기 페이지 캐시 무효화
+  // 기사 상세 페이지 캐시 무효화화
+  await invalidateDriverDetailCache(driverId);
+  // 기사 찾기 페이지 캐시 전체 무효화
   await bumpDriverListCacheVersion();
 
   return profile;
