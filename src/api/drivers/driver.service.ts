@@ -21,6 +21,9 @@ import { geocodeAddress } from './utils/geocodeAddress';
 import { getBoundingBox } from './utils/getBoundingBox';
 import { getDistanceKm } from './utils/getDistanceKm';
 
+import { buildDriversCacheKey } from '@/cache/keys';
+import { cacheGet, cacheSet } from '@/cache/redis.helper';
+
 export const getDriversService = async ({
   userId,
   region,
@@ -30,7 +33,28 @@ export const getDriversService = async ({
   limit = 15,
   search,
 }: GetDriversServiceParams) => {
-  return await prisma.$transaction(async (tx) => {
+  const cacheKey = buildDriversCacheKey({
+    userId,
+    region,
+    service,
+    sort,
+    cursor,
+    limit,
+    search,
+  });
+
+  // 캐시 조회
+  const cached = await cacheGet<{
+    data: any[];
+    pagination: { hasNext: boolean; nextCursor: string | null };
+  }>(cacheKey);
+
+  if (cached) {
+    return cached;
+  }
+
+  // DB 조회
+  const result = await prisma.$transaction(async (tx) => {
     let orderBy = {};
     switch (sort) {
       case 'review':
@@ -176,6 +200,11 @@ export const getDriversService = async ({
       },
     };
   });
+
+  // 캐시 저장 (TTL 60초)
+  await cacheSet(cacheKey, result, 60);
+
+  return result;
 };
 
 export const updateDriverOfficeService = async (params: {
