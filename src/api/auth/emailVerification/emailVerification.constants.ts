@@ -6,7 +6,9 @@ const emailVerificationConstantsSchema = z.object({
   EMAIL_VERIFICATION_EMAIL_SENT_MESSAGE: z
     .string()
     .default('이메일 인증이 필요합니다. 인증 이메일을 전송했습니다. 이메일을 확인해주세요.'),
-  EMAIL_VERIFICATION_ALREADY_VERIFIED_MESSAGE: z.string().default('이미 이메일 인증이 완료되었습니다.'),
+  EMAIL_VERIFICATION_ALREADY_VERIFIED_MESSAGE: z
+    .string()
+    .default('이미 이메일 인증이 완료되었습니다.'),
   EMAIL_VERIFICATION_SUCCESS_MESSAGE: z.string().default('이메일 인증이 완료되었습니다.'),
   EMAIL_VERIFICATION_INVALID_TOKEN_MESSAGE: z
     .string()

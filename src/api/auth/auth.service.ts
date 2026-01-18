@@ -21,10 +21,7 @@ import { sendEmailVerificationEmailService } from './emailVerification/emailVeri
 import type { User, UserType } from '@/generated/client';
 import type { OAuthProfile, OAuthUserType } from './strategies/passport';
 
-const ensureEmailVerifiedOrSend = async (data: {
-  user: User;
-  frontendOrigin?: string;
-}) => {
+const ensureEmailVerifiedOrSend = async (data: { user: User; frontendOrigin?: string }) => {
   if (data.user.isEmailVerified) return;
 
   await sendEmailVerificationEmailService({

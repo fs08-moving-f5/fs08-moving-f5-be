@@ -9,8 +9,14 @@ import {
   EMAIL_VERIFICATION_SEND_FAIL_MESSAGE,
   EMAIL_VERIFICATION_SUCCESS_MESSAGE,
 } from './emailVerification.constants';
-import { buildEmailVerificationMail, buildEmailVerificationUrl } from '../utils/emailVerificationEmail';
-import { generateEmailVerificationToken, verifyEmailVerificationToken } from '../utils/emailVerificationToken';
+import {
+  buildEmailVerificationMail,
+  buildEmailVerificationUrl,
+} from '../utils/emailVerificationEmail';
+import {
+  generateEmailVerificationToken,
+  verifyEmailVerificationToken,
+} from '../utils/emailVerificationToken';
 import { findUserByIdRepository, updateUserRepository } from '../auth.repository';
 
 const getDefaultFrontendOrigin = (): string => {
@@ -63,9 +69,13 @@ export const sendEmailVerificationEmailService = async (data: {
   }
 };
 
-export const verifyEmailService = async (token: string): Promise<{ message: string } & {
-  userType: string;
-}> => {
+export const verifyEmailService = async (
+  token: string,
+): Promise<
+  { message: string } & {
+    userType: string;
+  }
+> => {
   try {
     const payload = verifyEmailVerificationToken(token);
 
