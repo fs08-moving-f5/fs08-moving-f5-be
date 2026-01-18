@@ -53,6 +53,13 @@ const schema = z.object({
   AWS_SECRET_ACCESS_KEY: z.string().min(1).optional(),
   S3_BUCKET: z.string().min(1).optional(),
   S3_PUBLIC_BASE_URL: z.string().url().optional(),
+
+  // Email (Nodemailer)
+  SMTP_HOST: z.string().min(1).optional(),
+  SMTP_PORT: z.coerce.number().optional(),
+  SMTP_USER: z.string().min(1).optional(),
+  SMTP_PASS: z.string().min(1).optional(),
+  SMTP_FROM: z.string().min(1).optional(),
 });
 
 const parseResult = schema.safeParse(process.env);
