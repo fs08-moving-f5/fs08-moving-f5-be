@@ -9,7 +9,12 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 4000
       DATABASE_URL: ${DATABASE_URL}
-    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: always
 
   migrate:
     image: ${IMAGE_NAME:-ghcr.io/fs08-moving-f5/fs08-moving-f5-be:prod-latest}
@@ -17,5 +22,7 @@ services:
       - .env
     environment:
       DATABASE_URL: ${DATABASE_URL}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: ['npx', 'prisma', 'migrate', 'deploy']
     restart: no
