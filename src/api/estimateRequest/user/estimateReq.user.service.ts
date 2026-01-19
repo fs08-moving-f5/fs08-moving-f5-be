@@ -1,5 +1,5 @@
-import AppError from '@/utils/AppError';
-import splitAddresses from '@/utils/splitAddresses';
+import AppError from '../../../utils/AppError.js';
+import splitAddresses from '../../../utils/splitAddresses.js';
 import {
   createEstimateRequestRepository,
   findDesignatedDriverRepository,
@@ -7,12 +7,13 @@ import {
   updateEstimateRequestToDesignatedRepository,
   getEstimateRequestsInProgressRepository,
   createEstimateRequestWithGeocodeRepository,
-} from './estimateReq.user.repository';
-import { createEstimateRequestParams } from '@/types/userEstimate';
+} from './estimateReq.user.repository.js';
+import { createEstimateRequestParams } from '../../../types/userEstimate.js';
 
-import { Address, ServiceEnum } from '@/generated/client';
-import HTTP_STATUS from '@/constants/http.constant';
-import { geocodeAddress } from '@/api/drivers/utils/geocodeAddress';
+import { Address } from '../../../generated/client.js';
+import { ServiceEnum } from '../../../generated/enums.js';
+import HTTP_STATUS from '../../../constants/http.constant.js';
+import { geocodeAddress } from '../../drivers/utils/geocodeAddress.js';
 
 //진행 중인 견적 요청 보기 (유저)
 export const getEstimateRequestsInProgressService = async ({ userId }: { userId: string }) => {

@@ -1,11 +1,11 @@
-import HTTP_STATUS from '../../constants/http.constant';
-import asyncHandler from '../../middlewares/asyncHandler';
-import { addSseClient, removeSseClient } from './lib/sseHub';
+import HTTP_STATUS from '../../constants/http.constant.js';
+import asyncHandler from '../../middlewares/asyncHandler.js';
+import { addSseClient, removeSseClient } from './lib/sseHub.js';
 import {
   getNotificationsService,
   pushUnreadCount,
   readNotificationService,
-} from './notification.service';
+} from './notification.service.js';
 
 export const getNotificationStreamController = asyncHandler(async (req, res) => {
   const userId = req.user!.id;

@@ -1,4 +1,5 @@
-import { Prisma, RegionEnum, ServiceEnum } from '@/generated/client';
+import { Prisma } from '../../../generated/client.js';
+import { RegionEnum, ServiceEnum } from '../../../generated/enums.js';
 
 export const regionMap = {
   seoul: '서울',

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { findUserByIdRepository } from '@/api/auth/auth.repository';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
+import { findUserByIdRepository } from '../api/auth/auth.repository.js';
+import AppError from '../utils/AppError.js';
+import HTTP_STATUS from '../constants/http.constant.js';
 
 export const loadUser = async (req: Request, res: Response, next: NextFunction) => {
   try {

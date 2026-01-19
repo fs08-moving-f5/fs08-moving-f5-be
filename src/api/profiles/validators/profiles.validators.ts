@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { RegionEnum, ServiceEnum } from '@/generated/enums';
-import { passwordSchema } from '@/api/auth/validators/auth.validators';
+import { RegionEnum, ServiceEnum } from '../../../generated/enums.js';
+import { passwordSchema } from '../../auth/validators/auth.validators.js';
 
 // RegionEnum 배열 검증 스키마
 export const regionsSchema = z

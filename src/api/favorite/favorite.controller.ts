@@ -1,12 +1,12 @@
-import HTTP_STATUS from '../../constants/http.constant';
-import asyncHandler from '../../middlewares/asyncHandler';
-import AppError from '../../utils/AppError';
+import HTTP_STATUS from '../../constants/http.constant.js';
+import asyncHandler from '../../middlewares/asyncHandler.js';
+import AppError from '../../utils/AppError.js';
 import {
   addFavoriteDriverService,
   deleteFavoriteDriverService,
   deleteManyFavoriteDriverService,
   getFavoriteDriversService,
-} from './favorite.service';
+} from './favorite.service.js';
 import { Request, Response } from 'express';
 
 interface QueryParams {

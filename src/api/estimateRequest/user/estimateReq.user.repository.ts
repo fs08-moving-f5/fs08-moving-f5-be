@@ -1,8 +1,9 @@
-import splitAddresses from '@/utils/splitAddresses';
-import prisma from '../../../config/prisma';
-import { createEstimateRequestParams } from '@/types/userEstimate';
-import { Address, ServiceEnum } from '@/generated/client';
-import { GeoPoint } from '@/api/drivers/utils/geocodeAddress';
+import splitAddresses from '../../../utils/splitAddresses.js';
+import prisma from '../../../config/prisma.js';
+import { createEstimateRequestParams } from '../../../types/userEstimate.js';
+import { Address } from '../../../generated/client.js';
+import { ServiceEnum } from '../../../generated/enums.js';
+import { GeoPoint } from '../../drivers/utils/geocodeAddress.js';
 
 // 진행 중인 견적 요청 여부 (유저)
 export async function getEstimateRequestsInProgressRepository({ userId }: { userId: string }) {

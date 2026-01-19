@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
-import * as service from './estimateReq.driver.service';
-import * as validator from './validators/estimateReq.driver.validators';
-import asyncHandler from '@/middlewares/asyncHandler';
-import HTTP_STATUS from '@/constants/http.constant';
+import * as service from './estimateReq.driver.service.js';
+import * as validator from './validators/estimateReq.driver.validators.js';
+import asyncHandler from '../../../middlewares/asyncHandler.js';
+import HTTP_STATUS from '../../../constants/http.constant.js';
 import type {
   GetEstimateRequestsParams,
   CreateEstimateParams,
   CreateEstimateRejectParams,
   GetEstimateParams,
-} from '@/types/driverEstimate';
+} from '../../../types/driverEstimate.js';
 
 // 받은 요청 목록 조회(기사)
 export const getEstimateRequests = asyncHandler(async (req: Request, res: Response) => {

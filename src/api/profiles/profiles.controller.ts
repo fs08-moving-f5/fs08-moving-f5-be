@@ -7,21 +7,21 @@ import {
   updateDriverProfileService,
   getDriverPublicProfileService,
   getProfileService,
-} from './profiles.service';
+} from './profiles.service.js';
 import {
   createUserProfileSchema,
   updateUserProfileSchema,
   createDriverProfileSchema,
   updateDriverProfileSchema,
-} from './validators/profiles.validators';
-import AppError from '@/utils/AppError';
-import asyncHandler from '@/middlewares/asyncHandler';
-import HTTP_STATUS from '@/constants/http.constant';
+} from './validators/profiles.validators.js';
+import AppError from '../../utils/AppError.js';
+import asyncHandler from '../../middlewares/asyncHandler.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
 
-import { mapNullableProfileImage } from '@/utils/profileImage';
+import { mapNullableProfileImage } from '../../utils/profileImage.js';
 
 import type { Request, Response } from 'express';
-import type { User } from '@/generated/client';
+import type { User } from '../../generated/client.js';
 
 // ========== Profile Image Presign Controllers ==========
 export const createProfileImagePutPresignController = asyncHandler(

@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import { createPresignedGetUrlForKey } from '@/config/s3';
-import { env } from '@/config/env';
+import { createPresignedGetUrlForKey } from '../config/s3.js';
+import { env } from '../config/env.js';
 
 type Options = {
   expiresInSeconds?: number;

@@ -1,4 +1,4 @@
-import { presignGetUrlIfKey } from '@/config/s3';
+import { presignGetUrlIfKey } from '../config/s3.js';
 
 export const mapProfileImage = async <T extends { imageUrl?: string | null }>(
   obj: T,

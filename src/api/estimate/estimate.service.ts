@@ -11,12 +11,12 @@ import {
   getNotPendingEstimateRequestInfoRepository,
   getDriverStatusesByDriverIdsRepository,
   getDriverStatusByDriverIdRepository,
-} from './estimate.repository';
-import { EstimateStatus, NotificationType } from '../../generated/client';
-import { createNotificationAndPushUnreadService } from '../notification/notification.service';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
-import prisma from '@/config/prisma';
+} from './estimate.repository.js';
+import { EstimateStatus, NotificationType } from '../../generated/enums.js';
+import { createNotificationAndPushUnreadService } from '../notification/notification.service.js';
+import AppError from '../../utils/AppError.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
+import prisma from '../../config/prisma.js';
 
 export const getPendingEstimatesService = async ({ userId }: { userId: string }) => {
   return await prisma.$transaction(async (tx) => {

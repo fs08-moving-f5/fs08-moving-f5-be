@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { env } from './env';
+import { env } from './env.js';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 

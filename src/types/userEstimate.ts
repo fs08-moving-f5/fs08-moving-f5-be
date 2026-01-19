@@ -1,5 +1,5 @@
-import { Address } from '@/generated/client';
-import { ServiceEnum } from '@/generated/enums';
+import { Address } from '../generated/client.js';
+import { ServiceEnum } from '../generated/enums.js';
 
 export interface createEstimateRequestParams {
   userId: string;

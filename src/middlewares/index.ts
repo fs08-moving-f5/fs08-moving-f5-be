@@ -1,4 +1,4 @@
-export { applySecurity } from './securityMiddleware';
-export { errorHandler, notFoundHandler } from './errorHandler';
-export { presignImageUrlsMiddleware } from './presignImageUrlsMiddleware';
-// export { asyncHandler } from './asyncHandler';
+export { applySecurity } from './securityMiddleware.js';
+export { errorHandler, notFoundHandler } from './errorHandler.js';
+export { presignImageUrlsMiddleware } from './presignImageUrlsMiddleware.js';
+// export { asyncHandler } from './asyncHandler.js';

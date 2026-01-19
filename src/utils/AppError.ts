@@ -1,4 +1,4 @@
-import HTTP_STATUS from '@/constants/http.constant';
+import HTTP_STATUS from '../constants/http.constant.js';
 
 class AppError extends Error {
   statusCode: number;

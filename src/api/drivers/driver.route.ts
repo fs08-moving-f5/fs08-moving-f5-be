@@ -3,14 +3,14 @@ import {
   getDriversController,
   getNearbyRequestsController,
   updateDriverOfficeController,
-} from './driver.controller';
-import { validateQueryMiddleware, validateBodyMiddleware } from '@/middlewares/validateMiddleware';
-import { getDriversQueryValidator } from './validators/driver.validator';
-import { authenticate, requireDriver, optionalAuthenticate } from '@/middlewares/authMiddleware';
+} from './driver.controller.js';
+import { validateQueryMiddleware, validateBodyMiddleware } from '../../middlewares/validateMiddleware.js';
+import { getDriversQueryValidator } from './validators/driver.validator.js';
+import { authenticate, requireDriver, optionalAuthenticate } from '../../middlewares/authMiddleware.js';
 import {
   getNearbyRequestsQueryValidator,
   updateDriverOfficeBodyValidator,
-} from './validators/driver.validator';
+} from './validators/driver.validator.js';
 
 const router = Router();
 

@@ -1,20 +1,20 @@
 import { Router } from 'express';
-import { authenticate } from '@/middlewares/authMiddleware';
+import { authenticate } from '../../middlewares/authMiddleware.js';
 import {
   confirmEstimateController,
   getEstimateDetailController,
   getPendingEstimatesController,
   getReceivedEstimatesController,
-} from './estimate.controller';
+} from './estimate.controller.js';
 import {
   validateQueryMiddleware,
   validateParamsMiddleware,
-} from '@/middlewares/validateMiddleware';
+} from '../../middlewares/validateMiddleware.js';
 import {
   estimateIdParamsValidator,
   receiveEstimateRequestQueryValidator,
-} from './validators/estimate.validators';
-import { requireUser } from '@/middlewares/authMiddleware';
+} from './validators/estimate.validators.js';
+import { requireUser } from '../../middlewares/authMiddleware.js';
 
 const router = Router();
 

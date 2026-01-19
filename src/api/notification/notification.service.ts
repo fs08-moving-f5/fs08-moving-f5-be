@@ -1,12 +1,12 @@
-import { pushSseEvent } from './lib/sseHub';
+import { pushSseEvent } from './lib/sseHub.js';
 import {
   createNotificationRepository,
   getNotificationsRepository,
   getUnreadNotificationCountRepository,
   readNotificationRepository,
-} from './notification.repository';
-import { NotificationType } from '../../generated/enums';
-import { Prisma } from '@/generated/client';
+} from './notification.repository.js';
+import { NotificationType } from '../../generated/enums.js';
+import { Prisma } from '../../generated/client.js';
 
 export const pushUnreadCount = async ({ userId }: { userId: string }) => {
   const count = await getUnreadNotificationCountRepository({ userId });

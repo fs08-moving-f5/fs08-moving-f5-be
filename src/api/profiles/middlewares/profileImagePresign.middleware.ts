@@ -2,12 +2,12 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { z } from 'zod';
 
-import asyncHandler from '@/middlewares/asyncHandler';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
-import { PRESIGN_EXPIRE_SECONDS_PUT } from '@/constants/presignExpire.constant';
-import { env } from '@/config/env';
-import { createS3Client, getS3PublicUrlForKey } from '@/config/s3';
+import asyncHandler from '../../../middlewares/asyncHandler.js';
+import AppError from '../../../utils/AppError.js';
+import HTTP_STATUS from '../../../constants/http.constant.js';
+import { PRESIGN_EXPIRE_SECONDS_PUT } from '../../../constants/presignExpire.constant.js';
+import { env } from '../../../config/env.js';
+import { createS3Client, getS3PublicUrlForKey } from '../../../config/s3.js';
 
 declare global {
   namespace Express {

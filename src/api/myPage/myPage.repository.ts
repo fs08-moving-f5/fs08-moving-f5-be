@@ -1,6 +1,6 @@
-import prisma from '@/config/prisma';
+import prisma from '../../config/prisma.js';
 
-import type { User, DriverProfile, Review } from '@/generated/client';
+import type { User, DriverProfile, Review } from '../../generated/client.js';
 
 // 리뷰 별점 분포 타입
 interface ReviewDistribution {

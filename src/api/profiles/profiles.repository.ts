@@ -1,6 +1,6 @@
-import prisma from '@/config/prisma';
+import prisma from '../../config/prisma.js';
 
-import type { User, UserProfile, DriverProfile, Prisma } from '@/generated/client';
+import type { User, UserProfile, DriverProfile, Prisma } from '../../generated/client.js';
 
 // ========== UserProfile Repository ==========
 

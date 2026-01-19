@@ -1,5 +1,5 @@
-import router from './auth.routes';
-import { configurePassport } from './strategies/passport';
+import router from './auth.routes.js';
+import { configurePassport } from './strategies/passport.js';
 
 configurePassport();
 

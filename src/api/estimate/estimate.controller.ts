@@ -1,13 +1,13 @@
-import HTTP_STATUS from '../../constants/http.constant';
-import asyncHandler from '../../middlewares/asyncHandler';
-import { EstimateStatus } from '../../generated/client';
+import HTTP_STATUS from '../../constants/http.constant.js';
+import asyncHandler from '../../middlewares/asyncHandler.js';
+import { EstimateStatus } from '../../generated/enums.js';
 import {
   confirmEstimateService,
   getEstimateDetailService,
   getPendingEstimatesService,
   getReceivedEstimatesService,
-} from './estimate.service';
-import AppError from '@/utils/AppError';
+} from './estimate.service.js';
+import AppError from '../../utils/AppError.js';
 
 const isValidEstimateStatus = (value: string): value is EstimateStatus => {
   const upperValue = value.toUpperCase();

@@ -1,6 +1,7 @@
-import prisma from '@/config/prisma';
+import prisma from '../../config/prisma.js';
 
-import type { User, UserType, Prisma } from '@/generated/client';
+import type { User, Prisma } from '../../generated/client.js';
+import type { UserType } from '../../generated/enums.js';
 
 // 이메일로 유저 찾기
 export const findUserByEmailRepository = async (email: string) => {

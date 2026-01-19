@@ -1,6 +1,6 @@
 // 예시 파일입니다. 자유롭게 사용하세요.
 import cors, { CorsOptionsDelegate, CorsOptions } from 'cors';
-import { env } from './env';
+import { env } from './env.js';
 
 const allowedOrigins = env.CORS_ORIGIN ? env.CORS_ORIGIN.split(',').map((o) => o.trim()) : [];
 

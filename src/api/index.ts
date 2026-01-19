@@ -1,15 +1,15 @@
 import { Router } from 'express';
 
-import authRouter from './auth/index';
-import estimateRouter from './estimate/index';
-import userEstimateReqRouter from './estimateRequest/user/index';
-import driverEstimateReqRouter from './estimateRequest/driver/index';
-import favoriteRouter from './favorite/index';
-import notificationRouter from './notification/index';
-import profileRouter from './profiles/index';
-import reviewRouter from './review/index';
-import myPageRouter from './myPage/myPage.routes';
-import driversRouter from './drivers/index';
+import authRouter from './auth/index.js';
+import estimateRouter from './estimate/index.js';
+import userEstimateReqRouter from './estimateRequest/user/index.js';
+import driverEstimateReqRouter from './estimateRequest/driver/index.js';
+import favoriteRouter from './favorite/index.js';
+import notificationRouter from './notification/index.js';
+import profileRouter from './profiles/index.js';
+import reviewRouter from './review/index.js';
+import myPageRouter from './myPage/myPage.routes.js';
+import driversRouter from './drivers/index.js';
 
 const router = Router();
 

@@ -1,7 +1,7 @@
 // 예시 파일입니다. 자유롭게 사용하세요.
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { logger } from '../config/logger';
+import { logger } from '../config/logger.js';
 
 export function notFoundHandler(req: Request, res: Response) {
   logger.warn(`Route not found: ${req.method} ${req.originalUrl}`);

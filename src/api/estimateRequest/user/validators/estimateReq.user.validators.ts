@@ -1,4 +1,4 @@
-import { ServiceEnum } from '@/generated/enums';
+import { ServiceEnum } from '../../../../generated/enums.js';
 import { z } from 'zod';
 
 export const createEstimateRequestWithGeocodeSchema = z.object({

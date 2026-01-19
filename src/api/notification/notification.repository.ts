@@ -1,6 +1,6 @@
-import prisma from '../../config/prisma';
-import { NotificationType } from '../../generated/enums';
-import { Prisma } from '@/generated/client';
+import prisma from '../../config/prisma.js';
+import { NotificationType } from '../../generated/enums.js';
+import { Prisma } from '../../generated/client.js';
 
 export const getUnreadNotificationCountRepository = async ({ userId }: { userId: string }) => {
   return await prisma.notification.count({

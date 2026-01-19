@@ -1,4 +1,4 @@
-import { ServiceEnum, EstimateStatus } from '../generated/enums';
+import { ServiceEnum, EstimateStatus } from '../generated/enums.js';
 
 export type ReviewSort = 'latest';
 

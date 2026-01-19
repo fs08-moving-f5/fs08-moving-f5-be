@@ -3,16 +3,16 @@ import swaggerUi from 'swagger-ui-express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-import { env, logger, corsOptions, swaggerSpec } from './config/index';
-import { PRESIGN_EXPIRE_SECONDS } from './constants/presignExpire.constant';
+import { env, logger, corsOptions, swaggerSpec } from './config/index.js';
+import { PRESIGN_EXPIRE_SECONDS } from './constants/presignExpire.constant.js';
 import {
   errorHandler,
   notFoundHandler,
   applySecurity,
   presignImageUrlsMiddleware,
-} from './middlewares/index';
+} from './middlewares/index.js';
 
-import apiRouter from './api/index';
+import apiRouter from './api/index.js';
 
 const app: Application = express();
 

@@ -6,11 +6,11 @@ import {
   countDriverReviewsRepository,
   getDriverReviewDistributionRepository,
   countFavoritedDriverRepository,
-} from './myPage.repository';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
+} from './myPage.repository.js';
+import AppError from '../../utils/AppError.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
 
-import type { RegionEnum, ServiceEnum } from '@/generated/client';
+import type { RegionEnum, ServiceEnum } from '../../generated/enums.js';
 
 // ========== MyPage Types ==========
 

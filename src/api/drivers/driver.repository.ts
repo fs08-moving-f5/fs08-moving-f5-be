@@ -1,11 +1,12 @@
-import prisma from '@/config/prisma';
-import { Prisma, UserType, AddressType, EstimateStatus } from '@/generated/client';
+import prisma from '../../config/prisma.js';
+import { Prisma } from '../../generated/client.js';
+import { UserType, AddressType, EstimateStatus } from '../../generated/enums.js';
 import {
   GetDriverStatusesRepositoryParams,
   GetFilteredDriverIdsParams,
   GetDriverInfoRepositoryParams,
   UpdateDriverOfficeBody,
-} from './types';
+} from './types/index.js';
 
 export const getFilteredDriverIdsRepository = async ({ where, tx }: GetFilteredDriverIdsParams) => {
   const drivers = await (tx ?? prisma).user.findMany({
