@@ -50,10 +50,11 @@ app.use(errorHandler);
 
 // 6. 서버 실행
 const port = env.PORT || 4000;
+const host = env.HOST || '0.0.0.0'; // Docker 컨테이너에서 외부 접근을 위해 필요
 
 try {
-  app.listen(port, () => {
-    logger.info(`Server listening on http://localhost:${port}`);
+  app.listen(port, host, () => {
+    logger.info(`Server listening on http://${host}:${port}`);
   });
 } catch (error) {
   logger.error('Failed to start server:', error);
