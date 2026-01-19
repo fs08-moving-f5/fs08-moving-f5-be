@@ -5,6 +5,7 @@ import { z } from 'zod';
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().optional(),
+  HOST: z.string().default('0.0.0.0'), // Docker 컨테이너에서 외부 접근을 위해 필요. 개발 환경에서는 localhost로 오버라이드 가능
   // Frontend URL (and CORS origin). Example: http://localhost:3000 or http://localhost:3000,https://example.com
   CORS_ORIGIN: z
     .string()
