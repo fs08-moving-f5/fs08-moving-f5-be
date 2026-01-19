@@ -3,14 +3,11 @@ services:
     image: ${IMAGE_NAME:-ghcr.io/fs08-moving-f5/fs08-moving-f5-be:prod-latest}
     env_file:
       - .env
-    build: .
-    ports:
-      - 4000:4000
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 4000
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
+      DATABASE_URL: ${DATABASE_URL_HOST}
+    network_mode: host
     restart: unless-stopped
 
   migrate:
@@ -18,8 +15,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL}
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
+      DATABASE_URL: ${DATABASE_URL_HOST}
+    network_mode: host
     command: ['npx', 'prisma', 'migrate', 'deploy']
     restart: no
