@@ -50,7 +50,7 @@ jobs:
             cd /home/minjun/minjun-server/srv/fs08-moving-f5
 
             export IMAGE_NAME=${{ env.IMAGE_NAME }}
-            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            echo "${{ secrets.GHCR_READ_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml run --rm migrate
