@@ -47,7 +47,7 @@ jobs:
           port: ${{ secrets.PROD_SSH_PORT }}
           script: |
             set -e
-            cd /minjun-server/srv/fs08-moving-f5
+            cd /home/minjun/minjun-server/srv/fs08-moving-f5
 
             export IMAGE_NAME=${{ env.IMAGE_NAME }}
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
