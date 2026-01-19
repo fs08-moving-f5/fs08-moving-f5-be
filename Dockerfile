@@ -8,9 +8,8 @@ COPY prisma.config.ts ./prisma.config.ts
 
 RUN npm ci
 
-RUN npx prisma generate
-
 COPY . .
+RUN npx prisma generate
 RUN npm run build
 
 FROM node:24-alpine
