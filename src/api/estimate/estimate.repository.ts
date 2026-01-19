@@ -1,6 +1,6 @@
-import prisma from '../../config/prisma';
-import { EstimateStatus } from '../../generated/client';
-import { Prisma } from '@/generated/client';
+import prisma from '../../config/prisma.js';
+import { Prisma } from '../../generated/client.js';
+import { EstimateStatus } from '../../generated/enums.js';
 
 export const getPendingEstimatesRepository = async ({ userId }: { userId: string }) => {
   return await prisma.estimateRequest.findMany({

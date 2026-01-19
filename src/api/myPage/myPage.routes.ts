@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { getMyPageController, getMyPageReviewsController } from './myPage.controller';
-import { authenticate } from '@/middlewares/authMiddleware';
-import { loadUser } from '@/middlewares/loadUserMiddleware';
+import { getMyPageController, getMyPageReviewsController } from './myPage.controller.js';
+import { authenticate } from '../../middlewares/authMiddleware.js';
+import { loadUser } from '../../middlewares/loadUserMiddleware.js';
 
 const router = Router();
 

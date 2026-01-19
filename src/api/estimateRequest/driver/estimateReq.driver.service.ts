@@ -1,16 +1,16 @@
-import prisma from '@/config/prisma';
-import * as repo from './estimateReq.driver.repository';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
-import splitAddresses from '@/utils/splitAddresses';
-import { EstimateStatus, NotificationType } from '@/generated/enums';
-import { createNotificationAndPushUnreadService } from '@/api/notification/notification.service';
+import prisma from '../../../config/prisma.js';
+import * as repo from './estimateReq.driver.repository.js';
+import AppError from '../../../utils/AppError.js';
+import HTTP_STATUS from '../../../constants/http.constant.js';
+import splitAddresses from '../../../utils/splitAddresses.js';
+import { EstimateStatus, NotificationType } from '../../../generated/enums.js';
+import { createNotificationAndPushUnreadService } from '../../notification/notification.service.js';
 import type {
   GetEstimateRequestsParams,
   CreateEstimateParams,
   CreateEstimateRejectParams,
   GetEstimateParams,
-} from '@/types/driverEstimate';
+} from '../../../types/driverEstimate.js';
 
 // 받은 요청 목록 조회(기사)
 export async function getEstimateRequestsService(params: GetEstimateRequestsParams) {

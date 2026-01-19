@@ -1,5 +1,5 @@
-import { Prisma } from '@/generated/client';
-import { ServiceEnum, EstimateStatus } from '../generated/enums';
+import { Prisma } from '../generated/client.js';
+import { ServiceEnum, EstimateStatus } from '../generated/enums.js';
 
 export type EstimateSort = 'latest' | 'oldest' | 'moving-latest' | 'moving-oldest';
 

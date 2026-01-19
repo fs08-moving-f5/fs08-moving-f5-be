@@ -1,4 +1,4 @@
-import type { OAuthUserType } from '../strategies/passport';
+import type { OAuthUserType } from '../strategies/passport.js';
 
 export const encodeOAuthState = (data: { type: OAuthUserType; redirectOrigin?: string }) => {
   return Buffer.from(JSON.stringify(data)).toString('base64url');

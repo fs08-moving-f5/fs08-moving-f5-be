@@ -1,4 +1,4 @@
-import { env } from '@/config/env';
+import { env } from '../config/env.js';
 import type { CookieOptions } from 'express';
 
 const dayNum = 24 * 60 * 60 * 1000;

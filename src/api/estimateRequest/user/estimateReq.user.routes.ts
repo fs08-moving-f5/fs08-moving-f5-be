@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { authenticate, requireUser } from '@/middlewares/authMiddleware';
+import { authenticate, requireUser } from '../../../middlewares/authMiddleware.js';
 import {
   getEstimateRequestsInProgress,
   createEstimateRequest,
   createDesignatedEstimateRequest,
   createEstimateRequestWithGeocode,
-} from './estimateReq.user.controller';
-import { validateBodyMiddleware } from '@/middlewares/validateMiddleware';
-import { createEstimateRequestWithGeocodeSchema } from './validators/estimateReq.user.validators';
+} from './estimateReq.user.controller.js';
+import { validateBodyMiddleware } from '../../../middlewares/validateMiddleware.js';
+import { createEstimateRequestWithGeocodeSchema } from './validators/estimateReq.user.validators.js';
 
 const router = Router();
 

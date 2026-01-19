@@ -1,21 +1,21 @@
 import { Router } from 'express';
-import { authenticate, requireUserOrDriver } from '@/middlewares/authMiddleware';
+import { authenticate, requireUserOrDriver } from '../../middlewares/authMiddleware.js';
 import {
   addFavoriteDriverController,
   deleteFavoriteDriverController,
   deleteManyFavoriteDriverController,
   getFavoriteDriversController,
-} from './favorite.controller';
+} from './favorite.controller.js';
 import {
   validateParamsMiddleware,
   validateBodyMiddleware,
   validateQueryMiddleware,
-} from '@/middlewares/validateMiddleware';
+} from '../../middlewares/validateMiddleware.js';
 import {
   deleteManyFavoriteDriverBodyValidator,
   driverIdParamsValidator,
   getFavoriteDriversQueryValidator,
-} from './validators/favorite.validators';
+} from './validators/favorite.validators.js';
 
 const router = Router();
 

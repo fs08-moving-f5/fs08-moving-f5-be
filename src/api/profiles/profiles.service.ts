@@ -8,18 +8,19 @@ import {
   updateDriverProfileRepository,
   updateUserRepository,
   findUserByIdRepository,
-} from './profiles.repository';
-import { verifyPassword, hashPassword } from '@/api/auth/utils/auth.utils';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
+} from './profiles.repository.js';
+import { verifyPassword, hashPassword } from '../auth/utils/auth.utils.js';
+import AppError from '../../utils/AppError.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
 
-import type { UserProfile, DriverProfile, UserType } from '@/generated/client';
+import type { UserProfile, DriverProfile } from '../../generated/client.js';
+import type { UserType } from '../../generated/enums.js';
 import type {
   CreateUserProfileInput,
   UpdateUserProfileInput,
   CreateDriverProfileInput,
   UpdateDriverProfileInput,
-} from './validators/profiles.validators';
+} from './validators/profiles.validators.js';
 
 // ========== UserProfile Service ==========
 

@@ -9,10 +9,10 @@ import {
   createDriverProfileController,
   updateDriverProfileController,
   createProfileImagePutPresignController,
-} from './profiles.controller';
-import { authenticate } from '@/middlewares/authMiddleware';
-import { loadUser } from '@/middlewares/loadUserMiddleware';
-import { createProfileImagePutPresign } from './middlewares/profileImagePresign.middleware';
+} from './profiles.controller.js';
+import { authenticate } from '../../middlewares/authMiddleware.js';
+import { loadUser } from '../../middlewares/loadUserMiddleware.js';
+import { createProfileImagePutPresign } from './middlewares/profileImagePresign.middleware.js';
 
 const router = Router();
 

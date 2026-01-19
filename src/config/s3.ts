@@ -1,10 +1,10 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-import { env } from './env';
-import { PRESIGN_EXPIRE_SECONDS } from '@/constants/presignExpire.constant';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
+import { env } from './env.js';
+import { PRESIGN_EXPIRE_SECONDS } from '../constants/presignExpire.constant.js';
+import AppError from '../utils/AppError.js';
+import HTTP_STATUS from '../constants/http.constant.js';
 
 const requireS3Env = () => {
   const { AWS_REGION, S3_BUCKET } = env;

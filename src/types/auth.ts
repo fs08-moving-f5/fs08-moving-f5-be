@@ -1,4 +1,4 @@
-import { UserType } from '@/generated/client';
+import { UserType } from '../generated/enums.js';
 
 // JWT 토큰 페이로드
 export interface JwtPayload {

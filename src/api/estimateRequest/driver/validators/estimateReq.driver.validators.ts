@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EstimateSort } from '@/types/driverEstimate';
+import { EstimateSort } from '../../../../types/driverEstimate.js';
 
 // 공통 cursor/take
 const paginationSchema = {

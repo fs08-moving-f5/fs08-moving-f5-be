@@ -1,7 +1,7 @@
 import { ZodSchema, ZodError } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
+import AppError from '../utils/AppError.js';
+import HTTP_STATUS from '../constants/http.constant.js';
 
 const createValidateMiddleware = (getData: (req: Request) => any) => {
   return (schema: ZodSchema) => {

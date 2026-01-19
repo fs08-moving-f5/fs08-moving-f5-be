@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import * as service from './review.service';
-import asyncHandler from '@/middlewares/asyncHandler';
-import HTTP_STATUS from '@/constants/http.constant';
-import * as validator from './validators/review.validators';
-import type { ReviewSort, GetReviewParams, UpdateReviewParams } from '@/types/review';
+import * as service from './review.service.js';
+import asyncHandler from '../../middlewares/asyncHandler.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
+import * as validator from './validators/review.validators.js';
+import type { ReviewSort, GetReviewParams, UpdateReviewParams } from '../../types/review.js';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
 export const getReviewWritten = asyncHandler(async (req: Request, res: Response) => {

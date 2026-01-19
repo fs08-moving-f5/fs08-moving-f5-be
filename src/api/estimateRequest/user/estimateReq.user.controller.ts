@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
-import asyncHandler from '@/middlewares/asyncHandler';
+import asyncHandler from '../../../middlewares/asyncHandler.js';
 
 import {
   createEstimateRequestService,
   createDesignatedEstimateRequestService,
   getEstimateRequestsInProgressService,
   createEstimateRequestWithGeocodeService,
-} from './estimateReq.user.service';
-import { createEstimateRequestParams } from '@/types/userEstimate';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
+} from './estimateReq.user.service.js';
+import { createEstimateRequestParams } from '../../../types/userEstimate.js';
+import AppError from '../../../utils/AppError.js';
+import HTTP_STATUS from '../../../constants/http.constant.js';
 
 //진행 중인 견적 조회 (유저)
 export const getEstimateRequestsInProgress = asyncHandler(async (req: Request, res: Response) => {

@@ -1,12 +1,12 @@
-import prisma from '@/config/prisma';
-import { Prisma } from '@/generated/client';
-import { EstimateStatus } from '@/generated/enums';
+import prisma from '../../../config/prisma.js';
+import { Prisma } from '../../../generated/client.js';
+import { EstimateStatus } from '../../../generated/enums.js';
 import {
   GetEstimateRequestsParams,
   CreateEstimateParams,
   CreateEstimateRejectParams,
   GetEstimateParams,
-} from '@/types/driverEstimate';
+} from '../../../types/driverEstimate.js';
 
 const DEFAULT_TAKE = 6;
 

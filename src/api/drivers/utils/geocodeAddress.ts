@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+import { api } from '../lib/api.js';
 import 'dotenv/config';
 
 const KAKAO_CLIENT_ID = process.env.KAKAO_CLIENT_ID;

@@ -5,21 +5,22 @@ import {
   getDriverStatusesRepository,
   getFilteredDriverIdsRepository,
   updateDriverOfficeRepository,
-} from './driver.repository';
-import { getUserFavoriteDriversRepository } from '../estimate/estimate.repository';
-import prisma from '@/config/prisma';
+} from './driver.repository.js';
+import { getUserFavoriteDriversRepository } from '../estimate/estimate.repository.js';
+import prisma from '../../config/prisma.js';
 import {
   GetDriversServiceParams,
   NearbyEstimateRequestItem,
   regionMap,
   UpdateDriverOfficeBody,
-} from './types';
-import { AddressType, Prisma, RegionEnum, ServiceEnum, UserType } from '@/generated/client';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
-import { geocodeAddress } from './utils/geocodeAddress';
-import { getBoundingBox } from './utils/getBoundingBox';
-import { getDistanceKm } from './utils/getDistanceKm';
+} from './types/index.js';
+import { Prisma } from '../../generated/client.js';
+import { AddressType, RegionEnum, ServiceEnum, UserType } from '../../generated/enums.js';
+import AppError from '../../utils/AppError.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
+import { geocodeAddress } from './utils/geocodeAddress.js';
+import { getBoundingBox } from './utils/getBoundingBox.js';
+import { getDistanceKm } from './utils/getDistanceKm.js';
 
 export const getDriversService = async ({
   userId,

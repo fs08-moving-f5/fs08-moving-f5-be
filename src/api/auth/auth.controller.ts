@@ -4,21 +4,21 @@ import {
   logoutService,
   logoutByRefreshTokenService,
   refreshTokenService,
-} from './auth.service';
-import { oauthLoginService } from './auth.service';
-import { signupSchema, loginSchema } from './validators/auth.validators';
-import AppError from '@/utils/AppError';
-import asyncHandler from '@/middlewares/asyncHandler';
-import HTTP_STATUS from '@/constants/http.constant';
-import { getRefreshTokenCookieOptions, getClearCookieOptions } from '@/utils/cookieOptions';
+} from './auth.service.js';
+import { oauthLoginService } from './auth.service.js';
+import { signupSchema, loginSchema } from './validators/auth.validators.js';
+import AppError from '../../utils/AppError.js';
+import asyncHandler from '../../middlewares/asyncHandler.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
+import { getRefreshTokenCookieOptions, getClearCookieOptions } from '../../utils/cookieOptions.js';
 import passport from 'passport';
-import { env } from '@/config/env';
-import type { OAuthProfile, OAuthProvider, OAuthUserType } from './strategies/passport';
-import { decodeOAuthState, encodeOAuthState } from './utils/oauth.utils';
+import { env } from '../../config/env.js';
+import type { OAuthProfile, OAuthProvider, OAuthUserType } from './strategies/passport.js';
+import { decodeOAuthState, encodeOAuthState } from './utils/oauth.utils.js';
 import {
   ensureRedirectOriginAllowed,
   getOAuthRedirectBaseOrigin,
-} from './utils/redirectOrigin.utils';
+} from './utils/redirectOrigin.utils.js';
 
 import type { NextFunction, Request, Response } from 'express';
 

@@ -3,11 +3,11 @@ import {
   getDriversService,
   getNearbyEstimateRequestsService,
   updateDriverOfficeService,
-} from './driver.service';
-import HTTP_STATUS from '@/constants/http.constant';
-import { isRegionKey } from './types';
-import asyncHandler from '@/middlewares/asyncHandler';
-import AppError from '@/utils/AppError';
+} from './driver.service.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
+import { isRegionKey } from './types/index.js';
+import asyncHandler from '../../middlewares/asyncHandler.js';
+import AppError from '../../utils/AppError.js';
 
 export const getDriversController = asyncHandler(async (req: Request, res: Response) => {
   const { region, service, sort, cursor, limit, search } = req.query;

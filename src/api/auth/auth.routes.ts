@@ -7,9 +7,9 @@ import {
   getMeController,
   oauthStartController,
   oauthCallbackController,
-} from './auth.controller';
-import { authenticate } from '@/middlewares/authMiddleware';
-import { loadUser } from '@/middlewares/loadUserMiddleware';
+} from './auth.controller.js';
+import { authenticate } from '../../middlewares/authMiddleware.js';
+import { loadUser } from '../../middlewares/loadUserMiddleware.js';
 
 const router = Router();
 

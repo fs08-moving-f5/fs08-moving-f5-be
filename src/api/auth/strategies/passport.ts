@@ -1,6 +1,6 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { env } from '@/config/env';
+import { env } from '../../../config/env.js';
 
 export type OAuthProvider = 'google' | 'kakao' | 'naver';
 export type OAuthUserType = 'USER' | 'DRIVER';

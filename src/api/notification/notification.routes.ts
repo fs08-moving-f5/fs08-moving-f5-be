@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { authenticate } from '@/middlewares/authMiddleware';
+import { authenticate } from '../../middlewares/authMiddleware.js';
 import {
   getNotificationsController,
   getNotificationStreamController,
   readNotificationController,
-} from './notification.controller';
-import { validateParamsMiddleware } from '@/middlewares/validateMiddleware';
-import { notificationIdParamsValidator } from './validators/notification.validators';
+} from './notification.controller.js';
+import { validateParamsMiddleware } from '../../middlewares/validateMiddleware.js';
+import { notificationIdParamsValidator } from './validators/notification.validators.js';
 
 const router = Router();
 

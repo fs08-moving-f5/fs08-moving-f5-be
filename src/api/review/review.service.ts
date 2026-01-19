@@ -1,16 +1,16 @@
-import prisma from '../../config/prisma';
-import * as repo from './review.repository';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
+import prisma from '../../config/prisma.js';
+import * as repo from './review.repository.js';
+import AppError from '../../utils/AppError.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
 import {
   GetReviewParams,
   UpdateReviewParams,
   WrittenReviewListResult,
   WritableReviewListResult,
-} from '../../types/review';
-import splitAddresses from '@/utils/splitAddresses';
-import { NotificationType } from '../../generated/enums';
-import { createNotificationAndPushUnreadService } from '../notification/notification.service';
+} from '../../types/review.js';
+import splitAddresses from '../../utils/splitAddresses.js';
+import { NotificationType } from '../../generated/enums.js';
+import { createNotificationAndPushUnreadService } from '../notification/notification.service.js';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
 export async function getReviewWrittenService(

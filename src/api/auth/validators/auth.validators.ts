@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { UserType } from '@/generated/client';
+import { UserType } from '../../../generated/enums.js';
 
 // 이메일 유효성 검사
 export const emailSchema = z

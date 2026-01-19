@@ -5,19 +5,20 @@ import {
   findUserByProviderIdRepository,
   updateUserRepository,
   updateRefreshTokenRepository,
-} from './auth.repository';
+} from './auth.repository.js';
 import {
   hashPassword,
   verifyPassword,
   generateTokens,
   verifyRefreshToken,
-} from './utils/auth.utils';
-import { LoginResponse, UserResponse, TokenResponse } from '@/types/auth';
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
+} from './utils/auth.utils.js';
+import { LoginResponse, UserResponse, TokenResponse } from '../../types/auth.js';
+import AppError from '../../utils/AppError.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
 
-import type { User, UserType } from '@/generated/client';
-import type { OAuthProfile, OAuthUserType } from './strategies/passport';
+import type { User } from '../../generated/client.js';
+import type { UserType } from '../../generated/enums.js';
+import type { OAuthProfile, OAuthUserType } from './strategies/passport.js';
 
 // User를 UserResponse로 변환하는 헬퍼 함수
 const toUserResponse = (user: User & { userProfile?: any; driverProfile?: any }): UserResponse => {

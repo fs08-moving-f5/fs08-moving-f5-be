@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserType } from '../generated/client';
-import { verifyAccessToken } from '../api/auth/utils/auth.utils';
-import AppError from '../utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
+import { UserType } from '../generated/enums.js';
+import { verifyAccessToken } from '../api/auth/utils/auth.utils.js';
+import AppError from '../utils/AppError.js';
+import HTTP_STATUS from '../constants/http.constant.js';
 
 // JWT 인증 미들웨어
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {

@@ -1,7 +1,7 @@
 //
 import { Router } from 'express';
-import * as controller from './estimateReq.driver.controller';
-import { authenticate } from '@/middlewares/authMiddleware';
+import * as controller from './estimateReq.driver.controller.js';
+import { authenticate } from '../../../middlewares/authMiddleware.js';
 
 const router = Router();
 

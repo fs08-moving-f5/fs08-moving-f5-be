@@ -1,5 +1,5 @@
-import AppError from '@/utils/AppError';
-import HTTP_STATUS from '@/constants/http.constant';
+import AppError from '../../../utils/AppError.js';
+import HTTP_STATUS from '../../../constants/http.constant.js';
 
 const normalizeOrigin = (value: string): string | null => {
   try {

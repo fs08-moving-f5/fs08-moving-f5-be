@@ -1,6 +1,6 @@
 // 예시 파일입니다. 자유롭게 사용하세요.
 import 'dotenv/config';
-import { PrismaClient } from '../generated/client';
+import { PrismaClient } from '../generated/client.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 const connectionString = process.env.DATABASE_URL;

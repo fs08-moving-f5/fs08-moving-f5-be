@@ -1,8 +1,8 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import argon2 from 'argon2';
-import { env } from '@/config/env';
-import { JwtPayload, TokenResponse } from '@/types/auth';
-import { UserType } from '@/generated/client';
+import { env } from '../../../config/env.js';
+import { JwtPayload, TokenResponse } from '../../../types/auth.js';
+import { UserType } from '../../../generated/enums.js';
 
 // 비밀번호 해싱
 export const hashPassword = async (password: string): Promise<string> => {

@@ -2,7 +2,7 @@ import { Application } from 'express';
 import helmet from 'helmet';
 import compression from 'compression';
 import express from 'express';
-import { morganMiddleware } from './morgan';
+import { morganMiddleware } from './morgan.js';
 
 export function applySecurity(app: Application) {
   // SSE 스트림 경로는 helmet의 noSniff를 비활성화

@@ -1,10 +1,10 @@
-import { getMyPageDataService, getMyPageReviewsService } from './myPage.service';
-import AppError from '@/utils/AppError';
-import asyncHandler from '@/middlewares/asyncHandler';
-import HTTP_STATUS from '@/constants/http.constant';
+import { getMyPageDataService, getMyPageReviewsService } from './myPage.service.js';
+import AppError from '../../utils/AppError.js';
+import asyncHandler from '../../middlewares/asyncHandler.js';
+import HTTP_STATUS from '../../constants/http.constant.js';
 
 import type { Request, Response } from 'express';
-import type { User } from '@/generated/client';
+import type { User } from '../../generated/client.js';
 
 // loadUser 미들웨어를 거친 후 req.currentUser는 전체 User 정보를 포함합니다
 

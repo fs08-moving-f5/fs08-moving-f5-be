@@ -1,14 +1,14 @@
-import HTTP_STATUS from '../../constants/http.constant';
-import AppError from '../../utils/AppError';
+import HTTP_STATUS from '../../constants/http.constant.js';
+import AppError from '../../utils/AppError.js';
 import {
   createFavoriteDriverRepository,
   deleteFavoriteDriverRepository,
   deleteManyFavoriteDriverRepository,
   getFavoriteDriversRepository,
   isFavoriteDriverRepository,
-} from './favorite.repository';
-import { Prisma } from '../../generated/client';
-import { getDriverStatusesByDriverIdsRepository } from '../estimate/estimate.repository';
+} from './favorite.repository.js';
+import { Prisma } from '../../generated/client.js';
+import { getDriverStatusesByDriverIdsRepository } from '../estimate/estimate.repository.js';
 
 export const addFavoriteDriverService = async ({
   userId,
