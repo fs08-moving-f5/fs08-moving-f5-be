@@ -1,13 +1,8 @@
 import argon2 from 'argon2';
 import { v4 as uuidv4 } from 'uuid';
-import prisma from '../src/config/prisma';
-import { Prisma } from '../src/generated/client';
-import type {
-  RegionEnum,
-  ServiceEnum,
-  EstimateStatus,
-  NotificationType,
-} from '../src/generated/enums';
+import prisma from './prisma';
+import { Prisma } from '../generated/client';
+import type { RegionEnum, ServiceEnum, EstimateStatus, NotificationType } from '../generated/enums';
 
 // 유틸리티 함수들
 const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;

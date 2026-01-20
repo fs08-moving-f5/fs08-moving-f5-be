@@ -12,13 +12,14 @@
     "postinstall": "prisma generate",
     "migrate": "prisma migrate deploy",
     "studio": "prisma studio",
-    "seed": "tsx prisma/seed.ts",
+    "seed": "tsx src/config/seed.ts",
+    "seed:deploy": "node prisma/seed.js",
     "prepare": "husky",
     "type-check": "tsc --noEmit"
   },
   "prisma": {
     "schema": "prisma/schema.prisma",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx src/config/seed.ts"
   },
   "engines": {
     "node": ">=24.0.0"
