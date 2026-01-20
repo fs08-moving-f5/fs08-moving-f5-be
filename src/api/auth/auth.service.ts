@@ -15,9 +15,22 @@ import {
 import { LoginResponse, UserResponse, TokenResponse } from '@/types/auth';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
+import { EMAIL_VERIFICATION_EMAIL_SENT_MESSAGE } from './emailVerification/emailVerification.constants';
+import { sendEmailVerificationEmailService } from './emailVerification/emailVerification.service';
 
 import type { User, UserType } from '@/generated/client';
 import type { OAuthProfile, OAuthUserType } from './strategies/passport';
+
+const ensureEmailVerifiedOrSend = async (data: { user: User; frontendOrigin?: string }) => {
+  if (data.user.isEmailVerified) return;
+
+  await sendEmailVerificationEmailService({
+    userId: data.user.id,
+    frontendOrigin: data.frontendOrigin,
+  });
+
+  throw new AppError(EMAIL_VERIFICATION_EMAIL_SENT_MESSAGE, HTTP_STATUS.FORBIDDEN);
+};
 
 // User를 UserResponse로 변환하는 헬퍼 함수
 const toUserResponse = (user: User & { userProfile?: any; driverProfile?: any }): UserResponse => {
@@ -42,8 +55,9 @@ const toUserResponse = (user: User & { userProfile?: any; driverProfile?: any })
 export const oauthLoginService = async (data: {
   profile: OAuthProfile;
   type: OAuthUserType;
+  frontendOrigin?: string;
 }): Promise<LoginResponse> => {
-  const { profile, type } = data;
+  const { profile, type, frontendOrigin } = data;
 
   if (!profile.providerId) {
     throw new AppError('소셜 로그인 정보가 올바르지 않습니다', HTTP_STATUS.BAD_REQUEST);
@@ -83,11 +97,19 @@ export const oauthLoginService = async (data: {
 
   const fullUser = (await findUserByIdRepository(user.id)) ?? user;
 
+  // 소셜 로그인은 provider에서 확인된 이메일로 간주하고 즉시 이메일 인증 완료 처리합니다.
+  if (fullUser.email && !fullUser.isEmailVerified) {
+    await updateUserRepository(fullUser.id, { isEmailVerified: true });
+    fullUser.isEmailVerified = true;
+  }
+
+  await ensureEmailVerifiedOrSend({ user: fullUser, frontendOrigin });
+
   const tokens = generateTokens(fullUser.id, fullUser.email, fullUser.type);
   await updateRefreshTokenRepository(fullUser.id, tokens.refreshToken);
 
   return {
-    user: toUserResponse(fullUser as any),
+    user: toUserResponse(fullUser),
     tokens,
   };
 };
@@ -154,6 +176,8 @@ export const loginService = async (
   if (!isPasswordValid) {
     throw new AppError('이메일 또는 비밀번호가 올바르지 않습니다', HTTP_STATUS.UNAUTHORIZED);
   }
+
+  await ensureEmailVerifiedOrSend({ user });
 
   // 토큰 생성
   const tokens = generateTokens(user.id, user.email, user.type);

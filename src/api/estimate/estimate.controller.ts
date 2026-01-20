@@ -31,7 +31,7 @@ export const getPendingEstimatesController = asyncHandler(async (req, res) => {
 });
 
 export const confirmEstimateController = asyncHandler(async (req, res) => {
-  const { estimateId } = req.params;
+  const estimateId = String(req.params.estimateId);
 
   const estimate = await confirmEstimateService({ estimateId });
 
@@ -43,7 +43,7 @@ export const confirmEstimateController = asyncHandler(async (req, res) => {
 
 export const getEstimateDetailController = asyncHandler(async (req, res) => {
   const userId = req.user!.id;
-  const { estimateId } = req.params;
+  const estimateId = String(req.params.estimateId);
 
   const estimate = await getEstimateDetailService({ estimateId, userId });
 

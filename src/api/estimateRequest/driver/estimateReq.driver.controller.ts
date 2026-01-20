@@ -89,7 +89,7 @@ export const getEstimateConfirm = asyncHandler(async (req: Request, res: Respons
 // 확정 견적 상세 조회
 export const getEstimateConfirmId = asyncHandler(async (req: Request, res: Response) => {
   const driverId = req.user!.id;
-  const { estimateId } = validator.getConfirmedEstimateDetailSchema.parse(req.query);
+  const { estimateId } = validator.getConfirmedEstimateDetailSchema.parse(req.params);
 
   const estimate = await service.getEstimateConfirmIdService(estimateId, driverId);
 

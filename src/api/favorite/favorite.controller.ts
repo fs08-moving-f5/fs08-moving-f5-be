@@ -16,7 +16,7 @@ interface QueryParams {
 
 export const addFavoriteDriverController = asyncHandler(async (req, res) => {
   const userId = req.user!.id;
-  const driverId = req.params.driverId;
+  const driverId = String(req.params.driverId);
 
   if (!userId || !driverId) {
     throw new AppError('userId 또는 driverId가 필요합니다.', HTTP_STATUS.BAD_REQUEST);
@@ -32,7 +32,7 @@ export const addFavoriteDriverController = asyncHandler(async (req, res) => {
 
 export const deleteFavoriteDriverController = asyncHandler(async (req, res) => {
   const userId = req.user!.id;
-  const driverId = req.params.driverId;
+  const driverId = String(req.params.driverId);
 
   if (!userId || !driverId) {
     throw new AppError('userId 또는 driverId가 필요합니다.', HTTP_STATUS.BAD_REQUEST);

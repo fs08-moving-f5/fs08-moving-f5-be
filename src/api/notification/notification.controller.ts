@@ -47,7 +47,7 @@ export const getNotificationsController = asyncHandler(async (req, res) => {
 
 export const readNotificationController = asyncHandler(async (req, res) => {
   const userId = req.user!.id;
-  const notificationId = req.params.id;
+  const notificationId = String(req.params.id);
 
   await readNotificationService({ userId, notificationId });
 
