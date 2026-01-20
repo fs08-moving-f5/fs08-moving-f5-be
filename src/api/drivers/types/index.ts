@@ -85,3 +85,28 @@ export interface NearbyEstimateRequestItem {
     address: string;
   };
 }
+
+export interface DriverListResponse {
+  data: Array<{
+    id: string;
+    name: string;
+    driverProfile: {
+      id: string;
+      imageUrl: string | null;
+      shortIntro: string | null;
+      description: string | null;
+      regions: string[];
+      services: string[];
+    } | null;
+    career: number;
+    favoriteDriverCount: number;
+    confirmedEstimateCount: number;
+    averageRating: number;
+    reviewCount: number;
+    isFavorite: boolean;
+  }>;
+  pagination: {
+    hasNext: boolean;
+    nextCursor: string | null;
+  };
+}

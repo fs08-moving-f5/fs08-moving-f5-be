@@ -8,6 +8,7 @@ import {
   oauthStartController,
   oauthCallbackController,
 } from './auth.controller';
+import { verifyEmailController } from './emailVerification/emailVerification.controller';
 import { authenticate } from '@/middlewares/authMiddleware';
 import { loadUser } from '@/middlewares/loadUserMiddleware';
 
@@ -21,5 +22,7 @@ router.get('/me', authenticate, loadUser, getMeController);
 
 router.get('/oauth/:provider', oauthStartController);
 router.get('/oauth/:provider/callback', oauthCallbackController);
+
+router.post('/email/verify', verifyEmailController);
 
 export default router;

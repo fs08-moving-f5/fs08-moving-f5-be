@@ -18,8 +18,16 @@ jobs:
           node-version: 24
           cache: "npm"
 
+      - name: Print Versions
+        run: |
+          node -v
+          npm -v
+          node -p "require('./package.json').version"
+          node -p "Object.entries(require('./package.json').dependencies || {}).filter(([k,v]) => !v || v.trim() === '')"
+          node -p "Object.entries(require('./package.json').devDependencies || {}).filter(([k,v]) => !v || v.trim() === '')"
+
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Type check
         run: npm run type-check --if-present

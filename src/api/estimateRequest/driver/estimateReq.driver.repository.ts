@@ -25,10 +25,10 @@ export async function getEstimateRequestsRepository({
   let orderBy = {};
   switch (sort) {
     case 'moving-latest': // 이사 빠른순
-      orderBy = { movingDate: 'desc' };
+      orderBy = { movingDate: 'asc' };
       break;
     case 'moving-oldest': // 이사 느린순
-      orderBy = { movingDate: 'asc' };
+      orderBy = { movingDate: 'desc' };
       break;
     case 'latest': // 요청일 빠른순
     default:

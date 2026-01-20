@@ -67,12 +67,15 @@
  *               success: true
  *               data:
  *                 reviews:
- *                   - rating: 5
+ *                   - id: "rev_1"
+ *                     rating: 5
  *                     content: "아주 만족스러운 이사였습니다."
  *                     createdAt: "2025-01-01T10:00:00.000Z"
  *                     driver:
+ *                       id: "drv_1"
  *                       name: "김기사"
  *                       shortIntro: "10년 경력 기사입니다."
+ *                       imageUrl: null
  *                     movingType: HOME_MOVING
  *                     movingDate: "2025-01-10T00:00:00.000Z"
  *                     isDesignated: false
@@ -131,9 +134,11 @@
  *               data:
  *                 estimates:
  *                   - id: "est_1"
+ *                     reviewId: "rev_1"
  *                     price: 300000
  *                     createdAt: "2025-01-01T09:00:00.000Z"
  *                     driver:
+ *                       id: "drv_2"
  *                       name: "이기사"
  *                       shortIntro: "친절한 이사 전문가"
  *                     movingType: SMALL_MOVING
@@ -170,14 +175,25 @@
  *     summary: 리뷰 작성 (일반 유저)
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: reviewId
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
- *           example:
- *             estimateId: "est_1"
- *             rating: 5
- *             content: "기사님이 정말 친절했습니다."
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rating:
+ *                 type: number
+ *                 example: 5
+ *               content:
+ *                 type: string
+ *                 example: "기사님이 정말 친절했습니다."
  *     responses:
  *       200:
  *         description: 리뷰 작성 성공
