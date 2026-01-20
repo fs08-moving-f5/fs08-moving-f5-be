@@ -4,11 +4,13 @@ import {
   createFavoriteDriverRepository,
   deleteFavoriteDriverRepository,
   deleteManyFavoriteDriverRepository,
+  getCountFavoriteDriversRepository,
   getFavoriteDriversRepository,
   isFavoriteDriverRepository,
 } from './favorite.repository';
 import { Prisma } from '../../generated/client';
 import { getDriverStatusesByDriverIdsRepository } from '../estimate/estimate.repository';
+import prisma from '@/config/prisma';
 
 export const addFavoriteDriverService = async ({
   userId,
@@ -55,81 +57,88 @@ export const getFavoriteDriversService = async ({
   cursor: string;
   limit: number;
 }) => {
-  const favoriteDrivers = await getFavoriteDriversRepository({ userId, cursor, limit });
+  return await prisma.$transaction(async (tx) => {
+    const [favoriteDrivers, count] = await Promise.all([
+      getFavoriteDriversRepository({ userId, cursor, limit, tx }),
+      getCountFavoriteDriversRepository({ userId, tx }),
+    ]);
 
-  if (favoriteDrivers.length === 0) {
+    if (favoriteDrivers.length === 0) {
+      return {
+        data: [],
+        count,
+        pagination: {
+          hasNext: false,
+          nextCursor: null,
+        },
+      };
+    }
+
+    const driverIds = favoriteDrivers.map((driver) => driver.driverId);
+
+    const driverStatuses = await getDriverStatusesByDriverIdsRepository({ driverIds, tx });
+
+    const driverStatusMap = driverStatuses.reduce<
+      Record<
+        string,
+        {
+          confirmedEstimateCount: number;
+          favoriteDriverCount: number;
+          averageRating: number | null;
+          reviewCount: number;
+        }
+      >
+    >((acc, item) => {
+      acc[item.driverId] = {
+        confirmedEstimateCount: item.confirmedEstimateCount,
+        favoriteDriverCount: item.favoriteDriverCount,
+        averageRating: item.averageRating || null,
+        reviewCount: item.reviewCount,
+      };
+      return acc;
+    }, {});
+
+    const hasNext = favoriteDrivers.length > limit;
+    const slicedDrivers = hasNext ? favoriteDrivers.slice(0, limit) : favoriteDrivers;
+
+    const data = slicedDrivers.map((favoriteDriver) => {
+      const driverStatus = driverStatusMap[favoriteDriver.driverId] || {
+        confirmedEstimateCount: 0,
+        favoriteDriverCount: 0,
+        averageRating: null,
+        reviewCount: 0,
+      };
+
+      return {
+        ...favoriteDriver,
+        driver: {
+          ...favoriteDriver.driver,
+          driverProfile: favoriteDriver.driver.driverProfile
+            ? {
+                ...favoriteDriver.driver.driverProfile,
+                confirmedEstimateCount: driverStatus.confirmedEstimateCount,
+                favoriteDriverCount: driverStatus.favoriteDriverCount,
+                averageRating: driverStatus.averageRating,
+                reviewCount: driverStatus.reviewCount,
+              }
+            : null,
+        },
+      };
+    });
+
+    const nextCursor = hasNext ? slicedDrivers[slicedDrivers.length - 1].id : null;
+
+    const pagination = {
+      hasNext,
+      nextCursor,
+    };
+
     return {
-      data: [],
-      pagination: {
-        hasNext: false,
-        nextCursor: null,
-      },
-    };
-  }
-
-  const driverIds = favoriteDrivers.map((driver) => driver.driverId);
-
-  const driverStatuses = await getDriverStatusesByDriverIdsRepository({ driverIds });
-
-  const driverStatusMap = driverStatuses.reduce<
-    Record<
-      string,
-      {
-        confirmedEstimateCount: number;
-        favoriteDriverCount: number;
-        averageRating: number | null;
-        reviewCount: number;
-      }
-    >
-  >((acc, item) => {
-    acc[item.driverId] = {
-      confirmedEstimateCount: item.confirmedEstimateCount,
-      favoriteDriverCount: item.favoriteDriverCount,
-      averageRating: item.averageRating || null,
-      reviewCount: item.reviewCount,
-    };
-    return acc;
-  }, {});
-
-  const hasNext = favoriteDrivers.length > limit;
-  const slicedDrivers = hasNext ? favoriteDrivers.slice(0, limit) : favoriteDrivers;
-
-  const data = slicedDrivers.map((favoriteDriver) => {
-    const driverStatus = driverStatusMap[favoriteDriver.driverId] || {
-      confirmedEstimateCount: 0,
-      favoriteDriverCount: 0,
-      averageRating: null,
-      reviewCount: 0,
-    };
-
-    return {
-      ...favoriteDriver,
-      driver: {
-        ...favoriteDriver.driver,
-        driverProfile: favoriteDriver.driver.driverProfile
-          ? {
-              ...favoriteDriver.driver.driverProfile,
-              confirmedEstimateCount: driverStatus.confirmedEstimateCount,
-              favoriteDriverCount: driverStatus.favoriteDriverCount,
-              averageRating: driverStatus.averageRating,
-              reviewCount: driverStatus.reviewCount,
-            }
-          : null,
-      },
+      data,
+      count,
+      pagination,
     };
   });
-
-  const nextCursor = hasNext ? slicedDrivers[slicedDrivers.length - 1].id : null;
-
-  const pagination = {
-    hasNext,
-    nextCursor,
-  };
-
-  return {
-    data,
-    pagination,
-  };
 };
 
 export const deleteManyFavoriteDriverService = async ({

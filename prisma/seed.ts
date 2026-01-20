@@ -669,6 +669,30 @@ const estimateComments = {
 async function main() {
   console.log('🌱 Start seeding...\n');
 
+  // 데이터베이스 스키마 확인 (마이그레이션 적용 여부 확인)
+  console.log('🔍 Checking database schema...');
+  try {
+    // User 테이블의 isEmailVerified 컬럼 존재 여부 확인
+    await prisma.$queryRaw`
+      SELECT "isEmailVerified" FROM "User" LIMIT 1
+    `;
+    console.log('✅ Database schema is up to date\n');
+  } catch (error: any) {
+    if (
+      error.code === 'P2022' ||
+      error.message?.includes('column') ||
+      error.message?.includes('does not exist')
+    ) {
+      console.error('❌ Database schema is not up to date!');
+      console.error('   Please run migrations first:');
+      console.error('   npx prisma migrate deploy');
+      console.error('   or');
+      console.error('   npx prisma migrate dev');
+      process.exit(1);
+    }
+    throw error;
+  }
+
   // 기존 데이터 삭제
   console.log('🗑️  Deleting existing data...');
   await prisma.history.deleteMany();
