@@ -296,6 +296,10 @@
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/FavoriteDriverWithDetails'
+ *                 count:
+ *                   type: integer
+ *                   description: 전체 찜한 기사 수
+ *                   example: 25
  *                 pagination:
  *                   $ref: '#/components/schemas/PaginationInfo'
  *                 message:
@@ -331,6 +335,7 @@
  *                         reviews:
  *                           - id: "123e4567-e89b-12d3-a456-426614174004"
  *                             rating: 5
+ *                   count: 25
  *                   pagination:
  *                     hasNext: true
  *                     nextCursor: "123e4567-e89b-12d3-a456-426614174005"
@@ -339,6 +344,7 @@
  *                 value:
  *                   success: true
  *                   data: []
+ *                   count: 0
  *                   pagination:
  *                     hasNext: false
  *                     nextCursor: null

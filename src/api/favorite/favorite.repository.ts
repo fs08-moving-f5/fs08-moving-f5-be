@@ -1,4 +1,5 @@
 import prisma from '../../config/prisma';
+import { Prisma } from '../../generated/client';
 
 export const isFavoriteDriverRepository = async ({
   userId,
@@ -56,12 +57,14 @@ export const getFavoriteDriversRepository = async ({
   userId,
   cursor,
   limit,
+  tx,
 }: {
   userId: string;
   cursor: string;
   limit: number;
+  tx?: Prisma.TransactionClient;
 }) => {
-  return await prisma.favoriteDriver.findMany({
+  return await (tx ?? prisma).favoriteDriver.findMany({
     where: {
       userId,
     },
@@ -102,6 +105,20 @@ export const getFavoriteDriversRepository = async ({
           },
         },
       },
+    },
+  });
+};
+
+export const getCountFavoriteDriversRepository = async ({
+  userId,
+  tx,
+}: {
+  userId: string;
+  tx?: Prisma.TransactionClient;
+}) => {
+  return await (tx ?? prisma).favoriteDriver.count({
+    where: {
+      userId,
     },
   });
 };
