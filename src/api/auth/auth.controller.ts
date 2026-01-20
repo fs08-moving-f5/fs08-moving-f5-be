@@ -19,6 +19,9 @@ import {
   ensureRedirectOriginAllowed,
   getOAuthRedirectBaseOrigin,
 } from './utils/redirectOrigin.utils';
+import { EMAIL_VERIFICATION_EMAIL_SENT_MESSAGE } from './emailVerification/emailVerification.constants';
+import { sendEmailVerificationEmailService } from './emailVerification/emailVerification.service';
+import { logger } from '@/config/logger';
 
 import type { NextFunction, Request, Response } from 'express';
 
@@ -27,6 +30,11 @@ export const signupController = asyncHandler(async (req: Request, res: Response)
   const validatedData = signupSchema.parse(req.body);
 
   const result = await signupService(validatedData);
+
+  // 이메일 인증 메일 전송 (best-effort)
+  void sendEmailVerificationEmailService({ userId: result.user.id }).catch(() => {
+    logger.error(`Failed to send signup verification email: ${result.user.email}`);
+  });
 
   // 리프레시 토큰은 httpOnly 쿠키로 설정
   res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
@@ -188,17 +196,28 @@ export const oauthCallbackController = asyncHandler(
         }
 
         try {
-          const result = await oauthLoginService({ profile, type });
-
-          res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
-
           // state는 변조될 수 있으므로 여기서도 redirectOrigin을 다시 검증합니다.
           const frontendOrigin = getOAuthRedirectBaseOrigin(env.CORS_ORIGIN, redirectOrigin);
+
+          const result = await oauthLoginService({ profile, type, frontendOrigin });
+
+          res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
           const redirectUrl = new URL('/oauth/callback', frontendOrigin);
           redirectUrl.searchParams.set('accessToken', result.tokens.accessToken);
 
           return res.redirect(redirectUrl.toString());
         } catch (serviceError) {
+          if (
+            serviceError instanceof AppError &&
+            serviceError.statusCode === HTTP_STATUS.FORBIDDEN &&
+            serviceError.message === EMAIL_VERIFICATION_EMAIL_SENT_MESSAGE
+          ) {
+            const frontendOrigin = getOAuthRedirectBaseOrigin(env.CORS_ORIGIN, redirectOrigin);
+            const loginRedirectUrl = new URL(`/login/${type.toLowerCase()}`, frontendOrigin);
+            loginRedirectUrl.searchParams.set('emailVerification', 'sent');
+
+            return res.redirect(loginRedirectUrl.toString());
+          }
           return next(serviceError);
         }
       },

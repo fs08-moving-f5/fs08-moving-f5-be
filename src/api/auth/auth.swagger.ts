@@ -177,6 +177,33 @@
  *           type: string
  *           nullable: true
  *           description: 에러 스택 트레이스 (개발 환경에서만 제공)
+
+ *     VerifyEmailRequest:
+ *       type: object
+ *       required:
+ *         - token
+ *       properties:
+ *         token:
+ *           type: string
+ *           description: 이메일 인증 토큰(JWT)
+ *           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+ *     VerifyEmailResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         data:
+ *           type: object
+ *           properties:
+ *             message:
+ *               type: string
+ *               example: "이메일 인증이 완료되었습니다."
+ *             userType:
+ *               type: string
+ *               enum: [USER, DRIVER]
+ *               example: "USER"
  *
  *   securitySchemes:
  *     bearerAuth:
@@ -350,6 +377,33 @@
  *               $ref: '#/components/schemas/UserResponse'
  *       401:
  *         description: 인증 필요
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+
+/**
+ * @swagger
+ * /api/auth/email/verify:
+ *   post:
+ *     summary: 이메일 인증 완료 처리
+ *     description: 이메일 인증 링크에서 받은 토큰을 검증하고, 유저의 이메일 인증 상태를 완료로 변경합니다.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/VerifyEmailRequest'
+ *     responses:
+ *       200:
+ *         description: 이메일 인증 처리 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/VerifyEmailResponse'
+ *       400:
+ *         description: 토큰이 유효하지 않거나 만료됨
  *         content:
  *           application/json:
  *             schema:
