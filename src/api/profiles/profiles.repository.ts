@@ -1,6 +1,6 @@
 import prisma from '@/config/prisma';
 
-import type { User, UserProfile, DriverProfile, Prisma } from '@/generated/client';
+import type { User, UserProfile, DriverProfile, Prisma, Review } from '@/generated/client';
 
 // ========== UserProfile Repository ==========
 
@@ -126,6 +126,113 @@ export const findDriverWithProfileByDriverIdRepository = async (
       id: true,
       name: true,
       driverProfile: true,
+    },
+  });
+};
+
+// ========== Driver Public Reviews Repository ==========
+
+// 리뷰 별점 분포 타입
+interface ReviewDistribution {
+  [key: number]: number;
+}
+
+const INITIAL_REVIEW_DISTRIBUTION: ReviewDistribution = {
+  1: 0,
+  2: 0,
+  3: 0,
+  4: 0,
+  5: 0,
+};
+
+// 드라이버의 리뷰 평점 목록 조회 (통계 계산용)
+export const findDriverReviewRatingsRepository = async (
+  driverId: string,
+): Promise<Array<{ rating: number | null }>> => {
+  return prisma.review.findMany({
+    where: {
+      estimate: {
+        driverId,
+        isDelete: false,
+      },
+    },
+    select: {
+      rating: true,
+    },
+  });
+};
+
+// 드라이버의 리뷰 별점 분포 조회
+export const getDriverReviewDistributionRepository = async (
+  driverId: string,
+): Promise<ReviewDistribution> => {
+  const reviews = await prisma.review.findMany({
+    where: {
+      estimate: {
+        driverId,
+        isDelete: false,
+      },
+    },
+    select: {
+      rating: true,
+    },
+  });
+
+  const distribution: ReviewDistribution = { ...INITIAL_REVIEW_DISTRIBUTION };
+
+  reviews.forEach((review) => {
+    if (review.rating) {
+      distribution[review.rating] = (distribution[review.rating] || 0) + 1;
+    }
+  });
+
+  return distribution;
+};
+
+// 드라이버의 리뷰 목록 조회
+export const findDriverReviewsRepository = async (
+  driverId: string,
+  skip: number,
+  take: number,
+): Promise<
+  (Review & {
+    user: {
+      id: string;
+      name: string;
+    };
+  })[]
+> => {
+  return prisma.review.findMany({
+    where: {
+      estimate: {
+        driverId,
+        isDelete: false,
+      },
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    skip,
+    take,
+  });
+};
+
+// 드라이버의 리뷰 총 개수 조회
+export const countDriverReviewsRepository = async (driverId: string): Promise<number> => {
+  return prisma.review.count({
+    where: {
+      estimate: {
+        driverId,
+        isDelete: false,
+      },
     },
   });
 };
