@@ -33,6 +33,7 @@ export const signupSchema = z.object({
   name: nameSchema,
   phone: phoneSchema,
   type: userTypeSchema.default(UserType.USER),
+  frontendOrigin: z.string().url().optional(),
 });
 
 // 로그인 스키마
@@ -40,6 +41,7 @@ export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, '비밀번호는 필수입니다'),
   type: userTypeSchema.default(UserType.USER),
+  frontendOrigin: z.string().url().optional(),
 });
 
 // 토큰 갱신 스키마
