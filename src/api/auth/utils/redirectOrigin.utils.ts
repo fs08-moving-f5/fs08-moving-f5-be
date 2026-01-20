@@ -41,7 +41,30 @@ export const ensureRedirectOriginAllowed = (
   return normalized;
 };
 
-export const getOAuthRedirectBaseOrigin = (
+export const ensureFrontendOriginAllowed = (
+  candidate: string | undefined,
+  corsOrigin: string,
+): string | undefined => {
+  if (!candidate) return undefined;
+
+  const normalized = normalizeOrigin(candidate);
+  if (!normalized) {
+    throw new AppError('frontendOrigin 값이 올바른 URL이 아닙니다', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const allowed = getAllowedFrontendOrigins(corsOrigin);
+  if (allowed.includes('*')) return normalized;
+
+  const allowedNormalized = allowed.map(normalizeOrigin).filter((v): v is string => Boolean(v));
+
+  if (!allowedNormalized.includes(normalized)) {
+    throw new AppError('허용되지 않은 frontendOrigin 입니다', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  return normalized;
+};
+
+export const getRedirectBaseOrigin = (
   corsOrigin: string,
   redirectOriginFromState?: string,
 ): string => {

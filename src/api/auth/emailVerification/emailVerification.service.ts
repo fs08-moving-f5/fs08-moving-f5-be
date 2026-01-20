@@ -18,16 +18,11 @@ import {
   verifyEmailVerificationToken,
 } from '../utils/emailVerificationToken';
 import { findUserByIdRepository, updateUserRepository } from '../auth.repository';
+import { ensureFrontendOriginAllowed, getRedirectBaseOrigin } from '../utils/redirectOrigin.utils';
 
 const getDefaultFrontendOrigin = (): string => {
-  const corsOrigin = env.CORS_ORIGIN;
-
-  if (!corsOrigin || corsOrigin === '*') {
-    return 'http://localhost:3000';
-  }
-
-  const first = corsOrigin.split(',')[0]?.trim();
-  return first || 'http://localhost:3000';
+  const base = getRedirectBaseOrigin(env.CORS_ORIGIN);
+  return base || 'http://localhost:3000';
 };
 
 export const sendEmailVerificationEmailService = async (data: {
@@ -50,7 +45,10 @@ export const sendEmailVerificationEmailService = async (data: {
     type: user.type,
   });
 
-  const frontendOrigin = data.frontendOrigin ?? getDefaultFrontendOrigin();
+  const frontendOrigin = data.frontendOrigin
+    ? (ensureFrontendOriginAllowed(data.frontendOrigin, env.CORS_ORIGIN) ??
+      getDefaultFrontendOrigin())
+    : getDefaultFrontendOrigin();
   const verifyUrl = buildEmailVerificationUrl(frontendOrigin, token);
   const { subject, html } = buildEmailVerificationMail({ to: user.email, verifyUrl });
 
