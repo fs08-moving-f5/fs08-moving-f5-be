@@ -2,6 +2,10 @@ import {
   findUserProfileByUserIdRepository,
   findDriverProfileByDriverIdRepository,
   findDriverWithProfileByDriverIdRepository,
+  countDriverReviewsRepository,
+  findDriverReviewRatingsRepository,
+  findDriverReviewsRepository,
+  getDriverReviewDistributionRepository,
   createUserProfileRepository,
   createDriverProfileRepository,
   updateUserProfileRepository,
@@ -123,6 +127,33 @@ type DriverPublicProfileResponse = {
   driverProfile: DriverProfile | null;
 };
 
+type DriverPublicReviewsData = {
+  averageRating: number;
+  reviewDistribution: {
+    [key: number]: number;
+  };
+  reviews: Array<{
+    id: string;
+    rating: number | null;
+    content: string | null;
+    createdAt: Date;
+    userName: string;
+  }>;
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
+};
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 100;
+const MIN_PAGE = 1;
+const MIN_LIMIT = 1;
+const RATING_DECIMAL_PLACES = 10;
+
 // 기사 프로필 조회
 export const getDriverProfileService = async (driverId: string): Promise<DriverProfile | null> => {
   const profile = await findDriverProfileByDriverIdRepository(driverId);
@@ -150,6 +181,60 @@ export const getDriverPublicProfileService = async (
   await cacheSet(cacheKey, result, 300);
 
   return result;
+};
+
+// 공개 기사 리뷰 조회 (페이지네이션)
+export const getDriverPublicReviewsService = async (
+  driverId: string,
+  page: number = DEFAULT_PAGE,
+  limit: number = DEFAULT_LIMIT,
+): Promise<DriverPublicReviewsData> => {
+  if (!driverId) {
+    throw new AppError('driverId가 필요합니다', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const driver = await findDriverWithProfileByDriverIdRepository(driverId);
+  if (!driver) {
+    throw new AppError('드라이버를 찾을 수 없습니다', HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (page < MIN_PAGE) page = DEFAULT_PAGE;
+  if (limit < MIN_LIMIT || limit > MAX_LIMIT) limit = DEFAULT_LIMIT;
+
+  const skip = (page - 1) * limit;
+
+  const [reviews, total, reviewRatings, reviewDistribution] = await Promise.all([
+    findDriverReviewsRepository(driverId, skip, limit),
+    countDriverReviewsRepository(driverId),
+    findDriverReviewRatingsRepository(driverId),
+    getDriverReviewDistributionRepository(driverId),
+  ]);
+
+  const totalReviews = reviewRatings.length;
+  const averageRating =
+    totalReviews > 0
+      ? reviewRatings.reduce((sum, review) => sum + (review.rating || 0), 0) / totalReviews
+      : 0;
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    averageRating: Math.round(averageRating * RATING_DECIMAL_PLACES) / RATING_DECIMAL_PLACES,
+    reviewDistribution,
+    reviews: reviews.map((review) => ({
+      id: review.id,
+      rating: review.rating,
+      content: review.content,
+      createdAt: review.createdAt,
+      userName: review.user.name,
+    })),
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalItems: total,
+      itemsPerPage: limit,
+    },
+  };
 };
 
 // 기사 프로필 생성

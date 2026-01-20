@@ -6,6 +6,7 @@ import {
   updateUserProfileService,
   updateDriverProfileService,
   getDriverPublicProfileService,
+  getDriverPublicReviewsService,
   getProfileService,
 } from './profiles.service';
 import {
@@ -269,6 +270,30 @@ export const getDriverPublicProfileController = asyncHandler(
         ...data,
         driverProfile: mappedProfile,
       },
+    });
+  },
+);
+
+/**
+ * 공개 기사 리뷰 조회 (페이지네이션)
+ * GET /api/profile/driver/:driverId/reviews?page=1&limit=10
+ */
+export const getDriverPublicReviewsController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { driverId } = req.params as { driverId?: string };
+
+    if (!driverId) {
+      throw new AppError('driverId가 필요합니다', HTTP_STATUS.BAD_REQUEST);
+    }
+
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const data = await getDriverPublicReviewsService(driverId, page, limit);
+
+    res.json({
+      success: true,
+      data,
     });
   },
 );
