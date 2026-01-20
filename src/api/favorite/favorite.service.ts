@@ -66,6 +66,7 @@ export const getFavoriteDriversService = async ({
     if (favoriteDrivers.length === 0) {
       return {
         data: [],
+        count,
         pagination: {
           hasNext: false,
           nextCursor: null,
