@@ -170,6 +170,56 @@
  *           description: 다음 페이지 커서 (다음 페이지가 없으면 null)
  *           example: "123e4567-e89b-12d3-a456-426614174000"
  *
+ *     GetFavoriteDriversResponse:
+ *       type: object
+ *       required:
+ *         - success
+ *         - data
+ *         - count
+ *         - pagination
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           description: 요청 성공 여부
+ *           example: true
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/FavoriteDriverWithDetails'
+ *           example:
+ *             - id: "123e4567-e89b-12d3-a456-426614174000"
+ *               userId: "123e4567-e89b-12d3-a456-426614174001"
+ *               driverId: "123e4567-e89b-12d3-a456-426614174002"
+ *               createdAt: "2024-01-15T10:30:00Z"
+ *               driver:
+ *                 id: "123e4567-e89b-12d3-a456-426614174002"
+ *                 name: "홍길동"
+ *                 driverProfile:
+ *                   id: "123e4567-e89b-12d3-a456-426614174003"
+ *                   imageUrl: "https://example.com/image.jpg"
+ *                   career: 5
+ *                   shortIntro: "안전하고 신속한 이사를 약속드립니다"
+ *                   description: "10년 이상의 경력을 가진 전문 이사 기사입니다."
+ *                   services: ["HOME_MOVING", "OFFICE_MOVING"]
+ *                   confirmedEstimateCount: 150
+ *                   favoriteDriverCount: 45
+ *                   averageRating: 4.5
+ *                   reviewCount: 120
+ *                   createdAt: "2024-01-10T09:00:00Z"
+ *                   updatedAt: "2024-01-15T10:00:00Z"
+ *                 reviews:
+ *                   - id: "123e4567-e89b-12d3-a456-426614174004"
+ *                     rating: 5
+ *         count:
+ *           type: integer
+ *           description: 전체 찜한 기사 수
+ *           example: 25
+ *         pagination:
+ *           $ref: '#/components/schemas/PaginationInfo'
+ *           example:
+ *             hasNext: true
+ *             nextCursor: "123e4567-e89b-12d3-a456-426614174005"
+ *
  *     DeleteResponse:
  *       type: object
  *       properties:
@@ -187,6 +237,14 @@
  *           example: true
  *         data:
  *           description: 응답 데이터
+ *         count:
+ *           type: integer
+ *           nullable: true
+ *           description: 전체 항목 수 (페이지네이션이 있는 경우)
+ *           example: 25
+ *         pagination:
+ *           nullable: true
+ *           description: 페이지네이션 정보 (페이지네이션이 있는 경우)
  *         message:
  *           type: string
  *           nullable: true
@@ -287,6 +345,11 @@
  *           application/json:
  *             schema:
  *               type: object
+ *               required:
+ *                 - success
+ *                 - data
+ *                 - count
+ *                 - pagination
  *               properties:
  *                 success:
  *                   type: boolean
@@ -296,12 +359,12 @@
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/FavoriteDriverWithDetails'
+ *                 count:
+ *                   type: integer
+ *                   description: 전체 찜한 기사 수
+ *                   example: 25
  *                 pagination:
  *                   $ref: '#/components/schemas/PaginationInfo'
- *                 message:
- *                   type: string
- *                   nullable: true
- *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
@@ -331,6 +394,7 @@
  *                         reviews:
  *                           - id: "123e4567-e89b-12d3-a456-426614174004"
  *                             rating: 5
+ *                   count: 25
  *                   pagination:
  *                     hasNext: true
  *                     nextCursor: "123e4567-e89b-12d3-a456-426614174005"
@@ -339,6 +403,7 @@
  *                 value:
  *                   success: true
  *                   data: []
+ *                   count: 0
  *                   pagination:
  *                     hasNext: false
  *                     nextCursor: null
@@ -412,12 +477,6 @@
  *                   example: true
  *                 data:
  *                   $ref: '#/components/schemas/DeleteResponse'
- *                 pagination:
- *                   description: 페이지네이션 정보
- *                 message:
- *                   type: string
- *                   nullable: true
- *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
@@ -487,12 +546,6 @@
  *                   example: true
  *                 data:
  *                   $ref: '#/components/schemas/FavoriteDriver'
- *                 pagination:
- *                   description: 페이지네이션 정보
- *                 message:
- *                   type: string
- *                   nullable: true
- *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시
@@ -569,12 +622,6 @@
  *                   example: true
  *                 data:
  *                   $ref: '#/components/schemas/DeleteResponse'
- *                 pagination:
- *                   description: 페이지네이션 정보
- *                 message:
- *                   type: string
- *                   nullable: true
- *                   description: 응답 메시지
  *             examples:
  *               success:
  *                 summary: 성공 응답 예시

@@ -58,7 +58,7 @@ export const getFavoriteDriversController = asyncHandler(
     const cursorValue = cursor ? String(cursor) : '';
     const limitValue = limit ? Number(limit) : 10;
 
-    const { data, pagination } = await getFavoriteDriversService({
+    const { data, count, pagination } = await getFavoriteDriversService({
       userId,
       cursor: cursorValue,
       limit: limitValue,
@@ -67,6 +67,7 @@ export const getFavoriteDriversController = asyncHandler(
     res.status(HTTP_STATUS.OK).json({
       success: true,
       data,
+      count,
       pagination,
     });
   },
