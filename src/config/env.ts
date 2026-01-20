@@ -1,4 +1,3 @@
-// 예시 파일입니다. 자유롭게 사용하세요.
 import 'dotenv/config';
 import { z } from 'zod';
 

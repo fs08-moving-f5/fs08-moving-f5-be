@@ -82,6 +82,7 @@ export const logger = winston.createLogger({
       maxFiles: '14d',
       format: fileFormat,
     }),
+    new winston.transports.Console({ format: consoleFormat }),
   ],
 
   rejectionHandlers: [
@@ -93,5 +94,6 @@ export const logger = winston.createLogger({
       maxFiles: '14d',
       format: fileFormat,
     }),
+    new winston.transports.Console({ format: consoleFormat }),
   ],
 });
