@@ -15,10 +15,7 @@ import passport from 'passport';
 import { env } from '@/config/env';
 import type { OAuthProfile, OAuthProvider, OAuthUserType } from './strategies/passport';
 import { decodeOAuthState, encodeOAuthState } from './utils/oauth.utils';
-import {
-  ensureRedirectOriginAllowed,
-  getRedirectBaseOrigin,
-} from './utils/redirectOrigin.utils';
+import { ensureRedirectOriginAllowed, getRedirectBaseOrigin } from './utils/redirectOrigin.utils';
 import { EMAIL_VERIFICATION_EMAIL_SENT_MESSAGE } from './emailVerification/emailVerification.constants';
 import { sendEmailVerificationEmailService } from './emailVerification/emailVerification.service';
 import { logger } from '@/config/logger';

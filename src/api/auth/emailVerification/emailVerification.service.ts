@@ -18,10 +18,7 @@ import {
   verifyEmailVerificationToken,
 } from '../utils/emailVerificationToken';
 import { findUserByIdRepository, updateUserRepository } from '../auth.repository';
-import {
-  ensureFrontendOriginAllowed,
-  getRedirectBaseOrigin,
-} from '../utils/redirectOrigin.utils';
+import { ensureFrontendOriginAllowed, getRedirectBaseOrigin } from '../utils/redirectOrigin.utils';
 
 const getDefaultFrontendOrigin = (): string => {
   const base = getRedirectBaseOrigin(env.CORS_ORIGIN);
@@ -49,7 +46,8 @@ export const sendEmailVerificationEmailService = async (data: {
   });
 
   const frontendOrigin = data.frontendOrigin
-    ? (ensureFrontendOriginAllowed(data.frontendOrigin, env.CORS_ORIGIN) ?? getDefaultFrontendOrigin())
+    ? (ensureFrontendOriginAllowed(data.frontendOrigin, env.CORS_ORIGIN) ??
+      getDefaultFrontendOrigin())
     : getDefaultFrontendOrigin();
   const verifyUrl = buildEmailVerificationUrl(frontendOrigin, token);
   const { subject, html } = buildEmailVerificationMail({ to: user.email, verifyUrl });
