@@ -114,6 +114,9 @@ export async function updateReviewService(params: UpdateReviewParams) {
       userId: review.estimate.driverId,
       type: NotificationType.NEW_REVIEW,
       message: '새로운 리뷰가 등록되었습니다.',
+      datajson: {
+        reviewId: review.id,
+      },
       tx,
     });
 
