@@ -47,6 +47,7 @@ export const getNotificationsRepository = async ({ userId }: { userId: string })
       type: true,
       message: true,
       isRead: true,
+      datajson: true,
       createdAt: true,
     },
   });
@@ -73,6 +74,7 @@ export const readNotificationRepository = async ({
       type: true,
       message: true,
       isRead: true,
+      datajson: true,
       createdAt: true,
     },
   });
