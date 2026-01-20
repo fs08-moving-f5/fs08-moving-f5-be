@@ -23,9 +23,17 @@ export const createEstimateSchema = z.object({
     estimateRequestId: z.string().uuid(),
   }),
   body: z.object({
-    price: z.number().int('견적가는 정수여야 합니다.').min(MIN_ESTIMATE_PRICE, '견적가는 최소 10만원 이상이어야 합니다.')
-    .max(MAX_ESTIMATE_PRICE, '견적가는 최대 1,000만원을 초과할 수 없습니다.').positive(),
-    comment: z.string().trim().min(10, '코멘트는 최소 10자 이상 입력해야 합니다.').max(500, '견적 설명은 500자를 초과할 수 없습니다.'),
+    price: z
+      .number()
+      .int('견적가는 정수여야 합니다.')
+      .min(MIN_ESTIMATE_PRICE, '견적가는 최소 1만원 이상이어야 합니다.')
+      .max(MAX_ESTIMATE_PRICE, '견적가는 최대 1천억원을 초과할 수 없습니다.')
+      .positive(),
+    comment: z
+      .string()
+      .trim()
+      .min(10, '견적 설명은 최소 10자 이상 입력해야 합니다.')
+      .max(500, '견적 설명은 500자를 초과할 수 없습니다.'),
   }),
 });
 
@@ -35,7 +43,11 @@ export const createEstimateRejectSchema = z.object({
     estimateRequestId: z.string().uuid(),
   }),
   body: z.object({
-    rejectReason: z.string().trim().min(10, '반려 사유는 최소 10자 이상 입력해야 합니다.').max(300, '반려 사유는 300자를 초과할 수 없습니다.'),
+    rejectReason: z
+      .string()
+      .trim()
+      .min(10, '반려 사유는 최소 10자 이상 입력해야 합니다.')
+      .max(300, '반려 사유는 300자를 초과할 수 없습니다.'),
   }),
 });
 
