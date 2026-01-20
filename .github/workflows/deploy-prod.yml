@@ -56,3 +56,25 @@ jobs:
             docker compose -f docker-compose.yml run --rm migrate
             docker compose -f docker-compose.yml up -d
             docker image prune -f
+
+      - name: Notify Discord (success)
+        if: success()
+        uses: appleboy/discord-action@v1.2.0
+        with: 
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          message: |
+            🚀 **PROD 배포 완료**
+            브랜치: ${{ github.ref_name }}
+            커밋: ${{ github.sha }}
+          
+      - name: Notify Discord (failure)
+        if: failure()
+        uses: appleboy/discord-action@v1.2.0
+        with: 
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          message: |
+            ❌ **PROD 배포 실패**
+            브랜치: ${{ github.ref_name }}
+            커밋: ${{ github.sha }}
