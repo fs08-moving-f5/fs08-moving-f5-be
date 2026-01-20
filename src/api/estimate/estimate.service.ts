@@ -116,6 +116,10 @@ export const confirmEstimateService = async ({ estimateId }: { estimateId: strin
       userId: estimate.driverId,
       type: NotificationType.ESTIMATE_CONFIRMED,
       message: `${estimate.driver.name}님의 견적이 확정되었어요`,
+      datajson: {
+        estimateId: estimateId,
+        estimateRequestId: estimate.estimateRequestId,
+      },
       tx,
     });
 

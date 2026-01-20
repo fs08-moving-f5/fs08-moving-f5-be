@@ -61,6 +61,9 @@ export async function createEstimateService(data: CreateEstimateParams) {
       userId: created.estimateRequest.userId,
       type: NotificationType.ESTIMATE_RECEIVED,
       message: '새 견적이 도착했습니다.',
+      datajson: {
+        estimateRequestId: created.estimateRequestId,
+      },
       tx,
     });
 
