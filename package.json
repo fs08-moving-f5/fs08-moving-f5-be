@@ -13,7 +13,7 @@
     "migrate": "prisma migrate deploy",
     "studio": "prisma studio",
     "seed": "tsx src/config/seed.ts",
-    "seed:deploy": "node prisma/seed.js",
+    "seed:deploy": "node dist/config/seed.js",
     "prepare": "husky",
     "type-check": "tsc --noEmit"
   },
