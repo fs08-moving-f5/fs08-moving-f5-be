@@ -16,6 +16,7 @@ export const createNotificationRepository = async (params: {
   userId: string;
   type: NotificationType;
   message: string;
+  datajson?: Prisma.JsonValue | null;
   tx?: Prisma.TransactionClient;
 }) => {
   return await (params.tx ?? prisma).notification.create({
@@ -23,6 +24,7 @@ export const createNotificationRepository = async (params: {
       userId: params.userId,
       type: params.type,
       message: params.message,
+      datajson: params.datajson ?? Prisma.JsonNull,
       isRead: false,
       isDelete: false,
     },

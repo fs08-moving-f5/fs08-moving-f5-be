@@ -18,6 +18,7 @@ export const createNotificationAndPushUnreadService = async (params: {
   userId: string;
   type: NotificationType;
   message: string;
+  datajson?: Prisma.JsonValue | null;
   tx?: Prisma.TransactionClient;
 }) => {
   await createNotificationRepository({ ...params, tx: params.tx });
