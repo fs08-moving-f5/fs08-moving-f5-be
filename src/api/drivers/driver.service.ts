@@ -13,6 +13,7 @@ import {
   NearbyEstimateRequestItem,
   regionMap,
   UpdateDriverOfficeBody,
+  DriverListResponse,
 } from './types';
 import { AddressType, Prisma, RegionEnum, ServiceEnum, UserType } from '@/generated/client';
 import AppError from '@/utils/AppError';
@@ -20,6 +21,9 @@ import HTTP_STATUS from '@/constants/http.constant';
 import { geocodeAddress } from './utils/geocodeAddress';
 import { getBoundingBox } from './utils/getBoundingBox';
 import { getDistanceKm } from './utils/getDistanceKm';
+
+import { buildDriversCacheKey } from '@/cache/keys';
+import { cacheGet, cacheSet } from '@/cache/redis.helper';
 
 export const getDriversService = async ({
   userId,
@@ -30,7 +34,22 @@ export const getDriversService = async ({
   limit = 15,
   search,
 }: GetDriversServiceParams) => {
-  return await prisma.$transaction(async (tx) => {
+  const cacheKey = await buildDriversCacheKey({
+    userId,
+    region,
+    service,
+    sort,
+    cursor,
+    limit,
+    search,
+  });
+
+  // 캐시 조회
+  const cached = await cacheGet<DriverListResponse>(cacheKey);
+  if (cached) return cached;
+
+  // DB 조회
+  const result = await prisma.$transaction(async (tx) => {
     let orderBy = {};
     switch (sort) {
       case 'review':
@@ -176,6 +195,11 @@ export const getDriversService = async ({
       },
     };
   });
+
+  // 캐시 저장 (TTL 60초)
+  await cacheSet(cacheKey, result, 60);
+
+  return result;
 };
 
 export const updateDriverOfficeService = async (params: {

@@ -48,15 +48,6 @@
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
- *         name: movingType
- *         schema:
- *           type: string
- *           enum: [SMALL_MOVING, HOME_MOVING, OFFICE_MOVING]
- *       - in: query
- *         name: serviceRegionFilter
- *         schema:
- *           type: boolean
- *       - in: query
  *         name: search
  *         schema:
  *           type: string
@@ -81,15 +72,17 @@
  *             example:
  *               success: true
  *               data:
- *                 - id: "req_1"
- *                   name: "홍길동"
- *                   movingType: HOME_MOVING
- *                   movingDate: "2025-01-01T00:00:00.000Z"
- *                   isDesignated: false
- *                   createdAt: "2024-12-01T10:00:00.000Z"
- *                   updatedAt: "2024-12-01T10:00:00.000Z"
- *                   from: { sido: 서울, sigungu: 강남구 }
- *                   to: { sido: 경기, sigungu: 성남시 }
+ *                 requests:
+ *                   - id: "req_1"
+ *                     name: "홍길동"
+ *                     movingType: HOME_MOVING
+ *                     movingDate: "2025-01-01T00:00:00.000Z"
+ *                     isDesignated: false
+ *                     createdAt: "2024-12-01T10:00:00.000Z"
+ *                     updatedAt: "2024-12-01T10:00:00.000Z"
+ *                     from: { sido: 서울, sigungu: 강남구 }
+ *                     to: { sido: 경기, sigungu: 성남시 }
+ *                 total: 10
  *       400:
  *         description: 잘못된 요청
  *         content:
@@ -140,13 +133,9 @@
  *           schema:
  *             type: object
  *             required:
- *               - estimateRequestId
  *               - price
  *               - comment
  *             properties:
- *               estimateRequestId:
- *                 type: string
- *                 example: "req_1"
  *               price:
  *                 type: number
  *                 example: 300000
@@ -232,12 +221,8 @@
  *           schema:
  *             type: object
  *             required:
- *               - estimateRequestId
  *               - rejectReason
  *             properties:
- *               estimateRequestId:
- *                 type: string
- *                 example: "req_1"
  *               rejectReason:
  *                 type: string
  *                 example: "일정이 맞지 않습니다."
@@ -306,6 +291,20 @@
  *     summary: 확정 견적 목록 조회 (기사)
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [latest]
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: take
+ *         schema:
+ *           type: number
  *     responses:
  *       200:
  *         description: 조회 성공
@@ -319,6 +318,7 @@
  *                   status: CONFIRMED
  *                   createdAt: "2025-01-01T00:00:00.000Z"
  *                   isCompleted: false
+ *                   type: normal
  *                   user:
  *                     id: "user_10"
  *                     name: "박영희"
@@ -431,6 +431,20 @@
  *     summary: 반려 견적 목록 조회 (기사)
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [latest]
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: take
+ *         schema:
+ *           type: number
  *     responses:
  *       200:
  *         description: 조회 성공
@@ -449,7 +463,7 @@
  *                     name: "김철수"
  *                   from: { sido: 서울, sigungu: 마포구 }
  *                   to: { sido: 인천, sigungu: 연수구 }
- *                   isRejected: true
+ *                   type: rejected
  *       400:
  *         description: 요청 오류
  *         content:

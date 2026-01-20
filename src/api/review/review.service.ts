@@ -1,4 +1,4 @@
-import prisma from '../../config/prisma';
+import prisma from '@/config/prisma';
 import * as repo from './review.repository';
 import AppError from '@/utils/AppError';
 import HTTP_STATUS from '@/constants/http.constant';
@@ -7,10 +7,11 @@ import {
   UpdateReviewParams,
   WrittenReviewListResult,
   WritableReviewListResult,
-} from '../../types/review';
+} from '@/types/review';
 import splitAddresses from '@/utils/splitAddresses';
-import { NotificationType } from '../../generated/enums';
+import { NotificationType } from '@/generated/enums';
 import { createNotificationAndPushUnreadService } from '../notification/notification.service';
+import { invalidateDriverDetailCache } from '@/cache/invalidate';
 
 // 내가 작성한 리뷰 목록 조회 (일반 유저)
 export async function getReviewWrittenService(
@@ -118,6 +119,9 @@ export async function updateReviewService(params: UpdateReviewParams) {
 
     return updated;
   });
+
+  // 리뷰가 달린 기사의 상세 조회 캐시 무효화
+  await invalidateDriverDetailCache(review.estimate.driverId);
 
   return result;
 }
