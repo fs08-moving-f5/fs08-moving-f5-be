@@ -115,8 +115,10 @@ export const deleteDriverProfileRepository = async (driverId: string): Promise<D
 // 기사 ID로 (기사 정보 + 프로필) 조회
 export const findDriverWithProfileByDriverIdRepository = async (
   driverId: string,
-): Promise<{ id: string; name: string; driverProfile: DriverProfile | null } | null> => {
-  return prisma.user.findFirst({
+): Promise<
+  { id: string; name: string; driverProfile: DriverProfile | null; favoritedCount: number } | null
+> => {
+  const driver = await prisma.user.findFirst({
     where: {
       id: driverId,
       type: 'DRIVER',
@@ -126,8 +128,22 @@ export const findDriverWithProfileByDriverIdRepository = async (
       id: true,
       name: true,
       driverProfile: true,
+      _count: {
+        select: {
+          favoriteDrivers: true,
+        },
+      },
     },
   });
+
+  if (!driver) return null;
+
+  return {
+    id: driver.id,
+    name: driver.name,
+    driverProfile: driver.driverProfile,
+    favoritedCount: driver._count.favoriteDrivers,
+  };
 };
 
 // ========== Driver Public Reviews Repository ==========

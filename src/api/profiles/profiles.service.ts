@@ -125,6 +125,7 @@ type DriverPublicProfileResponse = {
   id: string;
   name: string;
   driverProfile: DriverProfile | null;
+  favoritedCount: number;
 };
 
 type DriverPublicReviewsData = {
@@ -168,7 +169,7 @@ export const getDriverPublicProfileService = async (
 
   // 캐시 조회
   const cached = await cacheGet<DriverPublicProfileResponse>(cacheKey);
-  if (cached) {
+  if (cached && typeof cached.favoritedCount === 'number') {
     return cached;
   }
 
