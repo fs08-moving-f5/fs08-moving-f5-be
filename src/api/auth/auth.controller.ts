@@ -17,7 +17,7 @@ import type { OAuthProfile, OAuthProvider, OAuthUserType } from './strategies/pa
 import { decodeOAuthState, encodeOAuthState } from './utils/oauth.utils';
 import {
   ensureRedirectOriginAllowed,
-  getOAuthRedirectBaseOrigin,
+  getRedirectBaseOrigin,
 } from './utils/redirectOrigin.utils';
 import { EMAIL_VERIFICATION_EMAIL_SENT_MESSAGE } from './emailVerification/emailVerification.constants';
 import { sendEmailVerificationEmailService } from './emailVerification/emailVerification.service';
@@ -27,12 +27,12 @@ import type { NextFunction, Request, Response } from 'express';
 
 // 회원가입
 export const signupController = asyncHandler(async (req: Request, res: Response) => {
-  const validatedData = signupSchema.parse(req.body);
+  const { frontendOrigin, ...validatedData } = signupSchema.parse(req.body);
 
   const result = await signupService(validatedData);
 
   // 이메일 인증 메일 전송 (best-effort)
-  void sendEmailVerificationEmailService({ userId: result.user.id }).catch(() => {
+  void sendEmailVerificationEmailService({ userId: result.user.id, frontendOrigin }).catch(() => {
     logger.error(`Failed to send signup verification email: ${result.user.email}`);
   });
 
@@ -50,9 +50,9 @@ export const signupController = asyncHandler(async (req: Request, res: Response)
 
 // 로그인
 export const loginController = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password, type } = loginSchema.parse(req.body);
+  const { email, password, type, frontendOrigin } = loginSchema.parse(req.body);
 
-  const result = await loginService(email, password, type);
+  const result = await loginService(email, password, type, frontendOrigin);
 
   // 리프레시 토큰은 httpOnly 쿠키로 설정
   res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
@@ -197,7 +197,7 @@ export const oauthCallbackController = asyncHandler(
 
         try {
           // state는 변조될 수 있으므로 여기서도 redirectOrigin을 다시 검증합니다.
-          const frontendOrigin = getOAuthRedirectBaseOrigin(env.CORS_ORIGIN, redirectOrigin);
+          const frontendOrigin = getRedirectBaseOrigin(env.CORS_ORIGIN, redirectOrigin);
 
           const result = await oauthLoginService({ profile, type, frontendOrigin });
 
@@ -212,7 +212,7 @@ export const oauthCallbackController = asyncHandler(
             serviceError.statusCode === HTTP_STATUS.FORBIDDEN &&
             serviceError.message === EMAIL_VERIFICATION_EMAIL_SENT_MESSAGE
           ) {
-            const frontendOrigin = getOAuthRedirectBaseOrigin(env.CORS_ORIGIN, redirectOrigin);
+            const frontendOrigin = getRedirectBaseOrigin(env.CORS_ORIGIN, redirectOrigin);
             const loginRedirectUrl = new URL(`/login/${type.toLowerCase()}`, frontendOrigin);
             loginRedirectUrl.searchParams.set('emailVerification', 'sent');
 
