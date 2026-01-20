@@ -247,6 +247,96 @@ const koreanNames = [
   '화면',
   '풍경',
   '설계',
+  '김다은',
+  '이서연',
+  '박민준',
+  '최하늘',
+  '정지우',
+  '강서현',
+  '윤도현',
+  '장예준',
+  '임채원',
+  '한지안',
+  '오나은',
+  '신시우',
+  '조하준',
+  '배서윤',
+  '홍윤서',
+  '권지호',
+  '송예린',
+  '유준서',
+  '노지훈',
+  '전소율',
+  '문지원',
+  '고민재',
+  '류서아',
+  '마하람',
+  '서지안',
+  '황준혁',
+  '남예은',
+  '독고민성',
+  '사공하영',
+  '제갈서진',
+  '선우지율',
+  '어서하',
+  '빈민지',
+  '탁서우',
+  '계하린',
+  '옥지율',
+  '공서하',
+  '망지안',
+  '청하람',
+  '평서진',
+  '초지우',
+  '필하영',
+  '화서아',
+  '풍지율',
+  '설민지',
+  '김서하',
+  '이하람',
+  '박지안',
+  '최서진',
+  '정하영',
+  '강지율',
+  '윤서아',
+  '장하람',
+  '임지안',
+  '한서진',
+  '오하영',
+  '신지율',
+  '조서아',
+  '배하람',
+  '홍지안',
+  '권서진',
+  '송하영',
+  '유지율',
+  '노서아',
+  '전하람',
+  '문지안',
+  '고서진',
+  '류하영',
+  '마지율',
+  '서서아',
+  '황하람',
+  '남지안',
+  '독고서진',
+  '사공하영',
+  '제갈지율',
+  '선우서아',
+  '어하람',
+  '빈지안',
+  '탁서진',
+  '계하영',
+  '옥지율',
+  '공서아',
+  '망하람',
+  '청지안',
+  '평서진',
+  '초하영',
+  '필지율',
+  '화서아',
+  '풍하람',
+  '설지안',
 ];
 
 const driverNicknames = [
@@ -344,6 +434,20 @@ const shortIntros = [
   '전문가답게 책임지고 진행합니다.',
   '깔끔하고 정확한 이사 서비스를 제공합니다.',
   '고객 만족도 100%를 목표로 합니다.',
+  '24시간 상담 가능하며 언제든지 문의해주세요.',
+  '대형 트럭과 전문 인력으로 빠른 이사를 보장합니다.',
+  '가구 포장부터 배치까지 원스톱 서비스를 제공합니다.',
+  '보험 가입으로 안전한 이사를 책임집니다.',
+  '주말 및 공휴일에도 서비스 가능합니다.',
+  '계단 이사 전문으로 어려운 조건도 해결합니다.',
+  '피아노, 금고 등 특수 물품 이사도 가능합니다.',
+  '이사 후 청소 서비스도 함께 제공합니다.',
+  '전국 어디든 이동 가능한 네트워크를 보유하고 있습니다.',
+  '실시간 위치 추적으로 이사 진행 상황을 확인할 수 있습니다.',
+  '고객 맞춤형 서비스로 개인별 요구사항을 반영합니다.',
+  '환경 친화적인 포장재를 사용하여 안전과 환경을 동시에 고려합니다.',
+  '이사 전 무료 견적 상담을 제공합니다.',
+  '후불 결제로 안심하고 이용하실 수 있습니다.',
 ];
 
 const descriptions = [
@@ -357,6 +461,15 @@ const descriptions = [
   '이사 전 상담부터 이사 후 정리까지 전 과정을 책임지고 진행하여 고객님의 부담을 최소화합니다.',
   '다양한 규모의 이사 경험을 바탕으로 고객님의 상황에 맞는 최적의 서비스를 제공합니다.',
   '고객의 소중한 추억이 담긴 물건들을 안전하게 옮겨드리기 위해 최선을 다하겠습니다.',
+  '20년 이상의 경력과 1000건 이상의 이사 경험을 바탕으로 고객님의 이사를 책임지겠습니다. 전문 장비와 숙련된 인력으로 안전하고 신속한 서비스를 제공합니다.',
+  '소형 이사부터 대형 사무실 이사까지 다양한 규모의 이사를 경험했습니다. 고객님의 상황에 맞는 최적의 서비스와 합리적인 가격을 제안드립니다.',
+  '이사 전 상담부터 이사 후 정리까지 전 과정을 책임지고 진행합니다. 고객님의 부담을 최소화하고 만족도를 최대화하기 위해 노력하겠습니다.',
+  '전국 네트워크를 활용하여 어디서든 안전하고 빠른 이사 서비스를 제공합니다. 대형 트럭과 전문 인력으로 대규모 이사도 가능합니다.',
+  '피아노, 금고, 대형 가구 등 특수 물품 이사 전문입니다. 전문 장비와 경험을 바탕으로 안전하게 옮겨드립니다.',
+  '환경 친화적인 포장재를 사용하고, 이사 후 재활용 가능한 포장재는 수거해드립니다. 환경을 생각하는 이사 서비스를 제공합니다.',
+  '24시간 상담 가능하며, 긴급한 이사도 빠르게 대응합니다. 고객님의 일정에 맞춰 유연하게 서비스를 제공합니다.',
+  '보험 가입으로 이사 중 발생할 수 있는 사고에 대비합니다. 고객님의 소중한 물건을 안전하게 보호합니다.',
+  '후불 결제 시스템으로 이사 완료 후 만족하시면 결제하실 수 있습니다. 고객님의 신뢰를 최우선으로 생각합니다.',
 ];
 
 // 유저 프로필 사진 URL (두 개 중 랜덤)
@@ -437,6 +550,27 @@ const addresses = [
   { sido: '경상북도', sigungu: '포항시', address: '남구 대잠동 369', zoneCode: '37600' },
   { sido: '경상남도', sigungu: '창원시', address: '성산구 중앙대로 741', zoneCode: '51410' },
   { sido: '제주특별자치도', sigungu: '제주시', address: '연오로 852', zoneCode: '63110' },
+  { sido: '서울특별시', sigungu: '강남구', address: '역삼로 111', zoneCode: '06142' },
+  { sido: '서울특별시', sigungu: '강남구', address: '선릉로 222', zoneCode: '06143' },
+  { sido: '서울특별시', sigungu: '서초구', address: '반포대로 333', zoneCode: '06571' },
+  { sido: '서울특별시', sigungu: '송파구', address: '잠실로 444', zoneCode: '05552' },
+  { sido: '경기도', sigungu: '성남시', address: '분당구 판교로 555', zoneCode: '13562' },
+  { sido: '경기도', sigungu: '수원시', address: '영통구 광교로 666', zoneCode: '16491' },
+  { sido: '경기도', sigungu: '용인시', address: '기흥구 용인대로 777', zoneCode: '16891' },
+  { sido: '인천광역시', sigungu: '연수구', address: '송도국제대로 888', zoneCode: '21985' },
+  { sido: '부산광역시', sigungu: '해운대구', address: '센텀중앙로 999', zoneCode: '48059' },
+  { sido: '대구광역시', sigungu: '수성구', address: '범어천로 1111', zoneCode: '42212' },
+  { sido: '대전광역시', sigungu: '유성구', address: '대학로 2222', zoneCode: '34112' },
+  { sido: '광주광역시', sigungu: '북구', address: '첨단과기로 3333', zoneCode: '61008' },
+  { sido: '울산광역시', sigungu: '남구', address: '삼산로 4444', zoneCode: '44791' },
+  { sido: '강원도', sigungu: '원주시', address: '원주대로 5555', zoneCode: '26410' },
+  { sido: '충청북도', sigungu: '충주시', address: '충주대로 6666', zoneCode: '27410' },
+  { sido: '충청남도', sigungu: '아산시', address: '아산대로 7777', zoneCode: '31410' },
+  { sido: '전라북도', sigungu: '익산시', address: '익산대로 8888', zoneCode: '54510' },
+  { sido: '전라남도', sigungu: '여수시', address: '여수대로 9999', zoneCode: '59710' },
+  { sido: '경상북도', sigungu: '구미시', address: '구미대로 1010', zoneCode: '39110' },
+  { sido: '경상남도', sigungu: '김해시', address: '김해대로 2020', zoneCode: '50810' },
+  { sido: '제주특별자치도', sigungu: '서귀포시', address: '서귀포대로 3030', zoneCode: '63610' },
 ];
 
 const reviewContents = [
@@ -460,6 +594,25 @@ const reviewContents = [
   '전문가답게 모든 과정을 책임지고 진행해주셨습니다.',
   '합리적인 가격에 최고의 서비스를 받았습니다.',
   '다음 이사도 꼭 이용하고 싶습니다.',
+  '기사님이 정말 친절하셔서 편안하게 이사할 수 있었습니다.',
+  '가격 협상이 잘 되어서 만족스러웠습니다.',
+  '이사 전후로 꼼꼼하게 확인해주셔서 감사합니다.',
+  '전문적인 장비와 인력으로 빠르게 작업해주셨습니다.',
+  '가구 배치까지 신경써주셔서 정말 좋았습니다.',
+  '시간 약속을 정확히 지켜주셔서 계획대로 진행되었습니다.',
+  '이사 후 정리까지 도와주셔서 부담이 적었습니다.',
+  '고가의 가구도 안전하게 옮겨주셔서 안심이 되었습니다.',
+  '추가 비용 없이 깔끔하게 작업해주셨습니다.',
+  '기사님의 친절한 설명 덕분에 이해가 잘 되었습니다.',
+  '이사 과정에서 발생한 문제도 빠르게 해결해주셨습니다.',
+  '가격 대비 서비스 품질이 매우 우수했습니다.',
+  '다음에도 같은 기사님을 이용하고 싶습니다.',
+  '이사 준비부터 마무리까지 모든 과정이 완벽했습니다.',
+  '기사님의 전문성이 돋보였습니다.',
+  '고객 중심의 서비스로 만족스러웠습니다.',
+  '이사 후에도 A/S가 잘 되어서 좋았습니다.',
+  '가격이 합리적이면서도 서비스는 최고였습니다.',
+  '이사 날짜 변경 요청도 잘 받아주셔서 감사합니다.',
 ];
 
 const estimateComments = {
@@ -530,13 +683,13 @@ async function main() {
   await prisma.user.deleteMany();
   console.log('✅ Existing data deleted\n');
 
-  // User 생성 (30배 규모)
-  // 일반 유저: 125 * 30 = 3750명
-  // 기사님: 75 * 30 = 2250명
+  // User 생성 (2배 규모로 확장)
+  // 일반 유저: 3750 * 2 = 7500명
+  // 기사님: 2250 * 2 = 4500명
   // 마스터 유저: 1명
   // new-driver: 1명
-  // 테스트 유저: 3 * 30 = 90명
-  // 총: 6092명
+  // 테스트 유저: 90 * 2 = 180명
+  // 총: 12182명
   console.log('👥 Creating users...');
   const users: Prisma.UserCreateManyInput[] = [];
   const userIds: string[] = [];
@@ -556,11 +709,12 @@ async function main() {
     password: masterPassword,
     phone: '1000000000',
     refreshTokens: null,
+    isEmailVerified: true,
     isDelete: false,
   });
 
-  // 일반 유저 3750명 생성 (30배)
-  for (let i = 0; i < 3750; i++) {
+  // 일반 유저 7500명 생성 (2배)
+  for (let i = 0; i < 7500; i++) {
     const userId = uuidv4();
     userIds.push(userId);
 
@@ -578,6 +732,7 @@ async function main() {
       password: isLocal ? masterPassword : null,
       phone: `10${String(randomInt(1000, 9999)).padStart(4, '0')}${String(randomInt(1000, 9999)).padStart(4, '0')}`,
       refreshTokens: null,
+      isEmailVerified: true,
       isDelete: false,
     });
   }
@@ -595,6 +750,7 @@ async function main() {
     password: masterPassword,
     phone: '1000000001',
     refreshTokens: null,
+    isEmailVerified: true,
     isDelete: false,
   });
 
@@ -610,11 +766,12 @@ async function main() {
     password: masterPassword,
     phone: '1000000002',
     refreshTokens: null,
+    isEmailVerified: true,
     isDelete: false,
   });
 
-  // 기사님 2250명 생성 (30배)
-  for (let i = 0; i < 2250; i++) {
+  // 기사님 4500명 생성 (2배)
+  for (let i = 0; i < 4500; i++) {
     const driverId = uuidv4();
     driverIds.push(driverId);
 
@@ -632,6 +789,7 @@ async function main() {
       password: isLocal ? masterPassword : null,
       phone: `10${String(randomInt(1000, 9999)).padStart(4, '0')}${String(randomInt(1000, 9999)).padStart(4, '0')}`,
       refreshTokens: null,
+      isEmailVerified: true,
       isDelete: false,
     });
   }
@@ -649,11 +807,12 @@ async function main() {
     password: masterPassword,
     phone: '1099999999',
     refreshTokens: null,
+    isEmailVerified: true,
     isDelete: false,
   });
 
-  // 추가 테스트 유저 90명 (다양한 시나리오 테스트용, 30배)
-  for (let i = 0; i < 90; i++) {
+  // 추가 테스트 유저 180명 (다양한 시나리오 테스트용, 2배)
+  for (let i = 0; i < 180; i++) {
     const testUserId = uuidv4();
     userIds.push(testUserId);
     users.push({
@@ -666,6 +825,7 @@ async function main() {
       password: masterPassword,
       phone: `10${String(9000 + (i % 1000)).padStart(4, '0')}${String(Math.floor(i / 1000)).padStart(4, '0')}`,
       refreshTokens: null,
+      isEmailVerified: true,
       isDelete: false,
     });
   }
@@ -757,7 +917,7 @@ async function main() {
 
   const now = new Date();
   const pastDate = new Date(now);
-  pastDate.setDate(pastDate.getDate() - 365); // 1년 전까지 확장
+  pastDate.setDate(pastDate.getDate() - 730); // 2년 전까지 확장 (더 다양한 시나리오)
 
   // 마스터 유저를 위한 다양한 상태의 견적 요청 생성 (테스트용)
   // 마스터 유저는 PENDING 1개 + 다른 상태들 여러 개 (다양한 시나리오 테스트)
@@ -814,7 +974,52 @@ async function main() {
     'REJECTED',
     'CANCELLED',
     'CONFIRMED',
-  ]; // 50개의 다양한 상태 요청
+    'REJECTED',
+    'CONFIRMED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'REJECTED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'REJECTED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'REJECTED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'REJECTED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'CANCELLED',
+    'CONFIRMED',
+    'REJECTED',
+    'CONFIRMED',
+    'REJECTED',
+    'CANCELLED',
+    'CONFIRMED',
+  ]; // 100개의 다양한 상태 요청
 
   let masterLastMovingDate = new Date(pastDate);
   for (let i = 0; i < masterRequestStatuses.length; i++) {
@@ -826,12 +1031,12 @@ async function main() {
     if (status === 'PENDING') {
       userPendingRequestMap.set(masterUserId, true);
       // PENDING은 미래 날짜
-      const daysOffset = randomInt(1, 90);
+      const daysOffset = randomInt(1, 180); // 6개월까지 확장
       masterLastMovingDate = new Date(now);
       masterLastMovingDate.setDate(masterLastMovingDate.getDate() + daysOffset);
     } else {
       // 과거 요청들은 이사일 이후에만 생성 가능
-      const daysOffset = randomInt(-365, -1);
+      const daysOffset = randomInt(-730, -1); // 2년 전까지 확장
       masterLastMovingDate = new Date(now);
       masterLastMovingDate.setDate(masterLastMovingDate.getDate() + daysOffset);
       // 마지막 이사일 이후로 설정
@@ -866,9 +1071,9 @@ async function main() {
   const availableUsers = [...userIds.filter((id) => id !== masterUserId)]; // 마스터 유저 제외한 유저들
   const userRequestCount = new Map<string, number>(); // 유저별 요청 수 추적
 
-  // 각 유저당 0~5개의 과거 요청 생성 (PENDING 제외)
+  // 각 유저당 0~10개의 과거 요청 생성 (PENDING 제외, 더 다양한 시나리오)
   for (const userId of availableUsers) {
-    const requestCount = randomInt(0, 5); // 유저당 0~5개의 과거 요청
+    const requestCount = randomInt(0, 10); // 유저당 0~10개의 과거 요청 (2배로 증가)
     userRequestCount.set(userId, requestCount);
 
     let lastMovingDate = new Date(pastDate);
@@ -877,7 +1082,7 @@ async function main() {
       estimateRequestIds.push(requestId);
 
       // 과거 날짜로 설정, 이전 이사일 이후로
-      const daysOffset = randomInt(-365, -1);
+      const daysOffset = randomInt(-730, -1); // 2년 전까지 확장
       const movingDate = new Date(now);
       movingDate.setDate(movingDate.getDate() + daysOffset);
 
@@ -915,7 +1120,7 @@ async function main() {
   // 이사일 이후에만 새로운 요청 가능하므로, 마지막 이사일 이후로 설정
   const usersWithPendingRequest = randomItems(
     availableUsers,
-    Math.min(Math.floor(availableUsers.length * 0.3), availableUsers.length), // 30%의 유저만 PENDING 요청
+    Math.min(Math.floor(availableUsers.length * 0.4), availableUsers.length), // 40%의 유저만 PENDING 요청 (더 많은 시나리오)
   );
 
   for (const userId of usersWithPendingRequest) {
@@ -927,7 +1132,7 @@ async function main() {
 
     // 마지막 이사일 이후로 설정 (이사일 이후에만 새로운 요청 가능)
     let movingDate = new Date(now);
-    movingDate.setDate(movingDate.getDate() + randomInt(1, 90)); // 미래 날짜
+    movingDate.setDate(movingDate.getDate() + randomInt(1, 180)); // 미래 날짜 (6개월까지 확장)
 
     if (userLastMovingDateMap.has(userId)) {
       const lastDate = userLastMovingDateMap.get(userId)!;
@@ -938,7 +1143,7 @@ async function main() {
       } else {
         // 마지막 이사일이 과거인 경우, 현재 이후로 설정
         movingDate = new Date(now);
-        movingDate.setDate(movingDate.getDate() + randomInt(1, 90));
+        movingDate.setDate(movingDate.getDate() + randomInt(1, 180)); // 6개월까지 확장
       }
     }
 
@@ -1077,8 +1282,15 @@ async function main() {
         else status = 'REJECTED';
       }
 
-      // 가격 범위 (더 다양한 가격대)
-      const priceRange = randomInt(300000, 5000000);
+      // 가격 범위 (더 다양한 가격대: 소형 30-100만원, 가정 100-300만원, 사무실 200-500만원)
+      let priceRange: number;
+      if (request.movingType === 'SMALL_MOVING') {
+        priceRange = randomInt(300000, 1000000);
+      } else if (request.movingType === 'HOME_MOVING') {
+        priceRange = randomInt(1000000, 3000000);
+      } else {
+        priceRange = randomInt(2000000, 5000000);
+      }
 
       // 모든 상태에서 comment 생성
       const comment = randomItem(estimateComments[status]);
@@ -1127,18 +1339,18 @@ async function main() {
     const daysSinceMoving = (now.getTime() - movingDate.getTime()) / (1000 * 60 * 60 * 24);
 
     // 리뷰 작성 조건:
-    // 1. 이사일이 지난 경우 (과거 180일 이내) - 85% 확률로 리뷰 작성 (일부는 리뷰 없음)
+    // 1. 이사일이 지난 경우 (과거 365일 이내) - 85% 확률로 리뷰 작성 (일부는 리뷰 없음)
     // 2. 이사일이 미래인 경우 - 25% 확률로 리뷰 작성 (사전 리뷰)
-    // 3. 너무 오래된 경우 (180일 이상) - 20% 확률로 리뷰 작성
+    // 3. 너무 오래된 경우 (365일 이상) - 20% 확률로 리뷰 작성
     let shouldCreateReview = false;
-    if (movingDate <= now && daysSinceMoving <= 180) {
-      // 과거 180일 이내: 85% 확률 (15%는 리뷰 없음)
+    if (movingDate <= now && daysSinceMoving <= 365) {
+      // 과거 365일 이내: 85% 확률 (15%는 리뷰 없음)
       shouldCreateReview = Math.random() < 0.85;
     } else if (movingDate > now) {
       // 미래: 25% 확률 (사전 리뷰)
       shouldCreateReview = Math.random() < 0.25;
     } else {
-      // 180일 이상 지난 경우: 20% 확률
+      // 365일 이상 지난 경우: 20% 확률
       shouldCreateReview = Math.random() < 0.2;
     }
 
@@ -1200,8 +1412,8 @@ async function main() {
     driverFavoriteCount.set(driverId, 0);
   });
 
-  // 6000개의 좋아요 생성 (30배 규모, 랜덤하게 분배, 일부 기사님은 많이 받고 일부는 적게)
-  for (let i = 0; i < 6000; i++) {
+  // 12000개의 좋아요 생성 (2배 규모, 랜덤하게 분배, 일부 기사님은 많이 받고 일부는 적게)
+  for (let i = 0; i < 12000; i++) {
     const userId = randomItem(Array.from(validUserIds));
     let driverId = randomItem(Array.from(validDriverIds));
     let pairKey = `${userId}::${driverId}`; // UUID에 하이픈이 있어서 :: 구분자 사용
@@ -1240,7 +1452,7 @@ async function main() {
     `✅ Created ${favorites.length} favorite drivers (${driversWithFavorites}/${driverIds.length} drivers received favorites)\n`,
   );
 
-  // Notification 생성 (7500개 - 30배 규모, 다양한 타입, 더 현실적인 분포)
+  // Notification 생성 (15000개 - 2배 규모, 다양한 타입, 더 현실적인 분포)
   console.log('🔔 Creating notifications...');
   const notificationTypes: NotificationType[] = [
     'REQUEST_SENT',
@@ -1284,7 +1496,7 @@ async function main() {
     else return 'PROMOTION'; // 2%
   };
 
-  for (let i = 0; i < 7500; i++) {
+  for (let i = 0; i < 15000; i++) {
     const type = getWeightedNotificationType();
     let message = '';
     let userId = '';
@@ -1333,7 +1545,7 @@ async function main() {
 
     // 읽음 상태: 최근 알림일수록 읽을 확률 높음 (시간 기반 가중치)
     // 최근 알림(7일 이내): 60% 읽음, 오래된 알림: 20% 읽음
-    const daysAgo = randomInt(0, 90);
+    const daysAgo = randomInt(0, 180); // 6개월까지 확장
     const isRead = daysAgo <= 7 ? Math.random() < 0.6 : Math.random() < 0.2;
 
     // datajson에 실제 데이터 추가 (타입별로 다른 데이터)
@@ -1422,13 +1634,13 @@ async function main() {
   console.log('   ✓ Designated requests include designatedDriverId');
   console.log('   ✓ Each estimate can have only 1 review (unique constraint)');
   console.log('\n✨ Enhanced test scenarios:');
-  console.log('   - Extended date range: -365 to +90 days');
-  console.log('   - More diverse estimate statuses and prices');
+  console.log('   - Extended date range: -730 to +180 days (2배 확장)');
+  console.log('   - More diverse estimate statuses and prices (서비스 타입별 가격 차별화)');
   console.log('   - Realistic review rating distribution (85% of confirmed estimates)');
   console.log('   - Weighted notification types');
-  console.log('   - Expanded address pool (60+ locations)');
+  console.log('   - Expanded address pool (80+ locations)');
   console.log('   - User profile images: random from 2 URLs');
-  console.log('   - Master user (user@master.com) with 50+ diverse requests');
+  console.log('   - Master user (user@master.com) with 100+ diverse requests (2배)');
   console.log('   - Master driver (driver@master.com) for driver feature testing');
   console.log('   - Admin user (admin@master.com) for admin feature testing');
   console.log('   - Deleted requests/estimates/notifications (5% each)');
@@ -1436,6 +1648,10 @@ async function main() {
   console.log('   - Notification datajson with actual data per type');
   console.log('   - Some confirmed estimates without reviews (15%)');
   console.log('   - History table kept empty');
+  console.log('   - All users have isEmailVerified: true');
+  console.log('   - 2x more users, drivers, requests, favorites, and notifications');
+  console.log('   - More diverse user scenarios (0-10 past requests per user)');
+  console.log('   - 40% of users have PENDING requests (increased from 30%)');
 }
 
 main()
