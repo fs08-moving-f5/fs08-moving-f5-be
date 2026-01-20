@@ -154,6 +154,7 @@ export const loginService = async (
   email: string,
   password: string,
   type: UserType,
+  frontendOrigin?: string,
 ): Promise<LoginResponse> => {
   // 유저 조회
   const user = await findUserByEmailRepository(email); // 서비스가 validation 체크하기 - 고민해보기 << 현상유지
@@ -177,7 +178,7 @@ export const loginService = async (
     throw new AppError('이메일 또는 비밀번호가 올바르지 않습니다', HTTP_STATUS.UNAUTHORIZED);
   }
 
-  await ensureEmailVerifiedOrSend({ user });
+  await ensureEmailVerifiedOrSend({ user, frontendOrigin });
 
   // 토큰 생성
   const tokens = generateTokens(user.id, user.email, user.type);
