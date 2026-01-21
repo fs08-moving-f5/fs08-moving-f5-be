@@ -1572,20 +1572,28 @@ async function main() {
   );
   logger.info(`   ✅ Fetched ${estimateRequests.length} estimate requests from DB`);
 
+  // DB에 실제로 저장된 ID 목록만 사용 (외래 키 제약 조건을 위해)
+  const validEstimateRequestIds = estimateRequests.map((req) => req.id);
+  if (validEstimateRequestIds.length !== estimateRequestIds.length) {
+    logger.warn(
+      `   ⚠️  Warning: ${estimateRequestIds.length} IDs in memory, but only ${validEstimateRequestIds.length} found in DB. Using DB IDs only.`,
+    );
+  }
+
   // Address 생성 (각 요청당 FROM, TO 주소, 배치 처리)
   logger.info('📍 Creating addresses...');
   const addressBatchSize = 1000; // 1,000개씩 배치 처리 (요청당 2개 주소이므로 실제로는 500개 요청)
-  const totalAddressBatches = Math.ceil(estimateRequestIds.length / (addressBatchSize / 2));
+  const totalAddressBatches = Math.ceil(validEstimateRequestIds.length / (addressBatchSize / 2));
   let totalAddressesCreated = 0;
 
   logger.info(
-    `   Creating addresses for ${estimateRequestIds.length} requests in ${totalAddressBatches} batches (${addressBatchSize / 2} requests per batch, 2 addresses per request)`,
+    `   Creating addresses for ${validEstimateRequestIds.length} requests in ${totalAddressBatches} batches (${addressBatchSize / 2} requests per batch, 2 addresses per request)`,
   );
 
   for (let batchIndex = 0; batchIndex < totalAddressBatches; batchIndex++) {
     const batchStart = batchIndex * (addressBatchSize / 2);
-    const batchEnd = Math.min(batchStart + addressBatchSize / 2, estimateRequestIds.length);
-    const batchRequestIds = estimateRequestIds.slice(batchStart, batchEnd);
+    const batchEnd = Math.min(batchStart + addressBatchSize / 2, validEstimateRequestIds.length);
+    const batchRequestIds = validEstimateRequestIds.slice(batchStart, batchEnd);
     const batchNumber = batchIndex + 1;
 
     logger.info(
@@ -1597,6 +1605,10 @@ async function main() {
 
     for (const requestId of batchRequestIds) {
       const request = requestMap.get(requestId);
+      if (!request) {
+        logger.warn(`   ⚠️  Warning: Request ${requestId} not found in requestMap, skipping...`);
+        continue;
+      }
       const fromAddr = randomItem(addresses);
       let toAddr = randomItem(addresses);
       // FROM과 TO가 같지 않도록
@@ -1662,12 +1674,12 @@ async function main() {
 
     const batchElapsed = Date.now() - batchStartTime;
     const processedRequests = batchEnd;
-    const progress = ((processedRequests / estimateRequestIds.length) * 100).toFixed(1);
+    const progress = ((processedRequests / validEstimateRequestIds.length) * 100).toFixed(1);
 
     logger.info(
       `   [Addresses] Batch ${batchNumber}/${totalAddressBatches} completed: ` +
         `Created ${batchAddresses.length} addresses | ` +
-        `Progress: ${processedRequests}/${estimateRequestIds.length} requests (${progress}%) | ` +
+        `Progress: ${processedRequests}/${validEstimateRequestIds.length} requests (${progress}%) | ` +
         `Batch time: ${batchElapsed}ms (DB: ${dbBatchElapsed}ms) | ` +
         `Total created: ${totalAddressesCreated}`,
     );
@@ -1687,7 +1699,7 @@ async function main() {
 
   // 배치 처리 설정
   const estimateBatchSize = 100; // 요청당 배치 크기
-  const totalRequests = estimateRequestIds.length;
+  const totalRequests = validEstimateRequestIds.length;
   const totalBatches = Math.ceil(totalRequests / estimateBatchSize);
   let totalEstimatesCreated = 0;
 
@@ -1699,7 +1711,7 @@ async function main() {
   for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
     const batchStart = batchIndex * estimateBatchSize;
     const batchEnd = Math.min(batchStart + estimateBatchSize, totalRequests);
-    const batchRequestIds = estimateRequestIds.slice(batchStart, batchEnd);
+    const batchRequestIds = validEstimateRequestIds.slice(batchStart, batchEnd);
     const batchNumber = batchIndex + 1;
 
     logger.info(
@@ -1722,15 +1734,25 @@ async function main() {
       // 지정 요청인 경우 지정된 기사님을 포함
       let selectedDrivers: string[] = [];
       if (request.isDesignated && request.designatedDriverId) {
-        // 지정된 기사님을 첫 번째로 포함
-        selectedDrivers = [request.designatedDriverId as string];
-        // 나머지 기사님 선택 (지정된 기사님 제외)
-        const otherDrivers = driverIds.filter((id) => id !== request.designatedDriverId);
-        const additionalDrivers = randomItems(
-          otherDrivers,
-          Math.min(estimateCount - 1, otherDrivers.length),
-        );
-        selectedDrivers = [...selectedDrivers, ...additionalDrivers];
+        const designatedDriverId = request.designatedDriverId as string;
+        // designatedDriverId가 실제로 driverIds에 있는지 확인
+        if (!driverIds.includes(designatedDriverId)) {
+          logger.warn(
+            `   ⚠️  Warning: designatedDriverId ${designatedDriverId} not found in driverIds, skipping designated request`,
+          );
+          // 일반 요청으로 처리
+          selectedDrivers = randomItems(driverIds, Math.min(estimateCount, driverIds.length));
+        } else {
+          // 지정된 기사님을 첫 번째로 포함
+          selectedDrivers = [designatedDriverId];
+          // 나머지 기사님 선택 (지정된 기사님 제외)
+          const otherDrivers = driverIds.filter((id) => id !== designatedDriverId);
+          const additionalDrivers = randomItems(
+            otherDrivers,
+            Math.min(estimateCount - 1, otherDrivers.length),
+          );
+          selectedDrivers = [...selectedDrivers, ...additionalDrivers];
+        }
       } else {
         // 일반 요청: 랜덤 선택
         selectedDrivers = randomItems(driverIds, Math.min(estimateCount, driverIds.length));
@@ -1873,12 +1895,24 @@ async function main() {
   });
   logger.info(`   Found ${confirmedEstimates.length} CONFIRMED estimates`);
 
+  // 실제 생성된 유저 ID 확인 (외래 키 제약 조건 확인용)
+  const validUserIdsForReview = new Set(userIds);
+
   for (const estimate of confirmedEstimates) {
     // 이미 리뷰가 있는 견적은 스킵 (unique 제약)
     if (reviewedEstimateIds.has(estimate.id!)) continue;
 
     const request = requestMap.get(estimate.estimateRequestId);
     if (!request) continue;
+
+    // userId가 실제로 존재하는지 확인
+    const reviewUserId = request.userId as string;
+    if (!validUserIdsForReview.has(reviewUserId)) {
+      logger.warn(
+        `   ⚠️  Warning: userId ${reviewUserId} not found in validUserIds, skipping review for estimate ${estimate.id}`,
+      );
+      continue;
+    }
 
     const reviewMovingDate = new Date(request.movingDate as Date);
     const daysSinceMoving = (now.getTime() - reviewMovingDate.getTime()) / (1000 * 60 * 60 * 24);
@@ -1916,7 +1950,7 @@ async function main() {
     reviewedEstimateIds.add(estimate.id!);
     reviews.push({
       estimateId: estimate.id!,
-      userId: request.userId as string,
+      userId: reviewUserId,
       rating, // 모든 리뷰에 rating 포함
       content, // 모든 리뷰에 content 포함
       createdAt: reviewCreatedAt,
@@ -2081,6 +2115,18 @@ async function main() {
 
   const notifications: Prisma.NotificationCreateManyInput[] = [];
 
+  // 실제 생성된 유저/기사 ID 확인 (외래 키 제약 조건 확인용)
+  const validUserIdsForNotification = new Set(userIds);
+  const validDriverIdsForNotification = new Set(driverIds);
+
+  // 배열이 비어있지 않은지 확인
+  if (userIds.length === 0) {
+    logger.warn('   ⚠️  Warning: userIds array is empty, skipping notification creation');
+  }
+  if (driverIds.length === 0) {
+    logger.warn('   ⚠️  Warning: driverIds array is empty, some notification types may be skipped');
+  }
+
   // 알림 타입별 가중치 (더 현실적인 분포)
   const getWeightedNotificationType = (): NotificationType => {
     const rand = Math.random();
@@ -2114,44 +2160,108 @@ async function main() {
 
     switch (type) {
       case 'REQUEST_SENT':
-        userId = randomItem(userIds);
-        message = '견적 요청이 전송되었습니다.';
+        if (userIds.length > 0) {
+          userId = randomItem(userIds);
+          message = '견적 요청이 전송되었습니다.';
+        } else {
+          continue; // userIds가 비어있으면 스킵
+        }
         break;
       case 'ESTIMATE_RECEIVED':
-        userId = randomItem(userIds);
-        message = '새로운 견적서가 도착했습니다.';
+        if (userIds.length > 0) {
+          userId = randomItem(userIds);
+          message = '새로운 견적서가 도착했습니다.';
+        } else {
+          continue;
+        }
         break;
       case 'ESTIMATE_CONFIRMED':
-        userId = randomItem(userIds);
-        message = '견적이 확정되었습니다.';
+        if (userIds.length > 0) {
+          userId = randomItem(userIds);
+          message = '견적이 확정되었습니다.';
+        } else {
+          continue;
+        }
         break;
       case 'ESTIMATE_REJECTED':
-        userId = randomItem(driverIds);
-        message = '견적 요청이 반려되었습니다.';
+        if (driverIds.length > 0) {
+          userId = randomItem(driverIds);
+          message = '견적 요청이 반려되었습니다.';
+        } else {
+          continue;
+        }
         break;
       case 'ESTIMATE_EXPIRED':
-        userId = randomItem(userIds);
-        message = '견적이 만료되었습니다.';
+        if (userIds.length > 0) {
+          userId = randomItem(userIds);
+          message = '견적이 만료되었습니다.';
+        } else {
+          continue;
+        }
         break;
       case 'NEW_REVIEW':
-        userId = randomItem(driverIds);
-        message = '새로운 리뷰가 작성되었습니다.';
+        if (driverIds.length > 0) {
+          userId = randomItem(driverIds);
+          message = '새로운 리뷰가 작성되었습니다.';
+        } else {
+          continue;
+        }
         break;
       case 'FAVORITE_ADDED':
-        userId = randomItem(driverIds);
-        message = '찜하기 목록에 추가되었습니다.';
+        if (driverIds.length > 0) {
+          userId = randomItem(driverIds);
+          message = '찜하기 목록에 추가되었습니다.';
+        } else {
+          continue;
+        }
         break;
       case 'SYSTEM_NOTICE':
-        userId = Math.random() < 0.5 ? randomItem(userIds) : randomItem(driverIds);
-        message = '시스템 공지사항이 있습니다.';
+        if (userIds.length > 0 && driverIds.length > 0) {
+          userId = Math.random() < 0.5 ? randomItem(userIds) : randomItem(driverIds);
+          message = '시스템 공지사항이 있습니다.';
+        } else if (userIds.length > 0) {
+          userId = randomItem(userIds);
+          message = '시스템 공지사항이 있습니다.';
+        } else if (driverIds.length > 0) {
+          userId = randomItem(driverIds);
+          message = '시스템 공지사항이 있습니다.';
+        } else {
+          continue;
+        }
         break;
       case 'PROMOTION':
-        userId = Math.random() < 0.5 ? randomItem(userIds) : randomItem(driverIds);
-        message = '새로운 프로모션이 진행 중입니다.';
+        if (userIds.length > 0 && driverIds.length > 0) {
+          userId = Math.random() < 0.5 ? randomItem(userIds) : randomItem(driverIds);
+          message = '새로운 프로모션이 진행 중입니다.';
+        } else if (userIds.length > 0) {
+          userId = randomItem(userIds);
+          message = '새로운 프로모션이 진행 중입니다.';
+        } else if (driverIds.length > 0) {
+          userId = randomItem(driverIds);
+          message = '새로운 프로모션이 진행 중입니다.';
+        } else {
+          continue;
+        }
         break;
       default:
-        userId = Math.random() < 0.5 ? randomItem(userIds) : randomItem(driverIds);
-        message = `${type} 알림입니다.`;
+        if (userIds.length > 0 && driverIds.length > 0) {
+          userId = Math.random() < 0.5 ? randomItem(userIds) : randomItem(driverIds);
+          message = `${type} 알림입니다.`;
+        } else if (userIds.length > 0) {
+          userId = randomItem(userIds);
+          message = `${type} 알림입니다.`;
+        } else if (driverIds.length > 0) {
+          userId = randomItem(driverIds);
+          message = `${type} 알림입니다.`;
+        } else {
+          continue;
+        }
+    }
+
+    // userId가 실제로 존재하는지 최종 확인
+    if (!validUserIdsForNotification.has(userId) && !validDriverIdsForNotification.has(userId)) {
+      logger.warn(`   ⚠️  Warning: userId ${userId} not found in valid IDs, skipping notification`);
+      continue;
     }
 
     // 알림 생성 날짜: 2025년 랜덤
@@ -2168,16 +2278,22 @@ async function main() {
     let datajson: Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | undefined = undefined;
     switch (type) {
       case 'ESTIMATE_RECEIVED':
-        datajson = {
-          estimateRequestId: estimateRequestIds[randomInt(0, estimateRequestIds.length - 1)],
-          driverId: driverIds[randomInt(0, driverIds.length - 1)],
-        };
+        if (validEstimateRequestIds.length > 0 && driverIds.length > 0) {
+          datajson = {
+            estimateRequestId:
+              validEstimateRequestIds[randomInt(0, validEstimateRequestIds.length - 1)],
+            driverId: driverIds[randomInt(0, driverIds.length - 1)],
+          };
+        }
         break;
       case 'ESTIMATE_CONFIRMED':
-        datajson = {
-          estimateRequestId: estimateRequestIds[randomInt(0, estimateRequestIds.length - 1)],
-          estimateId: estimateIds[randomInt(0, estimateIds.length - 1)],
-        };
+        if (validEstimateRequestIds.length > 0 && estimateIds.length > 0) {
+          datajson = {
+            estimateRequestId:
+              validEstimateRequestIds[randomInt(0, validEstimateRequestIds.length - 1)],
+            estimateId: estimateIds[randomInt(0, estimateIds.length - 1)],
+          };
+        }
         break;
       case 'NEW_REVIEW':
         datajson = {
@@ -2186,14 +2302,19 @@ async function main() {
         };
         break;
       case 'FAVORITE_ADDED':
-        datajson = {
-          driverId: driverIds[randomInt(0, driverIds.length - 1)],
-        };
+        if (driverIds.length > 0) {
+          datajson = {
+            driverId: driverIds[randomInt(0, driverIds.length - 1)],
+          };
+        }
         break;
       case 'REQUEST_SENT':
-        datajson = {
-          estimateRequestId: estimateRequestIds[randomInt(0, estimateRequestIds.length - 1)],
-        };
+        if (validEstimateRequestIds.length > 0) {
+          datajson = {
+            estimateRequestId:
+              validEstimateRequestIds[randomInt(0, validEstimateRequestIds.length - 1)],
+          };
+        }
         break;
       case 'SYSTEM_NOTICE':
         datajson = {
