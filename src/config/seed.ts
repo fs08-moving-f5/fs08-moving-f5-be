@@ -763,13 +763,13 @@ async function main() {
   await prisma.user.deleteMany();
   console.log('✅ Existing data deleted\n');
 
-  // User 생성 (30배 규모로 확장)
-  // 일반 유저: 7500 * 30 = 225,000명
-  // 기사님: 4500 * 30 = 135,000명
+  // User 생성 (20% 규모로 축소)
+  // 일반 유저: 225,000 * 0.2 = 45,000명
+  // 기사님: 135,000 * 0.2 = 27,000명
   // 마스터 유저: 1명
   // new-driver: 1명
-  // 테스트 유저: 180 * 30 = 5,400명
-  // 총: 365,402명
+  // 테스트 유저: 5,400 * 0.2 = 1,080명
+  // 총: 73,082명
   console.log('👥 Creating users...');
   const users: Prisma.UserCreateManyInput[] = [];
   const userIds: string[] = [];
@@ -796,8 +796,8 @@ async function main() {
     updatedAt: getRandomDate2025After(masterUserCreatedAt),
   });
 
-  // 일반 유저 225,000명 생성 (30배)
-  for (let i = 0; i < 225000; i++) {
+  // 일반 유저 45,000명 생성 (20% 규모)
+  for (let i = 0; i < 45000; i++) {
     const userId = uuidv4();
     userIds.push(userId);
 
@@ -863,8 +863,8 @@ async function main() {
     updatedAt: getRandomDate2025After(adminCreatedAt),
   });
 
-  // 기사님 135,000명 생성 (30배)
-  for (let i = 0; i < 135000; i++) {
+  // 기사님 27,000명 생성 (20% 규모)
+  for (let i = 0; i < 27000; i++) {
     const driverId = uuidv4();
     driverIds.push(driverId);
 
@@ -911,8 +911,8 @@ async function main() {
     updatedAt: getRandomDate2025After(newDriverCreatedAt),
   });
 
-  // 추가 테스트 유저 5,400명 (다양한 시나리오 테스트용, 30배)
-  for (let i = 0; i < 5400; i++) {
+  // 추가 테스트 유저 1,080명 (다양한 시나리오 테스트용, 20% 규모)
+  for (let i = 0; i < 1080; i++) {
     const testUserId = uuidv4();
     userIds.push(testUserId);
     const createdAt = getRandomDate2025();
@@ -1088,12 +1088,12 @@ async function main() {
   const now = new Date('2025-12-31T23:59:59.999Z'); // 2025년 말
   const pastDate = new Date('2025-01-01T00:00:00.000Z'); // 2025년 초
 
-  // 마스터 유저를 위한 다양한 상태의 견적 요청 생성 (테스트용, 30배 확장)
+  // 마스터 유저를 위한 다양한 상태의 견적 요청 생성 (테스트용, 100만 건 견적 목표)
   // 마스터 유저는 PENDING 1개 + 다른 상태들 여러 개 (다양한 시나리오 테스트)
   const masterRequestStatuses: EstimateStatus[] = [];
   masterRequestStatuses.push('PENDING'); // 진행 중인 요청 1개
-  // 나머지 2,999개 요청 생성 (CONFIRMED 50%, REJECTED 30%, CANCELLED 20%)
-  for (let i = 0; i < 2999; i++) {
+  // 나머지 599개 요청 생성 (CONFIRMED 50%, REJECTED 30%, CANCELLED 20%)
+  for (let i = 0; i < 599; i++) {
     const rand = Math.random();
     if (rand < 0.5) masterRequestStatuses.push('CONFIRMED');
     else if (rand < 0.8) masterRequestStatuses.push('REJECTED');
@@ -1149,9 +1149,9 @@ async function main() {
   const availableUsers = [...userIds.filter((id) => id !== masterUserId)]; // 마스터 유저 제외한 유저들
   const userRequestCount = new Map<string, number>(); // 유저별 요청 수 추적
 
-  // 각 유저당 0~10개의 과거 요청 생성 (PENDING 제외, 더 다양한 시나리오, 30배 확장)
+  // 각 유저당 0~15개의 과거 요청 생성 (PENDING 제외, 더 다양한 시나리오, 100만 건 견적 목표)
   for (const userId of availableUsers) {
-    const requestCount = randomInt(0, 10); // 유저당 0~10개의 과거 요청 (30배로 확장)
+    const requestCount = randomInt(0, 15); // 유저당 0~15개의 과거 요청 (100만 건 견적 목표)
     userRequestCount.set(userId, requestCount);
 
     let lastMovingDate = new Date(pastDate);
@@ -1200,7 +1200,7 @@ async function main() {
   // 이사일 이후에만 새로운 요청 가능하므로, 마지막 이사일 이후로 설정
   const usersWithPendingRequest = randomItems(
     availableUsers,
-    Math.min(Math.floor(availableUsers.length * 0.4), availableUsers.length), // 40%의 유저만 PENDING 요청 (30배 확장)
+    Math.min(Math.floor(availableUsers.length * 0.4), availableUsers.length), // 40%의 유저만 PENDING 요청
   );
 
   for (const userId of usersWithPendingRequest) {
@@ -1317,6 +1317,7 @@ async function main() {
   // 규칙:
   // 1. 한 견적 요청에 최대 8개의 견적
   // 2. 일반 요청: 최대 5개, 지정 요청: 추가 3개 가능 (총 8개)
+  // 목표: 약 100만 건의 견적 생성
   console.log('💰 Creating estimates...');
   const estimates: Prisma.EstimateCreateManyInput[] = [];
   const estimateIds: string[] = [];
@@ -1328,6 +1329,7 @@ async function main() {
     if (!request) continue;
 
     // 지정 요청인 경우 최대 8개 (일반 5개 + 지정 추가 3개), 일반 요청인 경우 최대 5개
+    // 평균 약 2.5개/요청으로 100만 건 목표
     const maxEstimates = request.isDesignated ? 8 : 5;
     const estimateCount = randomInt(1, maxEstimates);
     requestEstimateCount.set(requestId, estimateCount);
@@ -1517,8 +1519,8 @@ async function main() {
     driverFavoriteCount.set(driverId, 0);
   });
 
-  // 360,000개의 좋아요 생성 (30배 규모, 랜덤하게 분배, 일부 기사님은 많이 받고 일부는 적게)
-  for (let i = 0; i < 360000; i++) {
+  // 150,000개의 좋아요 생성 (100만 건 견적 기준 비례 조정, 랜덤하게 분배, 일부 기사님은 많이 받고 일부는 적게)
+  for (let i = 0; i < 150000; i++) {
     const userId = randomItem(Array.from(validUserIds));
     let driverId = randomItem(Array.from(validDriverIds));
     let pairKey = `${userId}::${driverId}`; // UUID에 하이픈이 있어서 :: 구분자 사용
@@ -1561,7 +1563,7 @@ async function main() {
     `✅ Created ${favorites.length} favorite drivers (${driversWithFavorites}/${driverIds.length} drivers received favorites)\n`,
   );
 
-  // Notification 생성 (450,000개 - 30배 규모, 다양한 타입, 더 현실적인 분포)
+  // Notification 생성 (200,000개 - 100만 건 견적 기준 비례 조정, 다양한 타입, 더 현실적인 분포)
   console.log('🔔 Creating notifications...');
   const notificationTypes: NotificationType[] = [
     'REQUEST_SENT',
@@ -1605,7 +1607,7 @@ async function main() {
     else return 'PROMOTION'; // 2%
   };
 
-  for (let i = 0; i < 450000; i++) {
+  for (let i = 0; i < 200000; i++) {
     const type = getWeightedNotificationType();
     let message = '';
     let userId = '';
@@ -1742,6 +1744,7 @@ async function main() {
   console.log('\n🔗 Relationship Rules Applied:');
   console.log('   ✓ Each user can have max 1 PENDING request');
   console.log('   ✓ Each request can have max 8 estimates (general: 5, designated: +3)');
+  console.log('   ✓ Target: ~1,000,000 estimates');
   console.log('   ✓ New requests can only be created after moving date of previous request');
   console.log('   ✓ CONFIRMED requests: exactly 1 CONFIRMED estimate + others REJECTED');
   console.log('   ✓ PENDING requests: mostly PENDING estimates (some REJECTED)');
@@ -1750,7 +1753,7 @@ async function main() {
   console.log('   ✓ Designated requests include designatedDriverId');
   console.log('   ✓ Each estimate can have only 1 review (unique constraint)');
   console.log('\n✨ Enhanced test scenarios:');
-  console.log('   - Extended date range: -730 to +180 days (30배 확장)');
+  console.log('   - Extended date range: -730 to +180 days (100만 건 견적 목표)');
   console.log('   - More diverse estimate statuses and prices (서비스 타입별 가격 차별화)');
   console.log(
     '   - Realistic review rating distribution (100% of confirmed estimates with rating and content)',
@@ -1758,7 +1761,7 @@ async function main() {
   console.log('   - Weighted notification types');
   console.log('   - Expanded address pool (80+ locations)');
   console.log('   - User profile images: random from 2 URLs');
-  console.log('   - Master user (user@master.com) with 3,000 diverse requests (30배)');
+  console.log('   - Master user (user@master.com) with 600 diverse requests');
   console.log('   - Master driver (driver@master.com) for driver feature testing');
   console.log('   - Admin user (admin@master.com) for admin feature testing');
   console.log('   - Deleted requests/estimates/notifications (5% each)');
@@ -1767,8 +1770,8 @@ async function main() {
   console.log('   - All confirmed estimates have reviews with rating and content (NULL 제거)');
   console.log('   - History table kept empty');
   console.log('   - All users have isEmailVerified: true');
-  console.log('   - 30x more users, drivers, requests, favorites, and notifications');
-  console.log('   - More diverse user scenarios (0-10 past requests per user)');
+  console.log('   - Target: ~1,000,000 estimates with ~73,000 users');
+  console.log('   - More diverse user scenarios (0-15 past requests per user)');
   console.log('   - 40% of users have PENDING requests');
   console.log('   - All users have profiles (100% coverage)');
   console.log('   - All addresses have lat/lng coordinates (NULL 제거)');
