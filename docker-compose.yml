@@ -28,6 +28,7 @@ services:
     restart: no
 
   seed:
+    profiles: ["optional"]
     image: ${IMAGE_NAME:-ghcr.io/fs08-moving-f5/fs08-moving-f5-be:prod-latest}
     env_file:
       - .env
