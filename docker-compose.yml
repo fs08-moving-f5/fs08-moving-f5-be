@@ -36,5 +36,5 @@ services:
       DATABASE_URL: ${DATABASE_URL}
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    command: ['node', 'dist/config/seed.js']
+    command: ['node', '/app/dist/config/seed.js']
     restart: no
