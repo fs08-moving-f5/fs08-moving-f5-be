@@ -786,19 +786,30 @@ async function main() {
     throw error;
   }
 
-  // 기존 데이터 삭제
-  logger.info('🗑️  Deleting existing data...');
-  await prisma.history.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.favoriteDriver.deleteMany();
-  await prisma.review.deleteMany();
-  await prisma.address.deleteMany();
-  await prisma.estimate.deleteMany();
-  await prisma.estimateRequest.deleteMany();
-  await prisma.driverProfile.deleteMany();
-  await prisma.userProfile.deleteMany();
-  await prisma.user.deleteMany();
-  logger.info('✅ Existing data deleted');
+  // 기존 데이터 삭제 (TRUNCATE CASCADE 사용 - 더 빠르고 효율적)
+  logger.info('🗑️  Deleting existing data using TRUNCATE CASCADE...');
+  const deleteStartTime = Date.now();
+
+  // TRUNCATE CASCADE를 사용하여 모든 테이블을 한 번에 삭제
+  // CASCADE 옵션으로 외래 키 관계를 자동으로 처리하고, RESTART IDENTITY로 시퀀스도 재시작
+  // 순서는 중요하지 않음 (CASCADE가 자동으로 처리)
+  await prisma.$executeRaw`
+    TRUNCATE TABLE 
+      "History",
+      "Review",
+      "Address",
+      "Estimate",
+      "EstimateRequest",
+      "FavoriteDriver",
+      "Notification",
+      "UserProfile",
+      "DriverProfile",
+      "User"
+    RESTART IDENTITY CASCADE
+  `;
+
+  const deleteElapsed = Date.now() - deleteStartTime;
+  logger.info(`✅ Existing data deleted using TRUNCATE CASCADE (${deleteElapsed}ms)`);
 
   // User 생성 (20% 규모로 축소, 배치 처리)
   // 일반 유저: 225,000 * 0.2 = 45,000명
@@ -1127,18 +1138,38 @@ async function main() {
 
   // UserProfile 생성 (모든 유저에게 프로필 생성 - 100% 커버리지, 배치 처리)
   logger.info('👤 Creating user profiles...');
+
+  // DB에 실제로 저장된 User ID 조회 (외래 키 제약 조건을 위해)
+  logger.info('   Fetching actual user IDs from DB...');
+  const actualUsers = await prisma.user.findMany({
+    where: {
+      type: 'USER',
+    },
+    select: {
+      id: true,
+    },
+  });
+  const validUserIdsForProfile = actualUsers.map((user) => user.id);
+  logger.info(`   ✅ Found ${validUserIdsForProfile.length} actual users in DB`);
+
+  if (validUserIdsForProfile.length !== userIds.length) {
+    logger.warn(
+      `   ⚠️  Warning: ${userIds.length} IDs in memory, but only ${validUserIdsForProfile.length} found in DB. Using DB IDs only.`,
+    );
+  }
+
   const userProfileBatchSize = 1000; // 1,000개씩 배치 처리
-  const totalUserProfileBatches = Math.ceil(userIds.length / userProfileBatchSize);
+  const totalUserProfileBatches = Math.ceil(validUserIdsForProfile.length / userProfileBatchSize);
   let totalUserProfilesCreated = 0;
 
   logger.info(
-    `   Creating ${userIds.length} user profiles in ${totalUserProfileBatches} batches (${userProfileBatchSize} profiles per batch)`,
+    `   Creating ${validUserIdsForProfile.length} user profiles in ${totalUserProfileBatches} batches (${userProfileBatchSize} profiles per batch)`,
   );
 
   for (let batchIndex = 0; batchIndex < totalUserProfileBatches; batchIndex++) {
     const batchStart = batchIndex * userProfileBatchSize;
-    const batchEnd = Math.min(batchStart + userProfileBatchSize, userIds.length);
-    const batchUserIds = userIds.slice(batchStart, batchEnd);
+    const batchEnd = Math.min(batchStart + userProfileBatchSize, validUserIdsForProfile.length);
+    const batchUserIds = validUserIdsForProfile.slice(batchStart, batchEnd);
     const batchNumber = batchIndex + 1;
 
     logger.info(
@@ -1171,12 +1202,12 @@ async function main() {
     totalUserProfilesCreated += batchUserProfiles.length;
 
     const batchElapsed = Date.now() - batchStartTime;
-    const progress = ((batchEnd / userIds.length) * 100).toFixed(1);
+    const progress = ((batchEnd / validUserIdsForProfile.length) * 100).toFixed(1);
 
     logger.info(
       `   [User Profiles] Batch ${batchNumber}/${totalUserProfileBatches} completed: ` +
         `Created ${batchUserProfiles.length} profiles | ` +
-        `Progress: ${batchEnd}/${userIds.length} (${progress}%) | ` +
+        `Progress: ${batchEnd}/${validUserIdsForProfile.length} (${progress}%) | ` +
         `Batch time: ${batchElapsed}ms (DB: ${dbBatchElapsed}ms) | ` +
         `Total created: ${totalUserProfilesCreated}`,
     );
@@ -1186,60 +1217,91 @@ async function main() {
 
   // DriverProfile 생성 (모든 기사님 프로필 생성 + 마스터 드라이버 + new-driver, NULL 값 없이 촘촘하게, 배치 처리)
   logger.info('🚗 Creating driver profiles...');
+
+  // DB에 실제로 저장된 Driver ID 조회 (외래 키 제약 조건을 위해)
+  logger.info('   Fetching actual driver IDs from DB...');
+  const actualDrivers = await prisma.user.findMany({
+    where: {
+      type: 'DRIVER',
+    },
+    select: {
+      id: true,
+    },
+  });
+  const validDriverIdsForProfile = actualDrivers.map((driver) => driver.id);
+  logger.info(`   ✅ Found ${validDriverIdsForProfile.length} actual drivers in DB`);
+
+  if (validDriverIdsForProfile.length !== driverIds.length) {
+    logger.warn(
+      `   ⚠️  Warning: ${driverIds.length} IDs in memory, but only ${validDriverIdsForProfile.length} found in DB. Using DB IDs only.`,
+    );
+  }
+
   const driverProfileBatchSize = 1000; // 1,000개씩 배치 처리
-  const totalDriverProfileBatches = Math.ceil(driverIds.length / driverProfileBatchSize);
+  const totalDriverProfileBatches = Math.ceil(
+    validDriverIdsForProfile.length / driverProfileBatchSize,
+  );
   let totalDriverProfilesCreated = 0;
 
   logger.info(
-    `   Creating ${driverIds.length} driver profiles in ${totalDriverProfileBatches} batches (${driverProfileBatchSize} profiles per batch)`,
+    `   Creating ${validDriverIdsForProfile.length} driver profiles in ${totalDriverProfileBatches} batches (${driverProfileBatchSize} profiles per batch)`,
   );
 
-  // 마스터 드라이버 프로필 먼저 생성
-  const masterDriverOfficeAddr = randomItem(addresses);
-  const masterDriverOfficeCoords = getKoreanCoordinates(
-    masterDriverOfficeAddr.sido,
-    masterDriverOfficeAddr.sigungu,
-  );
-  const masterDriverProfileUserCreatedAt = new Date('2025-01-01T00:00:00.000Z');
-  const masterDriverProfileCreatedAt = getRandomDate2025After(masterDriverProfileUserCreatedAt);
-  const masterDriverProfileUpdatedAt = getRandomDate2025After(masterDriverProfileCreatedAt);
-  const masterDriverOfficeUpdatedAt = getRandomDate2025After(masterDriverProfileCreatedAt);
-  const masterDriverProfile: Prisma.DriverProfileCreateManyInput = {
-    driverId: masterDriverId,
-    imageUrl: randomItem(driverImageUrls),
-    career: 10,
-    shortIntro: '마스터 드라이버입니다. 모든 기능을 테스트할 수 있습니다.',
-    description: '드라이버 기능 테스트를 위한 마스터 계정입니다.',
-    regions: ['서울', '경기', '인천'],
-    services: ['SMALL_MOVING', 'HOME_MOVING', 'OFFICE_MOVING'],
-    officeAddress: `${masterDriverOfficeAddr.sido} ${masterDriverOfficeAddr.sigungu} ${masterDriverOfficeAddr.address}`,
-    officeLat: masterDriverOfficeCoords.lat,
-    officeLng: masterDriverOfficeCoords.lng,
-    officeSido: masterDriverOfficeAddr.sido,
-    officeSigungu: masterDriverOfficeAddr.sigungu,
-    officeZoneCode: masterDriverOfficeAddr.zoneCode,
-    officeUpdatedAt: masterDriverOfficeUpdatedAt,
-    createdAt: masterDriverProfileCreatedAt,
-    updatedAt: masterDriverProfileUpdatedAt,
-  };
-  await batchCreateMany(
-    (args) => prisma.driverProfile.createMany(args),
-    [masterDriverProfile],
-    1000,
-    'driver profiles (master)',
-  );
-  totalDriverProfilesCreated += 1;
-  logger.info(`   ✅ Created master driver profile: ${masterDriverId}`);
+  // 마스터 드라이버 프로필 먼저 생성 (DB에 실제로 존재하는 경우만)
+  if (validDriverIdsForProfile.includes(masterDriverId)) {
+    const masterDriverOfficeAddr = randomItem(addresses);
+    const masterDriverOfficeCoords = getKoreanCoordinates(
+      masterDriverOfficeAddr.sido,
+      masterDriverOfficeAddr.sigungu,
+    );
+    const masterDriverProfileUserCreatedAt = new Date('2025-01-01T00:00:00.000Z');
+    const masterDriverProfileCreatedAt = getRandomDate2025After(masterDriverProfileUserCreatedAt);
+    const masterDriverProfileUpdatedAt = getRandomDate2025After(masterDriverProfileCreatedAt);
+    const masterDriverOfficeUpdatedAt = getRandomDate2025After(masterDriverProfileCreatedAt);
+    const masterDriverProfile: Prisma.DriverProfileCreateManyInput = {
+      driverId: masterDriverId,
+      imageUrl: randomItem(driverImageUrls),
+      career: 10,
+      shortIntro: '마스터 드라이버입니다. 모든 기능을 테스트할 수 있습니다.',
+      description: '드라이버 기능 테스트를 위한 마스터 계정입니다.',
+      regions: ['서울', '경기', '인천'],
+      services: ['SMALL_MOVING', 'HOME_MOVING', 'OFFICE_MOVING'],
+      officeAddress: `${masterDriverOfficeAddr.sido} ${masterDriverOfficeAddr.sigungu} ${masterDriverOfficeAddr.address}`,
+      officeLat: masterDriverOfficeCoords.lat,
+      officeLng: masterDriverOfficeCoords.lng,
+      officeSido: masterDriverOfficeAddr.sido,
+      officeSigungu: masterDriverOfficeAddr.sigungu,
+      officeZoneCode: masterDriverOfficeAddr.zoneCode,
+      officeUpdatedAt: masterDriverOfficeUpdatedAt,
+      createdAt: masterDriverProfileCreatedAt,
+      updatedAt: masterDriverProfileUpdatedAt,
+    };
+    await batchCreateMany(
+      (args) => prisma.driverProfile.createMany(args),
+      [masterDriverProfile],
+      1000,
+      'driver profiles (master)',
+    );
+    totalDriverProfilesCreated += 1;
+    logger.info(`   ✅ Created master driver profile: ${masterDriverId}`);
+  } else {
+    logger.warn(
+      `   ⚠️  Warning: masterDriverId ${masterDriverId} not found in DB, skipping master driver profile`,
+    );
+  }
 
-  // 일반 드라이버 프로필 배치 처리
-  for (let batchIndex = 0; batchIndex < totalDriverProfileBatches; batchIndex++) {
+  // 일반 드라이버 프로필 배치 처리 (마스터 드라이버 제외)
+  const regularDriverIds = validDriverIdsForProfile.filter((id) => id !== masterDriverId);
+  const regularDriverProfileBatches = Math.ceil(regularDriverIds.length / driverProfileBatchSize);
+
+  for (let batchIndex = 0; batchIndex < regularDriverProfileBatches; batchIndex++) {
     const batchStart = batchIndex * driverProfileBatchSize;
-    const batchEnd = Math.min(batchStart + driverProfileBatchSize, driverIds.length);
-    const batchDriverIds = driverIds.slice(batchStart, batchEnd);
+    const batchEnd = Math.min(batchStart + driverProfileBatchSize, regularDriverIds.length);
+    const batchDriverIds = regularDriverIds.slice(batchStart, batchEnd);
     const batchNumber = batchIndex + 1;
 
     logger.info(
-      `   [Driver Profiles] Processing batch ${batchNumber}/${totalDriverProfileBatches}: profiles ${batchStart + 1}-${batchEnd} (${batchDriverIds.length} profiles)`,
+      `   [Driver Profiles] Processing batch ${batchNumber}/${regularDriverProfileBatches}: profiles ${batchStart + 1}-${batchEnd} (${batchDriverIds.length} profiles)`,
     );
 
     const batchStartTime = Date.now();
@@ -1284,53 +1346,60 @@ async function main() {
     totalDriverProfilesCreated += batchDriverProfiles.length;
 
     const batchElapsed = Date.now() - batchStartTime;
-    const progress = ((batchEnd / driverIds.length) * 100).toFixed(1);
+    const progress = ((batchEnd / regularDriverIds.length) * 100).toFixed(1);
 
     logger.info(
-      `   [Driver Profiles] Batch ${batchNumber}/${totalDriverProfileBatches} completed: ` +
+      `   [Driver Profiles] Batch ${batchNumber}/${regularDriverProfileBatches} completed: ` +
         `Created ${batchDriverProfiles.length} profiles | ` +
-        `Progress: ${batchEnd}/${driverIds.length} (${progress}%) | ` +
+        `Progress: ${batchEnd}/${regularDriverIds.length} (${progress}%) | ` +
         `Batch time: ${batchElapsed}ms (DB: ${dbBatchElapsed}ms) | ` +
         `Total created: ${totalDriverProfilesCreated}`,
     );
   }
 
   // new-driver 프로필 추가 (프로필 정보는 모두 있지만 아직 활동 없음, NULL 값 없이)
-  const newDriverOfficeAddr = randomItem(addresses);
-  const newDriverOfficeCoords = getKoreanCoordinates(
-    newDriverOfficeAddr.sido,
-    newDriverOfficeAddr.sigungu,
-  );
-  const newDriverUserCreatedAt = getRandomDate2025();
-  const newDriverProfileCreatedAt = getRandomDate2025After(newDriverUserCreatedAt);
-  const newDriverProfileUpdatedAt = getRandomDate2025After(newDriverProfileCreatedAt);
-  const newDriverOfficeUpdatedAt = getRandomDate2025After(newDriverProfileCreatedAt);
-  const newDriverProfile: Prisma.DriverProfileCreateManyInput = {
-    driverId: newDriverId,
-    imageUrl: randomItem(driverImageUrls),
-    career: randomInt(5, 25),
-    shortIntro: randomItem(shortIntros),
-    description: randomItem(descriptions),
-    regions: randomItems(regions, randomInt(2, 5)),
-    services: randomItems(services, randomInt(1, 3)),
-    officeAddress: `${newDriverOfficeAddr.sido} ${newDriverOfficeAddr.sigungu} ${newDriverOfficeAddr.address}`,
-    officeLat: newDriverOfficeCoords.lat,
-    officeLng: newDriverOfficeCoords.lng,
-    officeSido: newDriverOfficeAddr.sido,
-    officeSigungu: newDriverOfficeAddr.sigungu,
-    officeZoneCode: newDriverOfficeAddr.zoneCode,
-    officeUpdatedAt: newDriverOfficeUpdatedAt,
-    createdAt: newDriverProfileCreatedAt,
-    updatedAt: newDriverProfileUpdatedAt,
-  };
-  await batchCreateMany(
-    (args) => prisma.driverProfile.createMany(args),
-    [newDriverProfile],
-    1000,
-    'driver profiles (new-driver)',
-  );
-  totalDriverProfilesCreated += 1;
-  logger.info(`   ✅ Created new-driver profile: ${newDriverId}`);
+  // DB에 실제로 존재하는 경우만 생성
+  if (validDriverIdsForProfile.includes(newDriverId)) {
+    const newDriverOfficeAddr = randomItem(addresses);
+    const newDriverOfficeCoords = getKoreanCoordinates(
+      newDriverOfficeAddr.sido,
+      newDriverOfficeAddr.sigungu,
+    );
+    const newDriverUserCreatedAt = getRandomDate2025();
+    const newDriverProfileCreatedAt = getRandomDate2025After(newDriverUserCreatedAt);
+    const newDriverProfileUpdatedAt = getRandomDate2025After(newDriverProfileCreatedAt);
+    const newDriverOfficeUpdatedAt = getRandomDate2025After(newDriverProfileCreatedAt);
+    const newDriverProfile: Prisma.DriverProfileCreateManyInput = {
+      driverId: newDriverId,
+      imageUrl: randomItem(driverImageUrls),
+      career: randomInt(5, 25),
+      shortIntro: randomItem(shortIntros),
+      description: randomItem(descriptions),
+      regions: randomItems(regions, randomInt(2, 5)),
+      services: randomItems(services, randomInt(1, 3)),
+      officeAddress: `${newDriverOfficeAddr.sido} ${newDriverOfficeAddr.sigungu} ${newDriverOfficeAddr.address}`,
+      officeLat: newDriverOfficeCoords.lat,
+      officeLng: newDriverOfficeCoords.lng,
+      officeSido: newDriverOfficeAddr.sido,
+      officeSigungu: newDriverOfficeAddr.sigungu,
+      officeZoneCode: newDriverOfficeAddr.zoneCode,
+      officeUpdatedAt: newDriverOfficeUpdatedAt,
+      createdAt: newDriverProfileCreatedAt,
+      updatedAt: newDriverProfileUpdatedAt,
+    };
+    await batchCreateMany(
+      (args) => prisma.driverProfile.createMany(args),
+      [newDriverProfile],
+      1000,
+      'driver profiles (new-driver)',
+    );
+    totalDriverProfilesCreated += 1;
+    logger.info(`   ✅ Created new-driver profile: ${newDriverId}`);
+  } else {
+    logger.warn(
+      `   ⚠️  Warning: newDriverId ${newDriverId} not found in DB, skipping new-driver profile`,
+    );
+  }
 
   logger.info(`✅ Created ${totalDriverProfilesCreated} driver profiles total`);
 
@@ -1340,6 +1409,52 @@ async function main() {
   // 2. 이사일 이후에만 새로운 요청 가능 (과거 요청의 이사일이 지난 후에만 새 요청 생성)
   // 3. 활성 요청은 1개만 유지 가능
   logger.info('📋 Creating estimate requests...');
+
+  // DB에 실제로 저장된 User ID와 Driver ID 조회 (외래 키 제약 조건을 위해)
+  logger.info('   Fetching actual user and driver IDs from DB...');
+  const actualUsersForRequest = await prisma.user.findMany({
+    where: {
+      type: 'USER',
+    },
+    select: {
+      id: true,
+    },
+  });
+  const validUserIdsForRequest = actualUsersForRequest.map((user) => user.id);
+
+  const actualDriversForRequest = await prisma.user.findMany({
+    where: {
+      type: 'DRIVER',
+    },
+    select: {
+      id: true,
+    },
+  });
+  const validDriverIdsForRequest = actualDriversForRequest.map((driver) => driver.id);
+
+  logger.info(
+    `   ✅ Found ${validUserIdsForRequest.length} actual users and ${validDriverIdsForRequest.length} actual drivers in DB`,
+  );
+
+  // masterUserId가 실제로 DB에 있는지 확인
+  if (!validUserIdsForRequest.includes(masterUserId)) {
+    logger.warn(
+      `   ⚠️  Warning: masterUserId ${masterUserId} not found in DB, will skip master user requests`,
+    );
+  }
+
+  if (validUserIdsForRequest.length !== userIds.length) {
+    logger.warn(
+      `   ⚠️  Warning: ${userIds.length} user IDs in memory, but only ${validUserIdsForRequest.length} found in DB. Using DB IDs only.`,
+    );
+  }
+
+  if (validDriverIdsForRequest.length !== driverIds.length) {
+    logger.warn(
+      `   ⚠️  Warning: ${driverIds.length} driver IDs in memory, but only ${validDriverIdsForRequest.length} found in DB. Using DB IDs only.`,
+    );
+  }
+
   const estimateRequestIds: string[] = [];
   const userPendingRequestMap = new Map<string, boolean>(); // 유저별 PENDING 요청 존재 여부
   const userLastMovingDateMap = new Map<string, Date>(); // 유저별 마지막 이사일 추적
@@ -1412,29 +1527,35 @@ async function main() {
     }
 
     const isDesignated = i % 5 === 1; // 일부는 지정 요청
-    const designatedDriverId = isDesignated ? randomItem(driverIds) : null;
+    const designatedDriverId =
+      isDesignated && validDriverIdsForRequest.length > 0
+        ? randomItem(validDriverIdsForRequest)
+        : null;
     const requestCreatedAt = getRandomDate2025Before(masterLastMovingDate);
     const requestUpdatedAt = getRandomDate2025After(requestCreatedAt);
 
-    currentBatch.push({
-      id: requestId,
-      userId: masterUserId,
-      movingType: randomItem(services),
-      movingDate: masterLastMovingDate,
-      status,
-      isDesignated,
-      designatedDriverId,
-      isDelete: i % 20 === 0, // 5%는 삭제된 요청
-      createdAt: requestCreatedAt,
-      updatedAt: requestUpdatedAt,
-    });
-    await flushEstimateRequestBatch();
+    // masterUserId가 실제로 DB에 있는 경우에만 생성
+    if (validUserIdsForRequest.includes(masterUserId)) {
+      currentBatch.push({
+        id: requestId,
+        userId: masterUserId,
+        movingType: randomItem(services),
+        movingDate: masterLastMovingDate,
+        status,
+        isDesignated,
+        designatedDriverId,
+        isDelete: i % 20 === 0, // 5%는 삭제된 요청
+        createdAt: requestCreatedAt,
+        updatedAt: requestUpdatedAt,
+      });
+      await flushEstimateRequestBatch();
+    }
   }
 
   // 나머지 유저들에 대한 견적 요청 생성
   // 각 유저당: PENDING 0~1개, CONFIRMED/REJECTED/CANCELLED 여러 개 가능
   // 이사일 이후에만 새로운 요청 가능
-  const availableUsers = [...userIds.filter((id) => id !== masterUserId)]; // 마스터 유저 제외한 유저들
+  const availableUsers = validUserIdsForRequest.filter((id) => id !== masterUserId); // 마스터 유저 제외한 유저들
   const userRequestCount = new Map<string, number>(); // 유저별 요청 수 추적
 
   // 각 유저당 0~10개의 과거 요청 생성 (PENDING 제외, 더 다양한 시나리오, 50만 건 견적 목표)
@@ -1465,23 +1586,29 @@ async function main() {
       else status = 'CANCELLED';
 
       const isDesignated = Math.random() < 0.2;
-      const designatedDriverId = isDesignated ? randomItem(driverIds) : null;
+      const designatedDriverId =
+        isDesignated && validDriverIdsForRequest.length > 0
+          ? randomItem(validDriverIdsForRequest)
+          : null;
       const requestCreatedAt = getRandomDate2025Before(movingDate);
       const requestUpdatedAt = getRandomDate2025After(requestCreatedAt);
 
-      currentBatch.push({
-        id: requestId,
-        userId,
-        movingType: randomItem(services),
-        movingDate,
-        status,
-        isDesignated,
-        designatedDriverId,
-        isDelete: Math.random() < 0.05, // 5%는 삭제된 요청
-        createdAt: requestCreatedAt,
-        updatedAt: requestUpdatedAt,
-      });
-      await flushEstimateRequestBatch();
+      // userId가 실제로 DB에 있는 경우에만 생성
+      if (validUserIdsForRequest.includes(userId)) {
+        currentBatch.push({
+          id: requestId,
+          userId,
+          movingType: randomItem(services),
+          movingDate,
+          status,
+          isDesignated,
+          designatedDriverId,
+          isDelete: Math.random() < 0.05, // 5%는 삭제된 요청
+          createdAt: requestCreatedAt,
+          updatedAt: requestUpdatedAt,
+        });
+        await flushEstimateRequestBatch();
+      }
     }
   }
 
@@ -1514,23 +1641,29 @@ async function main() {
     }
 
     const isDesignated = Math.random() < 0.2;
-    const designatedDriverId = isDesignated ? randomItem(driverIds) : null;
+    const designatedDriverId =
+      isDesignated && validDriverIdsForRequest.length > 0
+        ? randomItem(validDriverIdsForRequest)
+        : null;
     const requestCreatedAt = getRandomDate2025Before(movingDate);
     const requestUpdatedAt = getRandomDate2025After(requestCreatedAt);
 
-    currentBatch.push({
-      id: requestId,
-      userId,
-      movingType: randomItem(services),
-      movingDate,
-      status: 'PENDING',
-      isDesignated,
-      designatedDriverId,
-      isDelete: false, // PENDING 요청은 삭제하지 않음
-      createdAt: requestCreatedAt,
-      updatedAt: requestUpdatedAt,
-    });
-    await flushEstimateRequestBatch();
+    // userId가 실제로 DB에 있는 경우에만 생성
+    if (validUserIdsForRequest.includes(userId)) {
+      currentBatch.push({
+        id: requestId,
+        userId,
+        movingType: randomItem(services),
+        movingDate,
+        status: 'PENDING',
+        isDesignated,
+        designatedDriverId,
+        isDelete: false, // PENDING 요청은 삭제하지 않음
+        createdAt: requestCreatedAt,
+        updatedAt: requestUpdatedAt,
+      });
+      await flushEstimateRequestBatch();
+    }
   }
 
   // 마지막 배치 저장
@@ -1693,6 +1826,25 @@ async function main() {
   // 2. 일반 요청: 최대 3개, 지정 요청: 추가 2개 가능 (총 5개)
   // 목표: 약 50만 건의 견적 생성
   logger.info('💰 Creating estimates...');
+
+  // DB에 실제로 저장된 Driver ID 조회 (외래 키 제약 조건을 위해)
+  logger.info('   Fetching actual driver IDs for estimates from DB...');
+  const actualDriversForEstimate = await prisma.user.findMany({
+    where: {
+      type: 'DRIVER',
+    },
+    select: {
+      id: true,
+    },
+  });
+  const validDriverIdsForEstimate = actualDriversForEstimate.map((driver) => driver.id);
+  logger.info(`   ✅ Found ${validDriverIdsForEstimate.length} actual drivers in DB for estimates`);
+
+  if (validDriverIdsForEstimate.length === 0) {
+    logger.error('   ❌ No drivers found in DB, cannot create estimates');
+    throw new Error('No drivers found in DB');
+  }
+
   const estimateIds: string[] = [];
   const requestEstimateCount = new Map<string, number>(); // 요청별 견적 수 추적
   const requestConfirmedEstimate = new Map<string, boolean>(); // 요청별 CONFIRMED 견적 존재 여부
@@ -1735,18 +1887,21 @@ async function main() {
       let selectedDrivers: string[] = [];
       if (request.isDesignated && request.designatedDriverId) {
         const designatedDriverId = request.designatedDriverId as string;
-        // designatedDriverId가 실제로 driverIds에 있는지 확인
-        if (!driverIds.includes(designatedDriverId)) {
+        // designatedDriverId가 실제로 validDriverIdsForEstimate에 있는지 확인
+        if (!validDriverIdsForEstimate.includes(designatedDriverId)) {
           logger.warn(
-            `   ⚠️  Warning: designatedDriverId ${designatedDriverId} not found in driverIds, skipping designated request`,
+            `   ⚠️  Warning: designatedDriverId ${designatedDriverId} not found in validDriverIdsForEstimate, skipping designated request`,
           );
           // 일반 요청으로 처리
-          selectedDrivers = randomItems(driverIds, Math.min(estimateCount, driverIds.length));
+          selectedDrivers = randomItems(
+            validDriverIdsForEstimate,
+            Math.min(estimateCount, validDriverIdsForEstimate.length),
+          );
         } else {
           // 지정된 기사님을 첫 번째로 포함
           selectedDrivers = [designatedDriverId];
           // 나머지 기사님 선택 (지정된 기사님 제외)
-          const otherDrivers = driverIds.filter((id) => id !== designatedDriverId);
+          const otherDrivers = validDriverIdsForEstimate.filter((id) => id !== designatedDriverId);
           const additionalDrivers = randomItems(
             otherDrivers,
             Math.min(estimateCount - 1, otherDrivers.length),
@@ -1755,7 +1910,10 @@ async function main() {
         }
       } else {
         // 일반 요청: 랜덤 선택
-        selectedDrivers = randomItems(driverIds, Math.min(estimateCount, driverIds.length));
+        selectedDrivers = randomItems(
+          validDriverIdsForEstimate,
+          Math.min(estimateCount, validDriverIdsForEstimate.length),
+        );
       }
 
       for (let i = 0; i < estimateCount; i++) {
