@@ -26,3 +26,14 @@ services:
       - "host.docker.internal:host-gateway"
     command: ['npx', 'prisma', 'migrate', 'deploy']
     restart: no
+
+  seed:
+    image: ${IMAGE_NAME:-ghcr.io/fs08-moving-f5/fs08-moving-f5-be:prod-latest}
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ['node', 'dist/config/seed.js']
+    restart: no
