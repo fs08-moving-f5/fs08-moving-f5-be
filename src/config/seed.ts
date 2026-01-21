@@ -13,11 +13,11 @@ const randomItems = <T>(array: T[], count: number): T[] => {
   return shuffled.slice(0, count);
 };
 
-// 배치 처리 함수 (메모리 절약을 위해 5000개씩 나누어 처리)
+// 배치 처리 함수 (메모리 절약을 위해 1000개씩 나누어 처리)
 const batchCreateMany = async <T>(
   createManyFn: (args: { data: T[]; skipDuplicates: boolean }) => Promise<{ count: number }>,
   data: T[],
-  batchSize: number = 5000,
+  batchSize: number = 1000,
   entityName: string = 'items',
 ): Promise<number> => {
   let totalCreated = 0;
@@ -971,7 +971,7 @@ async function main() {
     });
   }
 
-  await batchCreateMany((args) => prisma.user.createMany(args), users, 5000, 'users');
+  await batchCreateMany((args) => prisma.user.createMany(args), users, 1000, 'users');
   logger.info(
     `✅ Created ${users.length} users (${userIds.length} users, ${driverIds.length} drivers, 1 admin)`,
   );
@@ -1015,7 +1015,7 @@ async function main() {
   await batchCreateMany(
     (args) => prisma.userProfile.createMany(args),
     userProfiles,
-    5000,
+    1000,
     'user profiles',
   );
   logger.info(`✅ Created ${userProfiles.length} user profiles`);
@@ -1115,7 +1115,7 @@ async function main() {
   await batchCreateMany(
     (args) => prisma.driverProfile.createMany(args),
     driverProfiles,
-    5000,
+    1000,
     'driver profiles',
   );
   logger.info(`✅ Created ${driverProfiles.length} driver profiles`);
@@ -1293,7 +1293,7 @@ async function main() {
   await batchCreateMany(
     (args) => prisma.estimateRequest.createMany(args),
     estimateRequests,
-    5000,
+    1000,
     'estimate requests',
   );
   logger.info(`✅ Created ${estimateRequests.length} estimate requests`);
@@ -1365,7 +1365,7 @@ async function main() {
   await batchCreateMany(
     (args) => prisma.address.createMany(args),
     addressesData,
-    5000,
+    1000,
     'addresses',
   );
   logger.info(`✅ Created ${addressesData.length} addresses`);
@@ -1495,7 +1495,7 @@ async function main() {
     }
   }
 
-  await batchCreateMany((args) => prisma.estimate.createMany(args), estimates, 5000, 'estimates');
+  await batchCreateMany((args) => prisma.estimate.createMany(args), estimates, 1000, 'estimates');
   logger.info(`✅ Created ${estimates.length} estimates`);
 
   // Review 생성 (확정된 견적에 충분한 리뷰 작성 - 다양한 점수 분포)
@@ -1558,7 +1558,7 @@ async function main() {
     });
   }
 
-  await batchCreateMany((args) => prisma.review.createMany(args), reviews, 5000, 'reviews');
+  await batchCreateMany((args) => prisma.review.createMany(args), reviews, 1000, 'reviews');
   logger.info(`✅ Created ${reviews.length} reviews`);
 
   // FavoriteDriver 생성 (랜덤하게 - 일부 기사님은 좋아요를 받지 못함)
@@ -1615,7 +1615,7 @@ async function main() {
   await batchCreateMany(
     (args) => prisma.favoriteDriver.createMany(args),
     favorites,
-    5000,
+    1000,
     'favorite drivers',
   );
   const driversWithFavorites = Array.from(driverFavoriteCount.values()).filter(
@@ -1788,7 +1788,7 @@ async function main() {
   await batchCreateMany(
     (args) => prisma.notification.createMany(args),
     notifications,
-    5000,
+    1000,
     'notifications',
   );
   logger.info(`✅ Created ${notifications.length} notifications`);
