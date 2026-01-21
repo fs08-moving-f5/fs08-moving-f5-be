@@ -22,27 +22,29 @@ const batchCreateMany = async <T>(
 ): Promise<number> => {
   let totalCreated = 0;
   const totalBatches = Math.ceil(data.length / batchSize);
-  logger.info(`Starting batch creation for ${data.length} ${entityName} (${totalBatches} batches of ${batchSize})`);
-  
+  logger.info(
+    `Starting batch creation for ${data.length} ${entityName} (${totalBatches} batches of ${batchSize})`,
+  );
+
   for (let i = 0; i < data.length; i += batchSize) {
     const batch = data.slice(i, i + batchSize);
     const batchNumber = Math.floor(i / batchSize) + 1;
     const startTime = Date.now();
-    
+
     const result = await createManyFn({ data: batch, skipDuplicates: true });
     totalCreated += result.count;
-    
+
     const elapsed = Date.now() - startTime;
     const processed = Math.min(i + batchSize, data.length);
     const progress = ((processed / data.length) * 100).toFixed(1);
-    
+
     logger.info(
       `[${entityName}] Batch ${batchNumber}/${totalBatches}: Created ${result.count} items | ` +
-      `Progress: ${processed}/${data.length} (${progress}%) | ` +
-      `Elapsed: ${elapsed}ms | Total created: ${totalCreated}`,
+        `Progress: ${processed}/${data.length} (${progress}%) | ` +
+        `Elapsed: ${elapsed}ms | Total created: ${totalCreated}`,
     );
   }
-  
+
   logger.info(`Completed batch creation for ${entityName}: ${totalCreated} total items created`);
   return totalCreated;
 };
@@ -969,12 +971,7 @@ async function main() {
     });
   }
 
-  await batchCreateMany(
-    (args) => prisma.user.createMany(args),
-    users,
-    5000,
-    'users',
-  );
+  await batchCreateMany((args) => prisma.user.createMany(args), users, 5000, 'users');
   logger.info(
     `✅ Created ${users.length} users (${userIds.length} users, ${driverIds.length} drivers, 1 admin)`,
   );
@@ -1498,12 +1495,7 @@ async function main() {
     }
   }
 
-  await batchCreateMany(
-    (args) => prisma.estimate.createMany(args),
-    estimates,
-    5000,
-    'estimates',
-  );
+  await batchCreateMany((args) => prisma.estimate.createMany(args), estimates, 5000, 'estimates');
   logger.info(`✅ Created ${estimates.length} estimates`);
 
   // Review 생성 (확정된 견적에 충분한 리뷰 작성 - 다양한 점수 분포)
@@ -1566,12 +1558,7 @@ async function main() {
     });
   }
 
-  await batchCreateMany(
-    (args) => prisma.review.createMany(args),
-    reviews,
-    5000,
-    'reviews',
-  );
+  await batchCreateMany((args) => prisma.review.createMany(args), reviews, 5000, 'reviews');
   logger.info(`✅ Created ${reviews.length} reviews`);
 
   // FavoriteDriver 생성 (랜덤하게 - 일부 기사님은 좋아요를 받지 못함)
