@@ -23,7 +23,8 @@ const getRandomDate2025 = (): Date => {
 
 // 특정 날짜 이후의 2025년 날짜 생성
 const getRandomDate2025After = (afterDate: Date): Date => {
-  const startDate = afterDate > new Date('2025-01-01') ? afterDate : new Date('2025-01-01T00:00:00.000Z');
+  const startDate =
+    afterDate > new Date('2025-01-01') ? afterDate : new Date('2025-01-01T00:00:00.000Z');
   const endDate = new Date('2025-12-31T23:59:59.999Z');
   if (startDate >= endDate) return endDate;
   const timeDiff = endDate.getTime() - startDate.getTime();
@@ -34,7 +35,8 @@ const getRandomDate2025After = (afterDate: Date): Date => {
 // 특정 날짜 이전의 2025년 날짜 생성
 const getRandomDate2025Before = (beforeDate: Date): Date => {
   const startDate = new Date('2025-01-01T00:00:00.000Z');
-  const endDate = beforeDate < new Date('2025-12-31') ? beforeDate : new Date('2025-12-31T23:59:59.999Z');
+  const endDate =
+    beforeDate < new Date('2025-12-31') ? beforeDate : new Date('2025-12-31T23:59:59.999Z');
   if (startDate >= endDate) return startDate;
   const timeDiff = endDate.getTime() - startDate.getTime();
   const randomTime = Math.random() * timeDiff;
@@ -45,23 +47,23 @@ const getRandomDate2025Before = (beforeDate: Date): Date => {
 const getKoreanCoordinates = (sido: string, sigungu: string): { lat: number; lng: number } => {
   // 시도별 대략적인 좌표 범위
   const sidoRanges: Record<string, { lat: [number, number]; lng: [number, number] }> = {
-    '서울특별시': { lat: [37.4, 37.7], lng: [126.8, 127.2] },
-    '경기도': { lat: [37.0, 38.0], lng: [126.5, 127.8] },
-    '인천광역시': { lat: [37.4, 37.6], lng: [126.5, 126.8] },
-    '강원도': { lat: [37.0, 38.5], lng: [127.0, 129.5] },
-    '충청북도': { lat: [36.0, 37.5], lng: [127.0, 128.5] },
-    '충청남도': { lat: [36.0, 37.0], lng: [126.0, 127.5] },
-    '대전광역시': { lat: [36.2, 36.4], lng: [127.3, 127.5] },
-    '세종특별자치시': { lat: [36.4, 36.6], lng: [127.2, 127.4] },
-    '전라북도': { lat: [35.0, 36.5], lng: [126.5, 127.8] },
-    '전라남도': { lat: [34.0, 35.5], lng: [126.0, 127.5] },
-    '광주광역시': { lat: [35.1, 35.2], lng: [126.7, 126.9] },
-    '경상북도': { lat: [35.5, 37.0], lng: [128.0, 130.0] },
-    '경상남도': { lat: [34.5, 35.8], lng: [127.5, 129.5] },
-    '대구광역시': { lat: [35.7, 35.9], lng: [128.4, 128.7] },
-    '부산광역시': { lat: [35.0, 35.3], lng: [129.0, 129.3] },
-    '울산광역시': { lat: [35.4, 35.6], lng: [129.2, 129.4] },
-    '제주특별자치도': { lat: [33.1, 33.6], lng: [126.2, 126.9] },
+    서울특별시: { lat: [37.4, 37.7], lng: [126.8, 127.2] },
+    경기도: { lat: [37.0, 38.0], lng: [126.5, 127.8] },
+    인천광역시: { lat: [37.4, 37.6], lng: [126.5, 126.8] },
+    강원도: { lat: [37.0, 38.5], lng: [127.0, 129.5] },
+    충청북도: { lat: [36.0, 37.5], lng: [127.0, 128.5] },
+    충청남도: { lat: [36.0, 37.0], lng: [126.0, 127.5] },
+    대전광역시: { lat: [36.2, 36.4], lng: [127.3, 127.5] },
+    세종특별자치시: { lat: [36.4, 36.6], lng: [127.2, 127.4] },
+    전라북도: { lat: [35.0, 36.5], lng: [126.5, 127.8] },
+    전라남도: { lat: [34.0, 35.5], lng: [126.0, 127.5] },
+    광주광역시: { lat: [35.1, 35.2], lng: [126.7, 126.9] },
+    경상북도: { lat: [35.5, 37.0], lng: [128.0, 130.0] },
+    경상남도: { lat: [34.5, 35.8], lng: [127.5, 129.5] },
+    대구광역시: { lat: [35.7, 35.9], lng: [128.4, 128.7] },
+    부산광역시: { lat: [35.0, 35.3], lng: [129.0, 129.3] },
+    울산광역시: { lat: [35.4, 35.6], lng: [129.2, 129.4] },
+    제주특별자치도: { lat: [33.1, 33.6], lng: [126.2, 126.9] },
   };
 
   const range = sidoRanges[sido] || { lat: [37.0, 38.0], lng: [126.0, 129.0] };
@@ -956,8 +958,10 @@ async function main() {
   console.log('👤 Creating user profiles...');
   const userProfiles: Prisma.UserProfileCreateManyInput[] = userIds.map((userId) => {
     const user = users.find((u) => u.id === userId);
-    const userCreatedAt = user?.createdAt 
-      ? (typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt)
+    const userCreatedAt = user?.createdAt
+      ? typeof user.createdAt === 'string'
+        ? new Date(user.createdAt)
+        : user.createdAt
       : getRandomDate2025();
     const createdAt = getRandomDate2025After(userCreatedAt);
     const updatedAt = getRandomDate2025After(createdAt);
@@ -978,13 +982,15 @@ async function main() {
   console.log('🚗 Creating driver profiles...');
   const driverProfiles: Prisma.DriverProfileCreateManyInput[] = driverIds.map((driverId, index) => {
     const driver = users.find((u) => u.id === driverId);
-    const driverCreatedAt = driver?.createdAt 
-      ? (typeof driver.createdAt === 'string' ? new Date(driver.createdAt) : driver.createdAt)
+    const driverCreatedAt = driver?.createdAt
+      ? typeof driver.createdAt === 'string'
+        ? new Date(driver.createdAt)
+        : driver.createdAt
       : getRandomDate2025();
     const createdAt = getRandomDate2025After(driverCreatedAt);
     const updatedAt = getRandomDate2025After(createdAt);
     const officeUpdatedAt = getRandomDate2025After(createdAt);
-    
+
     // 마스터 드라이버는 특별한 프로필 설정
     if (driverId === masterDriverId) {
       const officeAddr = randomItem(addresses);
@@ -1032,10 +1038,15 @@ async function main() {
 
   // new-driver 프로필 추가 (프로필 정보는 모두 있지만 아직 활동 없음, NULL 값 없이)
   const newDriverOfficeAddr = randomItem(addresses);
-  const newDriverOfficeCoords = getKoreanCoordinates(newDriverOfficeAddr.sido, newDriverOfficeAddr.sigungu);
+  const newDriverOfficeCoords = getKoreanCoordinates(
+    newDriverOfficeAddr.sido,
+    newDriverOfficeAddr.sigungu,
+  );
   const newDriverUser = users.find((u) => u.id === newDriverId);
-  const newDriverUserCreatedAt = newDriverUser?.createdAt 
-    ? (typeof newDriverUser.createdAt === 'string' ? new Date(newDriverUser.createdAt) : newDriverUser.createdAt)
+  const newDriverUserCreatedAt = newDriverUser?.createdAt
+    ? typeof newDriverUser.createdAt === 'string'
+      ? new Date(newDriverUser.createdAt)
+      : newDriverUser.createdAt
     : getRandomDate2025();
   const newDriverProfileCreatedAt = getRandomDate2025After(newDriverUserCreatedAt);
   const newDriverProfileUpdatedAt = getRandomDate2025After(newDriverProfileCreatedAt);
@@ -1255,10 +1266,12 @@ async function main() {
 
     const fromCoords = getKoreanCoordinates(fromAddr.sido, fromAddr.sigungu);
     const toCoords = getKoreanCoordinates(toAddr.sido, toAddr.sigungu);
-    
+
     // 요청의 createdAt 이후 날짜로 설정
-    const requestCreatedAt = request?.createdAt 
-      ? (typeof request.createdAt === 'string' ? new Date(request.createdAt) : request.createdAt)
+    const requestCreatedAt = request?.createdAt
+      ? typeof request.createdAt === 'string'
+        ? new Date(request.createdAt)
+        : request.createdAt
       : getRandomDate2025();
     const addressCreatedAt = getRandomDate2025After(requestCreatedAt);
     const addressUpdatedAt = getRandomDate2025After(addressCreatedAt);
@@ -1385,12 +1398,17 @@ async function main() {
       const comment = randomItem(estimateComments[status]);
 
       // 견적 생성 날짜: 요청 생성 이후, 이사일 이전
-      const requestCreatedAt = request.createdAt 
-        ? (typeof request.createdAt === 'string' ? new Date(request.createdAt) : request.createdAt)
+      const requestCreatedAt = request.createdAt
+        ? typeof request.createdAt === 'string'
+          ? new Date(request.createdAt)
+          : request.createdAt
         : getRandomDate2025();
       const estimateMovingDate = new Date(request.movingDate as Date);
       const estimateCreatedAt = getRandomDate2025After(requestCreatedAt);
-      const estimateCreatedAtBeforeMoving = estimateCreatedAt < estimateMovingDate ? estimateCreatedAt : getRandomDate2025Before(estimateMovingDate);
+      const estimateCreatedAtBeforeMoving =
+        estimateCreatedAt < estimateMovingDate
+          ? estimateCreatedAt
+          : getRandomDate2025Before(estimateMovingDate);
       const estimateUpdatedAt = getRandomDate2025After(estimateCreatedAtBeforeMoving);
 
       // 모든 견적에 price와 comment 추가 (NULL 제거)
@@ -1640,7 +1658,8 @@ async function main() {
 
     // 읽음 상태: 최근 알림일수록 읽을 확률 높음 (시간 기반 가중치)
     // 최근 알림(7일 이내): 60% 읽음, 오래된 알림: 20% 읽음
-    const daysAgo = (new Date('2025-12-31').getTime() - notificationCreatedAt.getTime()) / (1000 * 60 * 60 * 24);
+    const daysAgo =
+      (new Date('2025-12-31').getTime() - notificationCreatedAt.getTime()) / (1000 * 60 * 60 * 24);
     const isRead = daysAgo <= 7 ? Math.random() < 0.6 : Math.random() < 0.2;
 
     // datajson에 실제 데이터 추가 (타입별로 다른 데이터)
@@ -1733,7 +1752,9 @@ async function main() {
   console.log('\n✨ Enhanced test scenarios:');
   console.log('   - Extended date range: -730 to +180 days (30배 확장)');
   console.log('   - More diverse estimate statuses and prices (서비스 타입별 가격 차별화)');
-  console.log('   - Realistic review rating distribution (100% of confirmed estimates with rating and content)');
+  console.log(
+    '   - Realistic review rating distribution (100% of confirmed estimates with rating and content)',
+  );
   console.log('   - Weighted notification types');
   console.log('   - Expanded address pool (80+ locations)');
   console.log('   - User profile images: random from 2 URLs');
