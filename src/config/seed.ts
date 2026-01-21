@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import prisma from './prisma';
 import { Prisma } from '../generated/client';
 import type { RegionEnum, ServiceEnum, EstimateStatus, NotificationType } from '../generated/enums';
+import { logger } from './logger';
 
 // 유틸리티 함수들
 const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -10,6 +11,42 @@ const randomItem = <T>(array: T[]): T => array[randomInt(0, array.length - 1)];
 const randomItems = <T>(array: T[], count: number): T[] => {
   const shuffled = [...array].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
+};
+
+// 배치 처리 함수 (메모리 절약을 위해 5000개씩 나누어 처리)
+const batchCreateMany = async <T>(
+  createManyFn: (args: { data: T[]; skipDuplicates: boolean }) => Promise<{ count: number }>,
+  data: T[],
+  batchSize: number = 5000,
+  entityName: string = 'items',
+): Promise<number> => {
+  let totalCreated = 0;
+  const totalBatches = Math.ceil(data.length / batchSize);
+  logger.info(
+    `Starting batch creation for ${data.length} ${entityName} (${totalBatches} batches of ${batchSize})`,
+  );
+
+  for (let i = 0; i < data.length; i += batchSize) {
+    const batch = data.slice(i, i + batchSize);
+    const batchNumber = Math.floor(i / batchSize) + 1;
+    const startTime = Date.now();
+
+    const result = await createManyFn({ data: batch, skipDuplicates: true });
+    totalCreated += result.count;
+
+    const elapsed = Date.now() - startTime;
+    const processed = Math.min(i + batchSize, data.length);
+    const progress = ((processed / data.length) * 100).toFixed(1);
+
+    logger.info(
+      `[${entityName}] Batch ${batchNumber}/${totalBatches}: Created ${result.count} items | ` +
+        `Progress: ${processed}/${data.length} (${progress}%) | ` +
+        `Elapsed: ${elapsed}ms | Total created: ${totalCreated}`,
+    );
+  }
+
+  logger.info(`Completed batch creation for ${entityName}: ${totalCreated} total items created`);
+  return totalCreated;
 };
 
 // 2025년 날짜 생성 함수 (2025-01-01 ~ 2025-12-31)
@@ -723,34 +760,34 @@ const estimateComments = {
 };
 
 async function main() {
-  console.log('🌱 Start seeding...\n');
+  logger.info('🌱 Start seeding...');
 
   // 데이터베이스 스키마 확인 (마이그레이션 적용 여부 확인)
-  console.log('🔍 Checking database schema...');
+  logger.info('🔍 Checking database schema...');
   try {
     // User 테이블의 isEmailVerified 컬럼 존재 여부 확인
     await prisma.$queryRaw`
       SELECT "isEmailVerified" FROM "User" LIMIT 1
     `;
-    console.log('✅ Database schema is up to date\n');
+    logger.info('✅ Database schema is up to date');
   } catch (error: any) {
     if (
       error.code === 'P2022' ||
       error.message?.includes('column') ||
       error.message?.includes('does not exist')
     ) {
-      console.error('❌ Database schema is not up to date!');
-      console.error('   Please run migrations first:');
-      console.error('   npx prisma migrate deploy');
-      console.error('   or');
-      console.error('   npx prisma migrate dev');
+      logger.error('❌ Database schema is not up to date!');
+      logger.error('   Please run migrations first:');
+      logger.error('   npx prisma migrate deploy');
+      logger.error('   or');
+      logger.error('   npx prisma migrate dev');
       process.exit(1);
     }
     throw error;
   }
 
   // 기존 데이터 삭제
-  console.log('🗑️  Deleting existing data...');
+  logger.info('🗑️  Deleting existing data...');
   await prisma.history.deleteMany();
   await prisma.notification.deleteMany();
   await prisma.favoriteDriver.deleteMany();
@@ -761,7 +798,7 @@ async function main() {
   await prisma.driverProfile.deleteMany();
   await prisma.userProfile.deleteMany();
   await prisma.user.deleteMany();
-  console.log('✅ Existing data deleted\n');
+  logger.info('✅ Existing data deleted');
 
   // User 생성 (20% 규모로 축소)
   // 일반 유저: 225,000 * 0.2 = 45,000명
@@ -770,7 +807,7 @@ async function main() {
   // new-driver: 1명
   // 테스트 유저: 5,400 * 0.2 = 1,080명
   // 총: 73,082명
-  console.log('👥 Creating users...');
+  logger.info('👥 Creating users...');
   const users: Prisma.UserCreateManyInput[] = [];
   const userIds: string[] = [];
   const driverIds: string[] = [];
@@ -934,9 +971,9 @@ async function main() {
     });
   }
 
-  await prisma.user.createMany({ data: users, skipDuplicates: true });
-  console.log(
-    `✅ Created ${users.length} users (${userIds.length} users, ${driverIds.length} drivers, 1 admin)\n`,
+  await batchCreateMany((args) => prisma.user.createMany(args), users, 5000, 'users');
+  logger.info(
+    `✅ Created ${users.length} users (${userIds.length} users, ${driverIds.length} drivers, 1 admin)`,
   );
 
   // 생성된 유저 ID 확인 (외래 키 제약 조건 확인용)
@@ -948,14 +985,14 @@ async function main() {
   const invalidDriverIds = driverIds.filter((id) => !createdDriverIds.has(id));
 
   if (invalidUserIds.length > 0) {
-    console.warn(`⚠️  Warning: ${invalidUserIds.length} invalid userIds found`);
+    logger.warn(`⚠️  Warning: ${invalidUserIds.length} invalid userIds found`);
   }
   if (invalidDriverIds.length > 0) {
-    console.warn(`⚠️  Warning: ${invalidDriverIds.length} invalid driverIds found`);
+    logger.warn(`⚠️  Warning: ${invalidDriverIds.length} invalid driverIds found`);
   }
 
   // UserProfile 생성 (모든 유저에게 프로필 생성 - 100% 커버리지)
-  console.log('👤 Creating user profiles...');
+  logger.info('👤 Creating user profiles...');
   const userProfiles: Prisma.UserProfileCreateManyInput[] = userIds.map((userId) => {
     const user = users.find((u) => u.id === userId);
     const userCreatedAt = user?.createdAt
@@ -975,11 +1012,16 @@ async function main() {
     };
   });
 
-  await prisma.userProfile.createMany({ data: userProfiles, skipDuplicates: true });
-  console.log(`✅ Created ${userProfiles.length} user profiles\n`);
+  await batchCreateMany(
+    (args) => prisma.userProfile.createMany(args),
+    userProfiles,
+    5000,
+    'user profiles',
+  );
+  logger.info(`✅ Created ${userProfiles.length} user profiles`);
 
   // DriverProfile 생성 (모든 기사님 프로필 생성 + 마스터 드라이버 + new-driver, NULL 값 없이 촘촘하게)
-  console.log('🚗 Creating driver profiles...');
+  logger.info('🚗 Creating driver profiles...');
   const driverProfiles: Prisma.DriverProfileCreateManyInput[] = driverIds.map((driverId, index) => {
     const driver = users.find((u) => u.id === driverId);
     const driverCreatedAt = driver?.createdAt
@@ -1070,15 +1112,20 @@ async function main() {
     updatedAt: newDriverProfileUpdatedAt,
   });
 
-  await prisma.driverProfile.createMany({ data: driverProfiles, skipDuplicates: true });
-  console.log(`✅ Created ${driverProfiles.length} driver profiles\n`);
+  await batchCreateMany(
+    (args) => prisma.driverProfile.createMany(args),
+    driverProfiles,
+    5000,
+    'driver profiles',
+  );
+  logger.info(`✅ Created ${driverProfiles.length} driver profiles`);
 
   // EstimateRequest 생성
   // 규칙:
   // 1. 유저당 진행 중인 요청(PENDING)은 최대 1개만 가능
   // 2. 이사일 이후에만 새로운 요청 가능 (과거 요청의 이사일이 지난 후에만 새 요청 생성)
   // 3. 활성 요청은 1개만 유지 가능
-  console.log('📋 Creating estimate requests...');
+  logger.info('📋 Creating estimate requests...');
   const estimateRequests: Prisma.EstimateRequestCreateManyInput[] = [];
   const estimateRequestIds: string[] = [];
   const userPendingRequestMap = new Map<string, boolean>(); // 유저별 PENDING 요청 존재 여부
@@ -1088,12 +1135,12 @@ async function main() {
   const now = new Date('2025-12-31T23:59:59.999Z'); // 2025년 말
   const pastDate = new Date('2025-01-01T00:00:00.000Z'); // 2025년 초
 
-  // 마스터 유저를 위한 다양한 상태의 견적 요청 생성 (테스트용, 100만 건 견적 목표)
+  // 마스터 유저를 위한 다양한 상태의 견적 요청 생성 (테스트용, 50만 건 견적 목표)
   // 마스터 유저는 PENDING 1개 + 다른 상태들 여러 개 (다양한 시나리오 테스트)
   const masterRequestStatuses: EstimateStatus[] = [];
   masterRequestStatuses.push('PENDING'); // 진행 중인 요청 1개
-  // 나머지 599개 요청 생성 (CONFIRMED 50%, REJECTED 30%, CANCELLED 20%)
-  for (let i = 0; i < 599; i++) {
+  // 나머지 299개 요청 생성 (CONFIRMED 50%, REJECTED 30%, CANCELLED 20%)
+  for (let i = 0; i < 299; i++) {
     const rand = Math.random();
     if (rand < 0.5) masterRequestStatuses.push('CONFIRMED');
     else if (rand < 0.8) masterRequestStatuses.push('REJECTED');
@@ -1149,9 +1196,9 @@ async function main() {
   const availableUsers = [...userIds.filter((id) => id !== masterUserId)]; // 마스터 유저 제외한 유저들
   const userRequestCount = new Map<string, number>(); // 유저별 요청 수 추적
 
-  // 각 유저당 0~15개의 과거 요청 생성 (PENDING 제외, 더 다양한 시나리오, 100만 건 견적 목표)
+  // 각 유저당 0~10개의 과거 요청 생성 (PENDING 제외, 더 다양한 시나리오, 50만 건 견적 목표)
   for (const userId of availableUsers) {
-    const requestCount = randomInt(0, 15); // 유저당 0~15개의 과거 요청 (100만 건 견적 목표)
+    const requestCount = randomInt(0, 10); // 유저당 0~10개의 과거 요청 (50만 건 견적 목표)
     userRequestCount.set(userId, requestCount);
 
     let lastMovingDate = new Date(pastDate);
@@ -1243,8 +1290,13 @@ async function main() {
     });
   }
 
-  await prisma.estimateRequest.createMany({ data: estimateRequests, skipDuplicates: true });
-  console.log(`✅ Created ${estimateRequests.length} estimate requests\n`);
+  await batchCreateMany(
+    (args) => prisma.estimateRequest.createMany(args),
+    estimateRequests,
+    5000,
+    'estimate requests',
+  );
+  logger.info(`✅ Created ${estimateRequests.length} estimate requests`);
 
   // 각 요청에 대해 견적 생성
   const requestMap = new Map(
@@ -1252,7 +1304,7 @@ async function main() {
   );
 
   // Address 생성 (각 요청당 FROM, TO 주소)
-  console.log('📍 Creating addresses...');
+  logger.info('📍 Creating addresses...');
   const addressesData: Prisma.AddressCreateManyInput[] = [];
 
   for (const requestId of estimateRequestIds) {
@@ -1310,15 +1362,20 @@ async function main() {
     );
   }
 
-  await prisma.address.createMany({ data: addressesData, skipDuplicates: true });
-  console.log(`✅ Created ${addressesData.length} addresses\n`);
+  await batchCreateMany(
+    (args) => prisma.address.createMany(args),
+    addressesData,
+    5000,
+    'addresses',
+  );
+  logger.info(`✅ Created ${addressesData.length} addresses`);
 
   // Estimate 생성
   // 규칙:
-  // 1. 한 견적 요청에 최대 8개의 견적
-  // 2. 일반 요청: 최대 5개, 지정 요청: 추가 3개 가능 (총 8개)
-  // 목표: 약 100만 건의 견적 생성
-  console.log('💰 Creating estimates...');
+  // 1. 한 견적 요청에 최대 5개의 견적
+  // 2. 일반 요청: 최대 3개, 지정 요청: 추가 2개 가능 (총 5개)
+  // 목표: 약 50만 건의 견적 생성
+  logger.info('💰 Creating estimates...');
   const estimates: Prisma.EstimateCreateManyInput[] = [];
   const estimateIds: string[] = [];
   const requestEstimateCount = new Map<string, number>(); // 요청별 견적 수 추적
@@ -1328,9 +1385,9 @@ async function main() {
     const request = requestMap.get(requestId);
     if (!request) continue;
 
-    // 지정 요청인 경우 최대 8개 (일반 5개 + 지정 추가 3개), 일반 요청인 경우 최대 5개
-    // 평균 약 2.5개/요청으로 100만 건 목표
-    const maxEstimates = request.isDesignated ? 8 : 5;
+    // 지정 요청인 경우 최대 5개 (일반 3개 + 지정 추가 2개), 일반 요청인 경우 최대 3개
+    // 평균 약 2개/요청으로 50만 건 목표
+    const maxEstimates = request.isDesignated ? 5 : 3;
     const estimateCount = randomInt(1, maxEstimates);
     requestEstimateCount.set(requestId, estimateCount);
 
@@ -1438,17 +1495,17 @@ async function main() {
     }
   }
 
-  await prisma.estimate.createMany({ data: estimates, skipDuplicates: true });
-  console.log(`✅ Created ${estimates.length} estimates\n`);
+  await batchCreateMany((args) => prisma.estimate.createMany(args), estimates, 5000, 'estimates');
+  logger.info(`✅ Created ${estimates.length} estimates`);
 
   // Review 생성 (확정된 견적에 충분한 리뷰 작성 - 다양한 점수 분포)
-  console.log('⭐ Creating reviews...');
+  logger.info('⭐ Creating reviews...');
   const reviews: Prisma.ReviewCreateManyInput[] = [];
   const reviewedEstimateIds = new Set<string>(); // 리뷰가 작성된 견적 ID 추적 (unique 제약)
 
   // CONFIRMED 상태이고 삭제되지 않은 견적 찾기
   const confirmedEstimates = estimates.filter((est) => est.status === 'CONFIRMED' && !est.isDelete);
-  console.log(`   Found ${confirmedEstimates.length} CONFIRMED estimates`);
+  logger.info(`   Found ${confirmedEstimates.length} CONFIRMED estimates`);
 
   for (const estimate of confirmedEstimates) {
     // 이미 리뷰가 있는 견적은 스킵 (unique 제약)
@@ -1501,11 +1558,11 @@ async function main() {
     });
   }
 
-  await prisma.review.createMany({ data: reviews, skipDuplicates: true });
-  console.log(`✅ Created ${reviews.length} reviews\n`);
+  await batchCreateMany((args) => prisma.review.createMany(args), reviews, 5000, 'reviews');
+  logger.info(`✅ Created ${reviews.length} reviews`);
 
   // FavoriteDriver 생성 (랜덤하게 - 일부 기사님은 좋아요를 받지 못함)
-  console.log('❤️  Creating favorite drivers...');
+  logger.info('❤️  Creating favorite drivers...');
   const favorites: Prisma.FavoriteDriverCreateManyInput[] = [];
   const favoritePairs = new Map<string, { userId: string; driverId: string }>(); // Map으로 userId와 driverId를 함께 저장
   const driverFavoriteCount = new Map<string, number>(); // 각 기사님이 받은 좋아요 수 추적
@@ -1519,8 +1576,8 @@ async function main() {
     driverFavoriteCount.set(driverId, 0);
   });
 
-  // 150,000개의 좋아요 생성 (100만 건 견적 기준 비례 조정, 랜덤하게 분배, 일부 기사님은 많이 받고 일부는 적게)
-  for (let i = 0; i < 150000; i++) {
+  // 75,000개의 좋아요 생성 (50만 건 견적 기준 비례 조정, 랜덤하게 분배, 일부 기사님은 많이 받고 일부는 적게)
+  for (let i = 0; i < 75000; i++) {
     const userId = randomItem(Array.from(validUserIds));
     let driverId = randomItem(Array.from(validDriverIds));
     let pairKey = `${userId}::${driverId}`; // UUID에 하이픈이 있어서 :: 구분자 사용
@@ -1555,16 +1612,21 @@ async function main() {
     });
   }
 
-  await prisma.favoriteDriver.createMany({ data: favorites, skipDuplicates: true });
+  await batchCreateMany(
+    (args) => prisma.favoriteDriver.createMany(args),
+    favorites,
+    5000,
+    'favorite drivers',
+  );
   const driversWithFavorites = Array.from(driverFavoriteCount.values()).filter(
     (count) => count > 0,
   ).length;
-  console.log(
-    `✅ Created ${favorites.length} favorite drivers (${driversWithFavorites}/${driverIds.length} drivers received favorites)\n`,
+  logger.info(
+    `✅ Created ${favorites.length} favorite drivers (${driversWithFavorites}/${driverIds.length} drivers received favorites)`,
   );
 
-  // Notification 생성 (200,000개 - 100만 건 견적 기준 비례 조정, 다양한 타입, 더 현실적인 분포)
-  console.log('🔔 Creating notifications...');
+  // Notification 생성 (100,000개 - 50만 건 견적 기준 비례 조정, 다양한 타입, 더 현실적인 분포)
+  logger.info('🔔 Creating notifications...');
   const notificationTypes: NotificationType[] = [
     'REQUEST_SENT',
     'REQUEST_REJECTED',
@@ -1607,7 +1669,7 @@ async function main() {
     else return 'PROMOTION'; // 2%
   };
 
-  for (let i = 0; i < 200000; i++) {
+  for (let i = 0; i < 100000; i++) {
     const type = getWeightedNotificationType();
     let message = '';
     let userId = '';
@@ -1723,69 +1785,75 @@ async function main() {
     });
   }
 
-  await prisma.notification.createMany({ data: notifications, skipDuplicates: true });
-  console.log(`✅ Created ${notifications.length} notifications\n`);
+  await batchCreateMany(
+    (args) => prisma.notification.createMany(args),
+    notifications,
+    5000,
+    'notifications',
+  );
+  logger.info(`✅ Created ${notifications.length} notifications`);
 
   // History 테이블은 비워둠
-  console.log('📜 Skipping history creation (keeping table empty)\n');
+  logger.info('📜 Skipping history creation (keeping table empty)');
 
-  console.log('🎉 Seeding finished successfully!');
-  console.log('\n📊 Summary:');
-  console.log(`   - Users: ${users.length} (${userIds.length} users, ${driverIds.length} drivers)`);
-  console.log(`   - User Profiles: ${userProfiles.length}`);
-  console.log(`   - Driver Profiles: ${driverProfiles.length}`);
-  console.log(`   - Estimate Requests: ${estimateRequests.length}`);
-  console.log(`   - Estimates: ${estimates.length}`);
-  console.log(`   - Addresses: ${addressesData.length}`);
-  console.log(`   - Reviews: ${reviews.length}`);
-  console.log(`   - Favorite Drivers: ${favorites.length}`);
-  console.log(`   - Notifications: ${notifications.length}`);
-  console.log(`   - Histories: 0 (table kept empty)`);
-  console.log('\n🔗 Relationship Rules Applied:');
-  console.log('   ✓ Each user can have max 1 PENDING request');
-  console.log('   ✓ Each request can have max 8 estimates (general: 5, designated: +3)');
-  console.log('   ✓ Target: ~1,000,000 estimates');
-  console.log('   ✓ New requests can only be created after moving date of previous request');
-  console.log('   ✓ CONFIRMED requests: exactly 1 CONFIRMED estimate + others REJECTED');
-  console.log('   ✓ PENDING requests: mostly PENDING estimates (some REJECTED)');
-  console.log('   ✓ REJECTED requests: mostly REJECTED estimates (some PENDING)');
-  console.log('   ✓ CANCELLED requests: mostly CANCELLED estimates (some PENDING)');
-  console.log('   ✓ Designated requests include designatedDriverId');
-  console.log('   ✓ Each estimate can have only 1 review (unique constraint)');
-  console.log('\n✨ Enhanced test scenarios:');
-  console.log('   - Extended date range: -730 to +180 days (100만 건 견적 목표)');
-  console.log('   - More diverse estimate statuses and prices (서비스 타입별 가격 차별화)');
-  console.log(
+  logger.info('🎉 Seeding finished successfully!');
+  logger.info('📊 Summary:');
+  logger.info(`   - Users: ${users.length} (${userIds.length} users, ${driverIds.length} drivers)`);
+  logger.info(`   - User Profiles: ${userProfiles.length}`);
+  logger.info(`   - Driver Profiles: ${driverProfiles.length}`);
+  logger.info(`   - Estimate Requests: ${estimateRequests.length}`);
+  logger.info(`   - Estimates: ${estimates.length}`);
+  logger.info(`   - Addresses: ${addressesData.length}`);
+  logger.info(`   - Reviews: ${reviews.length}`);
+  logger.info(`   - Favorite Drivers: ${favorites.length}`);
+  logger.info(`   - Notifications: ${notifications.length}`);
+  logger.info(`   - Histories: 0 (table kept empty)`);
+  logger.info('🔗 Relationship Rules Applied:');
+  logger.info('   ✓ Each user can have max 1 PENDING request');
+  logger.info('   ✓ Each request can have max 5 estimates (general: 3, designated: +2)');
+  logger.info('   ✓ Target: ~500,000 estimates');
+  logger.info('   ✓ New requests can only be created after moving date of previous request');
+  logger.info('   ✓ CONFIRMED requests: exactly 1 CONFIRMED estimate + others REJECTED');
+  logger.info('   ✓ PENDING requests: mostly PENDING estimates (some REJECTED)');
+  logger.info('   ✓ REJECTED requests: mostly REJECTED estimates (some PENDING)');
+  logger.info('   ✓ CANCELLED requests: mostly CANCELLED estimates (some PENDING)');
+  logger.info('   ✓ Designated requests include designatedDriverId');
+  logger.info('   ✓ Each estimate can have only 1 review (unique constraint)');
+  logger.info('✨ Enhanced test scenarios:');
+  logger.info('   - Extended date range: -730 to +180 days (50만 건 견적 목표)');
+  logger.info('   - More diverse estimate statuses and prices (서비스 타입별 가격 차별화)');
+  logger.info(
     '   - Realistic review rating distribution (100% of confirmed estimates with rating and content)',
   );
-  console.log('   - Weighted notification types');
-  console.log('   - Expanded address pool (80+ locations)');
-  console.log('   - User profile images: random from 2 URLs');
-  console.log('   - Master user (user@master.com) with 600 diverse requests');
-  console.log('   - Master driver (driver@master.com) for driver feature testing');
-  console.log('   - Admin user (admin@master.com) for admin feature testing');
-  console.log('   - Deleted requests/estimates/notifications (5% each)');
-  console.log('   - Designated requests with actual designatedDriverId');
-  console.log('   - Notification datajson with actual data per type');
-  console.log('   - All confirmed estimates have reviews with rating and content (NULL 제거)');
-  console.log('   - History table kept empty');
-  console.log('   - All users have isEmailVerified: true');
-  console.log('   - Target: ~1,000,000 estimates with ~73,000 users');
-  console.log('   - More diverse user scenarios (0-15 past requests per user)');
-  console.log('   - 40% of users have PENDING requests');
-  console.log('   - All users have profiles (100% coverage)');
-  console.log('   - All addresses have lat/lng coordinates (NULL 제거)');
-  console.log('   - All driver profiles have office information (NULL 제거)');
-  console.log('   - All estimates have price and comment (NULL 제거)');
-  console.log('   - All reviews have rating and content (NULL 제거)');
+  logger.info('   - Weighted notification types');
+  logger.info('   - Expanded address pool (80+ locations)');
+  logger.info('   - User profile images: random from 2 URLs');
+  logger.info('   - Master user (user@master.com) with 300 diverse requests');
+  logger.info('   - Master driver (driver@master.com) for driver feature testing');
+  logger.info('   - Admin user (admin@master.com) for admin feature testing');
+  logger.info('   - Deleted requests/estimates/notifications (5% each)');
+  logger.info('   - Designated requests with actual designatedDriverId');
+  logger.info('   - Notification datajson with actual data per type');
+  logger.info('   - All confirmed estimates have reviews with rating and content (NULL 제거)');
+  logger.info('   - History table kept empty');
+  logger.info('   - All users have isEmailVerified: true');
+  logger.info('   - Target: ~500,000 estimates with ~73,000 users');
+  logger.info('   - More diverse user scenarios (0-10 past requests per user)');
+  logger.info('   - 40% of users have PENDING requests');
+  logger.info('   - All users have profiles (100% coverage)');
+  logger.info('   - All addresses have lat/lng coordinates (NULL 제거)');
+  logger.info('   - All driver profiles have office information (NULL 제거)');
+  logger.info('   - All estimates have price and comment (NULL 제거)');
+  logger.info('   - All reviews have rating and content (NULL 제거)');
 }
 
 main()
   .then(async () => {
     await prisma.$disconnect();
+    logger.info('Database connection closed');
   })
   .catch(async (e) => {
-    console.error(e);
+    logger.error('Seeding failed', e);
     await prisma.$disconnect();
     process.exit(1);
   });
