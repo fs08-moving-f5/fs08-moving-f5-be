@@ -48,13 +48,13 @@ export const deleteFavoriteDriverService = async ({
   return await prisma.$transaction(async (tx) => {
     try {
       const result = await deleteFavoriteDriverRepository({ userId, driverId });
-      
+
       // 실제로 삭제된 경우만 캐시 무효화
       if (result) {
         await invalidateDriverDetailCache(driverId);
         await bumpDriverListCacheVersion();
       }
-      
+
       return { removed: true };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -64,7 +64,7 @@ export const deleteFavoriteDriverService = async ({
       }
       throw error;
     }
-  })
+  });
 };
 
 export const getFavoriteDriversService = async ({
@@ -167,21 +167,19 @@ export const deleteManyFavoriteDriverService = async ({
   userId: string;
   driverIds: string[];
 }) => {
-  return await prisma.$transaction(async (tx) =>{
+  return await prisma.$transaction(async (tx) => {
     try {
       const result = await deleteManyFavoriteDriverRepository({ userId, driverIds });
 
-    if (result.count > 0) {
-      // 삭제된 기사들만 상세 캐시 무효화
-      await Promise.all(
-        driverIds.map((driverId) => invalidateDriverDetailCache(driverId)),
-      );
+      if (result.count > 0) {
+        // 삭제된 기사들만 상세 캐시 무효화
+        await Promise.all(driverIds.map((driverId) => invalidateDriverDetailCache(driverId)));
 
-      // 리스트 캐시 무효화
-      await bumpDriverListCacheVersion();
-    }
+        // 리스트 캐시 무효화
+        await bumpDriverListCacheVersion();
+      }
 
-    return { removed: true };
+      return { removed: true };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2022') {
@@ -190,5 +188,5 @@ export const deleteManyFavoriteDriverService = async ({
       }
       throw error;
     }
-  })
+  });
 };
