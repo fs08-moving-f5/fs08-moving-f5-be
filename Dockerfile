@@ -22,4 +22,4 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
 EXPOSE 4000
-CMD ["node", "dist/app.js"]
+CMD ["node", "dist/server.js"]
