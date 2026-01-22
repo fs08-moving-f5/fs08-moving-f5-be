@@ -52,9 +52,7 @@ describe('estimateRequest/user API', () => {
   });
 
   it('GET /pending returns in-progress requests', async () => {
-    mockedService.getEstimateRequestsInProgressService.mockResolvedValue([
-      { id: 'req-1' },
-    ] as any);
+    mockedService.getEstimateRequestsInProgressService.mockResolvedValue([{ id: 'req-1' }] as any);
 
     const res = await request(app).get('/api/estimate-request/user/pending');
 
@@ -80,14 +78,12 @@ describe('estimateRequest/user API', () => {
   it('POST /request creates an estimate request', async () => {
     mockedService.createEstimateRequestService.mockResolvedValue({ id: 'req-1' } as any);
 
-    const res = await request(app)
-      .post('/api/estimate-request/user/request')
-      .send({
-        movingType: ServiceEnum.HOME_MOVING,
-        movingDate: new Date().toISOString(),
-        from: validAddress,
-        to: validAddress,
-      });
+    const res = await request(app).post('/api/estimate-request/user/request').send({
+      movingType: ServiceEnum.HOME_MOVING,
+      movingDate: new Date().toISOString(),
+      from: validAddress,
+      to: validAddress,
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -95,9 +91,7 @@ describe('estimateRequest/user API', () => {
   });
 
   it('POST /request/designated returns 400 when designatedDriverId is missing', async () => {
-    const res = await request(app)
-      .post('/api/estimate-request/user/request/designated')
-      .send({});
+    const res = await request(app).post('/api/estimate-request/user/request/designated').send({});
 
     expect(res.status).toBe(400);
   });
@@ -117,9 +111,7 @@ describe('estimateRequest/user API', () => {
   });
 
   it('POST /request/geocode returns 400 on invalid body', async () => {
-    const res = await request(app)
-      .post('/api/estimate-request/user/request/geocode')
-      .send({});
+    const res = await request(app).post('/api/estimate-request/user/request/geocode').send({});
 
     expect(res.status).toBe(400);
   });
@@ -129,14 +121,12 @@ describe('estimateRequest/user API', () => {
       id: 'req-3',
     } as any);
 
-    const res = await request(app)
-      .post('/api/estimate-request/user/request/geocode')
-      .send({
-        movingType: ServiceEnum.HOME_MOVING,
-        movingDate: new Date().toISOString(),
-        from: validAddress,
-        to: validAddress,
-      });
+    const res = await request(app).post('/api/estimate-request/user/request/geocode').send({
+      movingType: ServiceEnum.HOME_MOVING,
+      movingDate: new Date().toISOString(),
+      from: validAddress,
+      to: validAddress,
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
