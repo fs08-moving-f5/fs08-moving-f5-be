@@ -1,20 +1,17 @@
-/// <reference path="../../../../types/jest-globals.d.ts" />
-import express, { Request, Response, NextFunction } from 'express';
 import request from 'supertest';
+import app from '../src/app';
 
-import router from '@/api/estimateRequest/user/estimateReq.user.routes';
-import { errorHandler, notFoundHandler } from '@/middlewares/errorHandler';
-import { ServiceEnum } from '@/generated/enums';
-import * as estimateService from '@/api/estimateRequest/user/estimateReq.user.service';
-import { authenticate, requireUser } from '@/middlewares/authMiddleware';
+import { ServiceEnum } from '../src/generated/enums';
+import * as estimateService from '../src/api/estimateRequest/user/estimateReq.user.service';
+import { authenticate, requireUser } from '../src/middlewares/authMiddleware';
 
 jest.mock('@/api/estimateRequest/user/estimateReq.user.service');
 jest.mock('@/middlewares/authMiddleware', () => ({
-  authenticate: jest.fn((req: Request, _res: Response, next: NextFunction) => {
+  authenticate: jest.fn((req, _res, next) => {
     req.user = { id: 'user-1' };
     next();
   }),
-  requireUser: jest.fn((req: Request, _res: Response, next: NextFunction) => {
+  requireUser: jest.fn((req, _res, next) => {
     req.user = { id: 'user-1' };
     next();
   }),
@@ -22,26 +19,20 @@ jest.mock('@/middlewares/authMiddleware', () => ({
 
 const mockedService = estimateService as any;
 
-const app = express();
-app.use(express.json());
-app.use('/api/estimate-request/user', router);
-app.use(notFoundHandler);
-app.use(errorHandler);
-
 const setAuthUser = (id = 'user-1') => {
-  (authenticate as any).mockImplementation((req: Request, _res: Response, next: NextFunction) => {
+  (authenticate as any).mockImplementation((req, _res, next) => {
     req.user = { id };
     next();
   });
-  (requireUser as any).mockImplementation((req: Request, _res: Response, next: NextFunction) => {
+  (requireUser as any).mockImplementation((req, _res, next) => {
     req.user = { id };
     next();
   });
 };
 
 const setAuthNone = () => {
-  (authenticate as any).mockImplementation((_req: Request, _res: Response, next: NextFunction) => next());
-  (requireUser as any).mockImplementation((_req: Request, _res: Response, next: NextFunction) => next());
+  (authenticate as any).mockImplementation((req, _res, next) => next());
+  (requireUser as any).mockImplementation((req, _res, next) => next());
 };
 
 const validAddress = {
