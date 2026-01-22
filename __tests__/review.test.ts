@@ -109,9 +109,9 @@ describe('Review API E2E', () => {
    * 리뷰 작성 가능 목록 조회
    * ======================
    */
-  it('GET /review/writable - 인증된 유저는 리뷰 작성 가능한 견적을 조회할 수 있다', async () => {
+  it('GET /api/review/writable - 인증된 유저는 리뷰 작성 가능한 견적을 조회할 수 있다', async () => {
     const res = await request(app)
-      .get('/review/writable')
+      .get('/api/review/writable')
       .set('Authorization', `Bearer ${userToken}`)
       .expect(200);
 
@@ -125,9 +125,9 @@ describe('Review API E2E', () => {
    * 리뷰 작성
    * ======================
    */
-  it('PATCH /review/:reviewId - 정상적으로 리뷰를 작성한다', async () => {
+  it('PATCH /api/review/:reviewId - 정상적으로 리뷰를 작성한다', async () => {
     const res = await request(app)
-      .patch(`/review/${reviewId}`)
+      .patch(`/api/review/${reviewId}`)
       .set('Authorization', `Bearer ${userToken}`)
       .send({
         rating: 5,
@@ -144,9 +144,9 @@ describe('Review API E2E', () => {
    * Validation 실패
    * ======================
    */
-  it('PATCH /review/:reviewId - rating이 없으면 400', async () => {
+  it('PATCH /api/review/:reviewId - rating이 없으면 400', async () => {
     await request(app)
-      .patch(`/review/${reviewId}`)
+      .patch(`/api/review/${reviewId}`)
       .set('Authorization', `Bearer ${userToken}`)
       .send({
         content: '내용만 있음',
@@ -159,9 +159,9 @@ describe('Review API E2E', () => {
    * 권한 오류
    * ======================
    */
-  it('PATCH /review/:reviewId - 이미 작성된 리뷰는 400', async () => {
+  it('PATCH /api/review/:reviewId - 이미 작성된 리뷰는 400', async () => {
     await request(app)
-      .patch(`/review/${reviewId}`)
+      .patch(`/api/review/${reviewId}`)
       .set('Authorization', `Bearer ${userToken}`)
       .send({
         rating: 4,
@@ -175,9 +175,9 @@ describe('Review API E2E', () => {
    * 작성한 리뷰 목록 조회
    * ======================
    */
-  it('GET /review/written - 내가 작성한 리뷰 목록을 조회한다', async () => {
+  it('GET /api/review/written - 내가 작성한 리뷰 목록을 조회한다', async () => {
     const res = await request(app)
-      .get('/review/written')
+      .get('/api/review/written')
       .set('Authorization', `Bearer ${userToken}`)
       .expect(200);
 
