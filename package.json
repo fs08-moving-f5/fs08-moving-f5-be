@@ -16,9 +16,8 @@
     "seed:deploy": "node dist/config/seed.js",
     "prepare": "husky",
     "type-check": "tsc --noEmit",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:ci": "jest --runInBand"
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch"
   },
   "prisma": {
     "schema": "prisma/schema.prisma",
