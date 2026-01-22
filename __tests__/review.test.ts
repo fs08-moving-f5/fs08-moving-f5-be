@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../src/app';
 import prisma from '../src/config/prisma';
 import { generateAccessToken } from '../src/api/auth/utils/auth.utils';
-import { EstimateStatus, ServiceEnum, UserType } from '../src/generated/enums';;
+import { EstimateStatus, ServiceEnum, UserType } from '../src/generated/enums';
 
 describe('Review API E2E', () => {
   let userId: string;
@@ -26,9 +26,7 @@ describe('Review API E2E', () => {
       },
     });
     userId = user.id;
-    userToken = generateAccessToken(userId,
-      'review-user@test.com',
-      UserType.USER,);
+    userToken = generateAccessToken(userId, 'review-user@test.com', UserType.USER);
 
     // Driver 생성
     const driver = await prisma.user.create({
@@ -92,14 +90,14 @@ describe('Review API E2E', () => {
         status: EstimateStatus.CONFIRMED,
       },
     });
-    
+
     const review = await prisma.review.create({
       data: {
         estimateId,
         userId,
       },
     });
-    
+
     reviewId = review.id;
     estimateId = estimate.id;
   });

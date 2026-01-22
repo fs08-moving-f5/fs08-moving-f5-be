@@ -92,7 +92,6 @@ describe('Driver EstimateRequest API (E2E)', () => {
       },
     });
     
-
     estimateRequestId = req.id;
   });
 
