@@ -91,7 +91,7 @@ describe('Driver EstimateRequest API (E2E)', () => {
         },
       },
     });
-
+    
     estimateRequestId = req.id;
   });
 
@@ -113,15 +113,15 @@ describe('Driver EstimateRequest API (E2E)', () => {
     await prisma.$disconnect();
   });
 
-  describe('GET /estimate-request/driver/requests', () => {
+  describe('GET /api/estimate-request/driver/requests', () => {
     it('401 - 인증 토큰 없음', async () => {
-      const res = await request(app).get('/estimate-request/driver/requests');
+      const res = await request(app).get('/api/estimate-request/driver/requests');
       expect(res.status).toBe(401);
     });
 
     it('200 - 받은 요청 목록 조회', async () => {
       const res = await request(app)
-        .get('/estimate-request/driver/requests')
+        .get('/api/estimate-request/driver/requests')
         .set('Authorization', `Bearer ${driverToken}`);
 
       expect(res.status).toBe(200);
@@ -130,10 +130,10 @@ describe('Driver EstimateRequest API (E2E)', () => {
     });
   });
 
-  describe('POST /estimate-request/driver/requests/:id/create', () => {
+  describe('POST /api/estimate-request/driver/requests/:id/create', () => {
     it('400 - 유효하지 않은 body', async () => {
       const res = await request(app)
-        .post(`/estimate-request/driver/requests/${estimateRequestId}/create`)
+        .post(`/api/estimate-request/driver/requests/${estimateRequestId}/create`)
         .set('Authorization', `Bearer ${driverToken}`)
         .send({ price: 1000, comment: '짧음' });
 
@@ -142,7 +142,7 @@ describe('Driver EstimateRequest API (E2E)', () => {
 
     it('200 - 견적 생성 성공', async () => {
       const res = await request(app)
-        .post(`/estimate-request/driver/requests/${estimateRequestId}/create`)
+        .post(`/api/estimate-request/driver/requests/${estimateRequestId}/create`)
         .set('Authorization', `Bearer ${driverToken}`)
         .send({
           price: 500000,
@@ -158,7 +158,7 @@ describe('Driver EstimateRequest API (E2E)', () => {
 
     it('400 - 중복 견적 제출', async () => {
       const res = await request(app)
-        .post(`/estimate-request/driver/requests/${estimateRequestId}/create`)
+        .post(`/api/estimate-request/driver/requests/${estimateRequestId}/create`)
         .set('Authorization', `Bearer ${driverToken}`)
         .send({
           price: 600000,
@@ -169,10 +169,10 @@ describe('Driver EstimateRequest API (E2E)', () => {
     });
   });
 
-  describe('GET /estimate-request/driver/confirms', () => {
+  describe('GET /api/estimate-request/driver/confirms', () => {
     it('200 - 확정 견적 목록 조회', async () => {
       const res = await request(app)
-        .get('/estimate-request/driver/confirms')
+        .get('/api/estimate-request/driver/confirms')
         .set('Authorization', `Bearer ${driverToken}`);
 
       expect(res.status).toBe(200);
@@ -181,10 +181,10 @@ describe('Driver EstimateRequest API (E2E)', () => {
     });
   });
 
-  describe('GET /estimate-request/driver/confirms/:estimateId', () => {
+  describe('GET /api/estimate-request/driver/confirms/:estimateId', () => {
     it('404 - 존재하지 않는 견적', async () => {
       const res = await request(app)
-        .get(`/estimate-request/driver/confirms/${randomUUID()}`)
+        .get(`/api/estimate-request/driver/confirms/${randomUUID()}`)
         .set('Authorization', `Bearer ${driverToken}`);
 
       expect(res.status).toBe(404);
@@ -192,7 +192,7 @@ describe('Driver EstimateRequest API (E2E)', () => {
 
     it('200 - 확정 견적 상세 조회', async () => {
       const res = await request(app)
-        .get(`/estimate-request/driver/confirms/${estimateId}`)
+        .get(`/api/estimate-request/driver/confirms/${estimateId}`)
         .set('Authorization', `Bearer ${driverToken}`);
 
       expect(res.status).toBe(200);
@@ -200,10 +200,10 @@ describe('Driver EstimateRequest API (E2E)', () => {
     });
   });
 
-  describe('GET /estimate-request/driver/rejects', () => {
+  describe('GET /api/estimate-request/driver/rejects', () => {
     it('200 - 반려 견적 목록 조회', async () => {
       const res = await request(app)
-        .get('/estimate-request/driver/rejects')
+        .get('/api/estimate-request/driver/rejects')
         .set('Authorization', `Bearer ${driverToken}`);
 
       expect(res.status).toBe(200);
