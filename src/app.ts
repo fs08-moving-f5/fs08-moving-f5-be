@@ -3,7 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-import { env, logger, corsOptions, swaggerSpec } from './config/index';
+import { corsOptions, swaggerSpec } from './config/index';
 import { PRESIGN_EXPIRE_SECONDS } from './constants/presignExpire.constant';
 import {
   errorHandler,
@@ -13,63 +13,39 @@ import {
 } from './middlewares/index';
 
 import apiRouter from './api/index';
-import prisma from './config/prisma';
-import { redisClient } from './config/redis';
 
 const app: Application = express();
 
-async function bootstrap() {
-  try {
-    // Redis 연결
-    await prisma.$connect();
-    await redisClient.connect();
+// 1. 공통 미들웨어
+applySecurity(app); // helmet, compression, body parser 등
+app.use(cors(corsOptions)); // CORS (TS 호환 방식)
+app.use(cookieParser()); // 쿠키 파싱
 
-    logger.info('Prisma connected');
-    logger.info('Redis connected');
+// 2. 헬스 체크
+app.get('/health', (_req, res) => {
+  res.json({
+    ok: true,
+    env: process.env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+  });
+});
 
-    // 1. 공통 미들웨어
-    applySecurity(app); // helmet, compression, body parser 등
-    app.use(cors(corsOptions)); // CORS (TS 호환 방식)
-    app.use(cookieParser()); // 쿠키 파싱
+// 3. API Router
+app.use(
+  '/api',
+  presignImageUrlsMiddleware({ expiresInSeconds: PRESIGN_EXPIRE_SECONDS }),
+  apiRouter,
+);
 
-    // 2. 헬스 체크
-    app.get('/health', (_req, res) => {
-      res.json({
-        ok: true,
-        env: env.NODE_ENV,
-        timestamp: new Date().toISOString(),
-      });
-    });
+// 4. Swagger 문서
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/openapi.json', (_req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.status(200).send(swaggerSpec);
+});
 
-    // 3. API Router
-    app.use(
-      '/api',
-      presignImageUrlsMiddleware({ expiresInSeconds: PRESIGN_EXPIRE_SECONDS }),
-      apiRouter,
-    );
-
-    // 4. Swagger 문서
-    app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    app.get('/openapi.json', (_req, res) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(200).send(swaggerSpec);
-    });
-
-    // 5. 404 + Error Handler
-    app.use(notFoundHandler);
-    app.use(errorHandler);
-
-    // 6. 서버 실행
-    const port = env.PORT || 4000;
-    app.listen(port, () => {
-      logger.info(`Server listening on http://localhost:${port}`);
-    });
-  } catch (error) {
-    logger.error('Failed to bootstrap server', error);
-    process.exit(1);
-  }
-}
-
-bootstrap();
+// 5. 404 + Error Handler
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 export default app;
